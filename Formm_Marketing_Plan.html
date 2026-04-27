@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — The World-Building Marketing Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070C; --bg1:#0E0E18; --bg2:#141421; --bg3:#1B1B2C; --bg4:#232338;
+  --ln1:rgba(255,255,255,.05); --ln2:rgba(255,255,255,.09); --ln3:rgba(255,255,255,.15);
+  --t1:#EEEEF5; --t2:#8A8AAC; --t3:#48486A;
+  --teal:#00DDB4; --td:rgba(0,221,180,.10); --td2:rgba(0,221,180,.04);
+  --green:#36D994; --gd:rgba(54,217,148,.09);
+  --amber:#F5A623; --ad:rgba(245,166,35,.09);
+  --coral:#FF4B66; --cd:rgba(255,75,102,.09);
+  --gold:#E8C96A; --gold-d:rgba(232,201,106,.09);
+  --purp:#9B80FF; --pd:rgba(155,128,255,.09);
+  --story:#FF6B6B; --signal:#4ECDC4; --system:#45B7D1;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.65;overflow-x:hidden;}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:252px 1fr;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.side{background:var(--bg1);border-right:1px solid var(--ln1);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.side::-webkit-scrollbar{width:2px;}
+.side::-webkit-scrollbar-thumb{background:var(--bg4);}
+.side-top{padding:22px 18px 18px;border-bottom:1px solid var(--ln1);}
+.brand{display:flex;align-items:center;gap:9px;margin-bottom:12px;}
+.brand-mark{width:28px;height:28px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--bg);}
+.brand-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.brand-tag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;}
+.side-desc{font-size:11px;color:var(--t2);line-height:1.55;}
+.side-nav{flex:1;padding:10px 0;}
+.nav-sect{padding:10px 16px 3px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-btn{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:11px;color:var(--t2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:.15s;border-left:2px solid transparent;}
+.nav-btn:hover{color:var(--t1);background:var(--ln1);}
+.nav-btn.on{color:var(--teal);border-left-color:var(--teal);background:var(--td2);}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--bg4);flex-shrink:0;}
+.nav-btn.on .nav-dot{background:var(--teal);}
+.nav-pill{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:7px;font-weight:700;padding:1px 5px;border-radius:8px;}
+.np-story{background:rgba(255,107,107,.2);color:var(--story);}
+.np-signal{background:rgba(78,205,196,.2);color:var(--signal);}
+.np-system{background:rgba(69,183,209,.2);color:var(--system);}
+.np-gold{background:var(--gold-d);color:var(--gold);}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;align-items:center;padding:48px 48px 100px;gap:64px;
+  background:radial-gradient(ellipse 700px 400px at 75% 0%,rgba(0,221,180,.025),transparent 55%),
+             radial-gradient(ellipse 500px 400px at 5% 90%,rgba(155,128,255,.02),transparent 55%),var(--bg);}
+
+/* ── SECTIONS ── */
+.sec{width:100%;max-width:980px;display:none;animation:fi .3s ease both;}
+.sec.on{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.sec-hdr{margin-bottom:26px;padding-bottom:18px;border-bottom:1px solid var(--ln1);}
+.sec-eyebrow{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.sec-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;line-height:1.15;}
+.sec-sub{font-size:13px;color:var(--t2);line-height:1.75;max-width:640px;}
+
+/* ── QUOTE PULL ── */
+.pull-quote{border-left:3px solid var(--teal);padding:14px 20px;margin:16px 0;background:var(--td2);border-radius:0 10px 10px 0;}
+.pq-text{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;font-style:italic;line-height:1.6;color:var(--t1);}
+.pq-source{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
+
+/* ── PILLAR CARDS ── */
+.pillars{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:20px 0;}
+.pillar{border-radius:16px;padding:22px;position:relative;overflow:hidden;}
+.pillar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
+.p-story{background:linear-gradient(135deg,rgba(255,107,107,.08),rgba(255,107,107,.02));border:1px solid rgba(255,107,107,.18);}
+.p-story::before{background:linear-gradient(90deg,transparent,rgba(255,107,107,.4),transparent);}
+.p-signal{background:linear-gradient(135deg,rgba(78,205,196,.08),rgba(78,205,196,.02));border:1px solid rgba(78,205,196,.18);}
+.p-signal::before{background:linear-gradient(90deg,transparent,rgba(78,205,196,.4),transparent);}
+.p-system{background:linear-gradient(135deg,rgba(69,183,209,.08),rgba(69,183,209,.02));border:1px solid rgba(69,183,209,.18);}
+.p-system::before{background:linear-gradient(90deg,transparent,rgba(69,183,209,.4),transparent);}
+.pillar-icon{font-size:28px;margin-bottom:10px;}
+.pillar-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.p-story .pillar-label{color:var(--story);}
+.p-signal .pillar-label{color:var(--signal);}
+.p-system .pillar-label{color:var(--system);}
+.pillar-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:8px;}
+.pillar-body{font-size:12px;color:var(--t2);line-height:1.65;}
+.pillar-items{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.pi{display:flex;gap:7px;font-size:11px;color:var(--t2);}
+.pi-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+
+/* ── TACTIC CARDS ── */
+.tactics{display:flex;flex-direction:column;gap:12px;}
+.tactic{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;overflow:hidden;}
+.tac-hdr{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--ln1);}
+.tac-icon{font-size:22px;flex-shrink:0;}
+.tac-meta{flex:1;}
+.tac-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+.tac-sub{font-size:11px;color:var(--t2);line-height:1.5;}
+.tac-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:12px;font-weight:600;}
+.b-story{background:rgba(255,107,107,.15);color:var(--story);border:1px solid rgba(255,107,107,.2);}
+.b-signal{background:rgba(78,205,196,.15);color:var(--signal);border:1px solid rgba(78,205,196,.2);}
+.b-system{background:rgba(69,183,209,.15);color:var(--system);border:1px solid rgba(69,183,209,.2);}
+.b-teal{background:var(--td);color:var(--teal);border:1px solid rgba(0,221,180,.2);}
+.b-gold{background:var(--gold-d);color:var(--gold);border:1px solid rgba(232,201,106,.2);}
+.b-amber{background:var(--ad);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+.tac-body{padding:14px 16px;}
+.tac-step{display:flex;gap:10px;margin-bottom:10px;}
+.tac-step:last-child{margin-bottom:0;}
+.ts-n{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:9px;flex-shrink:0;margin-top:1px;}
+.ts-n-story{background:rgba(255,107,107,.15);color:var(--story);}
+.ts-n-signal{background:rgba(78,205,196,.15);color:var(--signal);}
+.ts-n-system{background:rgba(69,183,209,.15);color:var(--system);}
+.ts-n-teal{background:var(--td);color:var(--teal);}
+.ts-text{font-size:12px;color:var(--t2);line-height:1.6;}
+
+/* ── TIMELINE ── */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--ln1);}
+.tl-item:last-child{border:none;}
+.tl-left{flex-shrink:0;width:80px;text-align:right;}
+.tl-phase{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.tl-months{font-size:10px;color:var(--t3);margin-top:2px;}
+.tl-line{width:1px;background:var(--ln2);flex-shrink:0;position:relative;}
+.tl-dot{width:9px;height:9px;border-radius:50%;position:absolute;left:-4px;top:4px;}
+.tl-content{flex:1;}
+.tl-title{font-size:13px;font-weight:600;margin-bottom:5px;}
+.tl-body{font-size:12px;color:var(--t2);line-height:1.6;}
+.tl-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
+
+/* ── CONTENT SERIES ── */
+.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.content-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:16px;}
+.cc-series{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.cc-title{font-size:13px;font-weight:600;margin-bottom:5px;}
+.cc-body{font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:10px;}
+.cc-examples{background:var(--bg3);border-radius:8px;padding:10px 12px;}
+.cc-ex-label{font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.cc-ex-item{font-size:11px;color:var(--t2);margin-bottom:4px;padding-left:10px;position:relative;}
+.cc-ex-item::before{content:'→';position:absolute;left:0;color:var(--teal);font-size:10px;}
+
+/* ── INFLUENCER TABLE ── */
+.infl-grid{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+.infl-row{background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr 160px 120px 80px;gap:12px;align-items:start;}
+.infl-name{font-size:12px;font-weight:600;margin-bottom:2px;}
+.infl-type{font-size:10px;color:var(--t2);}
+.infl-why{font-size:11px;color:var(--t2);line-height:1.5;}
+.infl-ask{font-size:11px;color:var(--t2);}
+.infl-tier{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;text-align:center;padding:4px 8px;border-radius:20px;}
+.it-nano{background:var(--gd);color:var(--green);border:1px solid rgba(54,217,148,.2);}
+.it-micro{background:var(--td);color:var(--teal);border:1px solid rgba(0,221,180,.2);}
+.it-mid{background:var(--ad);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+
+/* ── METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.metric-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:16px;}
+.mc-phase{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.mc-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:2px;line-height:1;}
+.mc-label{font-size:11px;color:var(--t2);}
+.mc-note{font-size:10px;color:var(--t3);margin-top:5px;}
+
+/* ── CALLOUTS ── */
+.callout{display:flex;gap:11px;padding:13px 15px;border-radius:10px;margin:14px 0;}
+.c-i{background:var(--td);border:1px solid rgba(0,221,180,.2);} .c-i .ct{color:rgba(0,221,180,.9);}
+.c-w{background:var(--ad);border:1px solid rgba(245,166,35,.2);} .c-w .ct{color:rgba(245,166,35,.9);}
+.c-g{background:var(--gd);border:1px solid rgba(54,217,148,.2);} .c-g .ct{color:rgba(54,217,148,.9);}
+.ci{font-size:14px;flex-shrink:0;} .ct{font-size:12px;line-height:1.6;}
+
+/* ── CAMPAIGN CARD ── */
+.campaign{background:var(--bg2);border:1px solid var(--ln1);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+.camp-hdr{padding:18px 20px;border-bottom:1px solid var(--ln1);}
+.camp-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.camp-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.camp-sub{font-size:12px;color:var(--t2);}
+.camp-body{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.camp-col-title{font-size:11px;font-weight:600;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.camp-item{font-size:12px;color:var(--t2);margin-bottom:6px;display:flex;gap:7px;}
+.camp-item::before{content:'✦';font-size:10px;flex-shrink:0;margin-top:2px;}
+
+/* ── MISC ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.div{height:1px;background:var(--ln1);margin:20px 0;}
+.pill{display:inline-flex;padding:2px 8px;border-radius:10px;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.p-g{background:var(--gd);color:var(--green);border:1px solid rgba(54,217,148,.2);}
+.p-a{background:var(--ad);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+.p-t{background:var(--td);color:var(--teal);border:1px solid rgba(0,221,180,.2);}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="side">
+  <div class="side-top">
+    <div class="brand">
+      <div class="brand-mark">F</div>
+      <div><div class="brand-name">Formm</div><div class="brand-tag">World-Building Plan</div></div>
+    </div>
+    <div class="side-desc">Marketing strategy built on the Story → Signal → System framework. The launch is a formality. The world comes first.</div>
+  </div>
+  <nav class="side-nav">
+    <div class="nav-sect">Framework</div>
+    <button class="nav-btn on" onclick="show('framework')"><div class="nav-dot"></div>The Playbook Applied</button>
+    <button class="nav-btn" onclick="show('world')"><div class="nav-dot"></div>The Formm World</button>
+
+    <div class="nav-sect">Pillar 1</div>
+    <button class="nav-btn" onclick="show('story')"><div class="nav-dot"></div>STORY <span class="nav-pill np-story">WORLDVIEW</span></button>
+
+    <div class="nav-sect">Pillar 2</div>
+    <button class="nav-btn" onclick="show('signal')"><div class="nav-dot"></div>SIGNAL <span class="nav-pill np-signal">CONTENT</span></button>
+
+    <div class="nav-sect">Pillar 3</div>
+    <button class="nav-btn" onclick="show('system')"><div class="nav-dot"></div>SYSTEM <span class="nav-pill np-system">DISTRIBUTION</span></button>
+
+    <div class="nav-sect">Execution</div>
+    <button class="nav-btn" onclick="show('campaigns')"><div class="nav-dot"></div>Launch Campaigns</button>
+    <button class="nav-btn" onclick="show('influencers')"><div class="nav-dot"></div>Influencer Strategy</button>
+    <button class="nav-btn" onclick="show('content-calendar')"><div class="nav-dot"></div>Content Series</button>
+    <button class="nav-btn" onclick="show('timeline')"><div class="nav-dot"></div>12-Month Timeline</button>
+    <button class="nav-btn" onclick="show('metrics')"><div class="nav-dot"></div>Success Metrics</button>
+  </nav>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+<!-- ── FRAMEWORK ── -->
+<div class="sec on" id="framework">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">The Playbook · @austinsutor × create.scale</div>
+    <h2 class="sec-title">The New Playbook applied to Formm</h2>
+    <p class="sec-sub">The post argues that the biggest consumer brands didn't launch a product — they built a world first, then let the product be the entry ticket. Here's exactly what that means for Formm.</p>
+  </div>
+
+  <div class="pull-quote">
+    <div class="pq-text">"People don't buy products. They buy entry to a world. The product is how they prove they're inside."</div>
+    <div class="pq-source">@austinsutor — The New Playbook</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:20px;">
+    <div style="background:var(--bg2);border:1px solid rgba(255,107,107,.18);border-radius:14px;padding:18px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--story);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">What @lilbieber, @davidprotein & @realeactives did</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--story)">→</span>Built a worldview <strong style="color:var(--t1)">before</strong> they built an audience</div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--story)">→</span>Built a signal <strong style="color:var(--t1)">before</strong> they built an ad</div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--story)">→</span>Built a system <strong style="color:var(--t1)">before</strong> they built a launch</div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--story)">→</span>The product was the <strong style="color:var(--t1)">last</strong> thing to arrive</div>
+        <div style="margin-top:6px;font-size:11px;color:var(--t3);font-style:italic;">Mystery is the modern marketing budget.</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid rgba(0,221,180,.18);border-radius:14px;padding:18px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">What Formm should do</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--teal)">→</span>Build the "sports science for everyone" worldview <strong style="color:var(--t1)">now</strong></div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--teal)">→</span>Signal: educate the market on what movement quality actually means</div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--teal)">→</span>System: community + partnerships + institutional channels</div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;"><span style="color:var(--teal)">→</span>Let the app be the way people prove they belong to the world</div>
+        <div style="margin-top:6px;font-size:11px;color:var(--t3);font-style:italic;">The download is a formality. The world comes first.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar p-story">
+      <div class="pillar-icon">📖</div>
+      <div class="pillar-label">Pillar 1</div>
+      <div class="pillar-title">Story</div>
+      <div class="pillar-body">The worldview. The belief system. What Formm stands for before it stands for anything it sells.</div>
+      <div class="pillar-items">
+        <div class="pi"><div class="pi-dot" style="background:var(--story)"></div>"Your coach has a sports science team. You should too."</div>
+        <div class="pi"><div class="pi-dot" style="background:var(--story)"></div>"Movement quality is the most undertracked variable in fitness."</div>
+        <div class="pi"><div class="pi-dot" style="background:var(--story)"></div>"Democratising sports science — not the gym, the intelligence."</div>
+      </div>
+    </div>
+    <div class="pillar p-signal">
+      <div class="pillar-icon">📡</div>
+      <div class="pillar-label">Pillar 2</div>
+      <div class="pillar-title">Signal</div>
+      <div class="pillar-body">Content that makes people feel smart for discovering it. Not ads. Education that builds belonging.</div>
+      <div class="pillar-items">
+        <div class="pi"><div class="pi-dot" style="background:var(--signal)"></div>Sports science explainers nobody else is making</div>
+        <div class="pi"><div class="pi-dot" style="background:var(--signal)"></div>Real form checks with real athletes — public</div>
+        <div class="pi"><div class="pi-dot" style="background:var(--signal)"></div>Behind-the-AI content: how biomechanics analysis works</div>
+      </div>
+    </div>
+    <div class="pillar p-system">
+      <div class="pillar-icon">⚙️</div>
+      <div class="pillar-label">Pillar 3</div>
+      <div class="pillar-title">System</div>
+      <div class="pillar-body">The infrastructure that compounds. Referrals, institutions, partnerships, community loops.</div>
+      <div class="pillar-items">
+        <div class="pi"><div class="pi-dot" style="background:var(--system)"></div>Gym + physio partner network in NCR</div>
+        <div class="pi"><div class="pi-dot" style="background:var(--system)"></div>College sports team onboarding</div>
+        <div class="pi"><div class="pi-dot" style="background:var(--system)"></div>Referral loop: better data with more users</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout c-i">
+    <div class="ci">💡</div>
+    <div class="ct"><strong>The insight for Formm specifically:</strong> WHOOP did $200M in revenue by making athletes feel like they belonged to an elite recovery culture before they ever saw a product page. Formm's world is "sports science democratised" — the insight that your form quality, training load, and recovery state can be managed with the same rigour as a professional athlete, regardless of your budget. Build that world first. The app is the entry ticket.</div>
+  </div>
+</div>
+
+<!-- ── THE WORLD ── -->
+<div class="sec" id="world">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">World-building · Foundation</div>
+    <h2 class="sec-title">The Formm World — what people are buying entry to</h2>
+    <p class="sec-sub">Before a single ad runs, Formm needs a world that people want to belong to. This world has a worldview, a villain, a belief, and a tribe identity.</p>
+  </div>
+
+  <div class="pull-quote">
+    <div class="pq-text">"Build a world. Invite people in. Let them decode the product. The launch is a formality."</div>
+    <div class="pq-source">@austinsutor — The New Playbook</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:18px;">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--teal);">🌍 The Worldview</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;line-height:1.4;">"Every serious athlete has always had access to sports science. You just weren't one of them. Until now."</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.65;">The fitness industry sells harder workouts. Formm sells smarter ones. The world Formm builds is one where the gym-goer in Gurgaon has the same movement intelligence as an IPL cricketer. That's the belief system. Everything — the content, the community, the product — should reinforce it.</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:18px;">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--coral);">🦹 The Villain</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;line-height:1.4;">"Blind grinding. Training hard without training smart."</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.65;">Every strong brand has a villain. Formm's villain isn't a competitor — it's the idea that more reps, more hours, more pain equals more progress. The villain is the gym culture that celebrates effort over quality. Formm is the antidote: precision over punishment.</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:18px;">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gold);">🪙 The Tribe Identity</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;line-height:1.4;">"The Formm athlete trains with intention. They know their numbers. They move with quality."</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.65;">People in the Formm world call themselves athletes — not gym-goers. They track form quality, not just weight lifted. They talk about ACWR and readiness scores. Using Formm is how they signal they belong to this tribe. The Scout Score is the badge of membership.</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:18px;">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--purp);">🔮 The Mystery</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;line-height:1.4;">"What's your Scout Score?" — a question that creates curiosity before it creates a download.</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.65;">The post says "mystery is the modern marketing budget." Formm's mystery is the Scout Score. Don't explain it upfront. Let people see others with Scout Scores and wonder what theirs is. The number is meaningless without context — but it creates desire to find out. That curiosity is the acquisition funnel.</div>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,rgba(0,221,180,.07),rgba(0,221,180,.02));border:1px solid rgba(0,221,180,.18);border-radius:16px;padding:22px;margin-bottom:14px;">
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;">The Formm Manifesto (3 lines — put this everywhere)</div>
+    <div style="font-size:15px;font-weight:500;font-style:italic;line-height:1.8;color:var(--t1);">
+      "Your coach has a sports science team.<br>
+      You've been training without one.<br>
+      That changes now."
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--t2);">Use as Instagram bio, app store description opener, onboarding screen, and the hook for every piece of content. This is the world in three sentences.</div>
+  </div>
+</div>
+
+<!-- ── STORY ── -->
+<div class="sec" id="story">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Pillar 1 — Story</div>
+    <h2 class="sec-title" style="color:var(--story)">Story: The worldview Formm builds before it builds anything else</h2>
+    <p class="sec-sub">Story is the operating system of the brand. It answers: what do we believe, who do we believe it for, and what would the world look like if we were right?</p>
+  </div>
+
+  <div class="tactics">
+    <div class="tactic">
+      <div class="tac-hdr">
+        <div class="tac-icon">🎯</div>
+        <div class="tac-meta">
+          <div class="tac-title">The Positioning Statement — say this, not that</div>
+          <div class="tac-sub">The exact language Formm uses to describe itself. Consistency here creates the world. Inconsistency dilutes it.</div>
+          <div class="tac-badges"><span class="badge b-story">STORY FOUNDATION</span><span class="badge b-teal">USE EVERYWHERE</span></div>
+        </div>
+      </div>
+      <div class="tac-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:rgba(255,75,102,.06);border:1px solid rgba(255,75,102,.15);border-radius:10px;padding:12px 14px;">
+            <div style="font-size:9px;color:var(--coral);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Don't say this</div>
+            <div style="font-size:11px;color:var(--t2);line-height:1.65;">
+              "AI fitness app" · "workout tracker" · "form correction" · "gym tool" · "exercise analyser" · "fitness app with AI"
+            </div>
+          </div>
+          <div style="background:rgba(0,221,180,.06);border:1px solid rgba(0,221,180,.15);border-radius:10px;padding:12px 14px;">
+            <div style="font-size:9px;color:var(--teal);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Say this</div>
+            <div style="font-size:11px;color:var(--t1);line-height:1.65;font-weight:500;">
+              "Your personal sports science team" · "Movement intelligence" · "Train with intent, not just effort" · "The sports science platform for serious athletes"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tactic">
+      <div class="tac-hdr">
+        <div class="tac-icon">🏆</div>
+        <div class="tac-meta">
+          <div class="tac-title">The Scout Score as cultural currency</div>
+          <div class="tac-sub">The Scout Score is Formm's single most powerful world-building tool. It needs to become something people talk about, compare, and aspire to — before they even understand what it means.</div>
+          <div class="tac-badges"><span class="badge b-story">BRAND IDENTITY</span><span class="badge b-teal">ACQUISITION ENGINE</span></div>
+        </div>
+      </div>
+      <div class="tac-body">
+        <div class="tac-step"><div class="ts-n ts-n-story">1</div><div class="ts-text"><strong style="color:var(--t1)">Never explain the Scout Score unprompted.</strong> Let people see it in content, wonder what it is, and have to ask or download to find out. Mystery is the point. "@username just hit Scout Score 74 — what's yours?" as a post caption generates curiosity-driven downloads.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-story">2</div><div class="ts-text"><strong style="color:var(--t1)">Create milestone culture.</strong> When users hit a new Scout Score level (Rookie → Athlete → Elite), give them a shareable card. The share is organic reach and it signals tribe membership. "Just hit Athlete level on Formm 🏆" is the fitness equivalent of a Spotify Wrapped.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-story">3</div><div class="ts-text"><strong style="color:var(--t1)">Leak the language into the culture.</strong> Partner with gym coaches in NCR to start using "Scout Score" as vocabulary in their own content, even without mentioning Formm explicitly. When people Google "Scout Score fitness", Formm should be the only answer.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-story">4</div><div class="ts-text"><strong style="color:var(--t1)">Compare to accessible aspirational figures.</strong> "An IPL cricketer's movement quality score is typically 85+. The average recreational gym-goer is 58. What's yours?" This frames the Scout Score as something elite athletes use, not a gamification mechanic.</div></div>
+      </div>
+    </div>
+
+    <div class="tactic">
+      <div class="tac-hdr">
+        <div class="tac-icon">📣</div>
+        <div class="tac-meta">
+          <div class="tac-title">The Founding Story — Samrat's personal narrative</div>
+          <div class="tac-sub">The post shows @davidprotein built $140M by acting like a fashion house, not a protein brand. Formm's founder story needs to be as much a part of the brand as the product.</div>
+          <div class="tac-badges"><span class="badge b-story">FOUNDER-LED</span><span class="badge b-gold">HIGH LEVERAGE</span></div>
+        </div>
+      </div>
+      <div class="tac-body">
+        <div class="tac-step"><div class="ts-n ts-n-teal">1</div><div class="ts-text"><strong style="color:var(--t1)">Build the founder's voice on LinkedIn + Instagram now,</strong> not after the app launches. Post weekly about the science behind what Formm is building. "We analysed 500 squat videos and found that 73% of gym-goers in Delhi have the same knee collapse pattern — here's why and what to do." This is content that builds the world before the product is in their hands.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-teal">2</div><div class="ts-text"><strong style="color:var(--t1)">The origin story framing:</strong> "I watched elite athletes get sports science that the average gym-goer could never access. The gap wasn't talent. It was information. So I built Formm." This is the founding narrative — specific, personal, and directly connected to the worldview.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-teal">3</div><div class="ts-text"><strong style="color:var(--t1)">Document the build publicly.</strong> Share the behind-the-scenes of building the AI — the data collection, the accuracy benchmarks, the first real user getting a form check result. The people who follow the build become the launch audience. They don't need to be sold to. They already believe in it.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SIGNAL ── -->
+<div class="sec" id="signal">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Pillar 2 — Signal</div>
+    <h2 class="sec-title" style="color:var(--signal)">Signal: Content that makes people feel smart for finding it</h2>
+    <p class="sec-sub">"Mystery is the modern marketing budget. People don't want to be sold to. They want to figure something out." Every piece of content Formm makes should reward the viewer for watching it — not pitch them.</p>
+  </div>
+
+  <div class="pull-quote">
+    <div class="pq-text">"Mystery is the modern marketing budget. People don't want to be sold to. They want to figure something out."</div>
+    <div class="pq-source">@austinsutor — The New Playbook</div>
+  </div>
+
+  <div class="content-grid">
+    <div class="content-card" style="border-color:rgba(255,107,107,.18)">
+      <div class="cc-series" style="color:var(--story)">Series 1 · Education</div>
+      <div class="cc-title">"Sports Science Simplified"</div>
+      <div class="cc-body">Short-form video explaining concepts professional sports scientists use — without selling Formm. Build the belief that sports science matters. The app is the conclusion the viewer reaches themselves.</div>
+      <div class="cc-examples">
+        <div class="cc-ex-label">Example posts</div>
+        <div class="cc-ex-item">"What is ACWR and why every serious lifter should know their number"</div>
+        <div class="cc-ex-item">"Your squat form isn't broken. Your hip mobility is. Here's the difference."</div>
+        <div class="cc-ex-item">"Why elite athletes measure HRV every morning (and what it actually means)"</div>
+        <div class="cc-ex-item">"The fatigue vs technique diagnosis — how sports scientists tell them apart"</div>
+      </div>
+    </div>
+
+    <div class="content-card" style="border-color:rgba(78,205,196,.18)">
+      <div class="cc-series" style="color:var(--signal)">Series 2 · Form checks</div>
+      <div class="cc-title">"The Form Check Files"</div>
+      <div class="cc-body">Real people's form checks shared publicly (with consent). The before/after of AI analysis. The score, the faults, the fix. Creates massive curiosity — "what would Formm say about my form?"</div>
+      <div class="cc-examples">
+        <div class="cc-ex-label">Formats</div>
+        <div class="cc-ex-item">Reddit-style anonymous submission → Formm AI analysis → reveal</div>
+        <div class="cc-ex-item">Gym influencer submits their form check live on camera</div>
+        <div class="cc-ex-item">"We analysed 100 deadlifts in Delhi gyms. Here's what we found."</div>
+        <div class="cc-ex-item">Weekly "Form check of the week" community series</div>
+      </div>
+    </div>
+
+    <div class="content-card" style="border-color:rgba(69,183,209,.18)">
+      <div class="cc-series" style="color:var(--system)">Series 3 · Behind the AI</div>
+      <div class="cc-title">"How Formm Sees Your Body"</div>
+      <div class="cc-body">Demystify the AI. Show what the model actually detects — joint angles, asymmetry, movement paths. This is the content that converts the cynical. "Oh, it actually does something real."</div>
+      <div class="cc-examples">
+        <div class="cc-ex-label">Example posts</div>
+        <div class="cc-ex-item">"Formm detected a 7° knee valgus at 60% of squat depth. Here's what that means."</div>
+        <div class="cc-ex-item">"We showed Formm 3 squats — beginner, intermediate, elite. Here's the difference it sees."</div>
+        <div class="cc-ex-item">"The 5 movement faults our AI catches that your coach misses"</div>
+        <div class="cc-ex-item">"How do you score a deadlift? The biomechanics behind the number."</div>
+      </div>
+    </div>
+
+    <div class="content-card" style="border-color:rgba(232,201,106,.18)">
+      <div class="cc-series" style="color:var(--gold)">Series 4 · Data stories</div>
+      <div class="cc-title">"What the Data Says"</div>
+      <div class="cc-body">Aggregate insights from Formm's user base. This is content nobody else can make. It builds authority, generates press, and makes the audience feel like they're inside something real.</div>
+      <div class="cc-examples">
+        <div class="cc-ex-label">Example posts</div>
+        <div class="cc-ex-item">"We analysed 10,000 squats. The most common fault: early heel rise at 67%."</div>
+        <div class="cc-ex-item">"Average Scout Score by training age: &lt;1yr = 51, 1–3yr = 64, 3yr+ = 74"</div>
+        <div class="cc-ex-item">"Delhi vs Mumbai gym form quality — the data is surprising"</div>
+        <div class="cc-ex-item">"Users who do 2+ form checks per week improve 2.4x faster than once-a-month users"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout c-w">
+    <div class="ci">⚡</div>
+    <div class="ct"><strong>The signal rule:</strong> Every piece of content should be valuable even if the viewer never downloads Formm. If it only makes sense after download, it's an ad. If it's genuinely useful whether or not they download, it builds the world. Useful content creates belonging. Belonging creates conversion.</div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px;">Platform strategy</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;">📱 Instagram / Reels</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.6;">Form check reveals. Sports science one-liners. Scout Score milestones. Aesthetic movement footage. Primary brand presence. 4–5 posts/week.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;">🎵 YouTube Shorts / TikTok</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.6;">"Sports Science Simplified" explainers. Form check files. Behind-the-AI content. 30–90 second formats. Discovery engine — new audiences who don't know Formm yet.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;">💼 LinkedIn</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.6;">Founder voice. Build-in-public content. Sports science research breakdowns. Targets NCR's corporate fitness demographic and potential institutional partners. 2–3 posts/week.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SYSTEM ── -->
+<div class="sec" id="system">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Pillar 3 — System</div>
+    <h2 class="sec-title" style="color:var(--system)">System: The infrastructure that compounds without paid spend</h2>
+    <p class="sec-sub">The system is what makes the world self-sustaining. Distribution channels, community loops, institutional partnerships, and referral mechanics that grow without paying for each new user.</p>
+  </div>
+
+  <div class="tactics">
+    <div class="tactic">
+      <div class="tac-hdr">
+        <div class="tac-icon">🏋️</div>
+        <div class="tac-meta">
+          <div class="tac-title">The Gym Partner Network — NCR's B2B distribution channel</div>
+          <div class="tac-sub">Every premium gym in Gurgaon, Noida, and South Delhi is a potential distribution partner. Not an ad placement — a genuine operational partnership that makes their coaches better.</div>
+          <div class="tac-badges"><span class="badge b-system">SYSTEM</span><span class="badge b-gold">HIGH ROI</span></div>
+        </div>
+      </div>
+      <div class="tac-body">
+        <div class="tac-step"><div class="ts-n ts-n-system">1</div><div class="ts-text"><strong style="color:var(--t1)">Offer coaches free Formm Pro accounts.</strong> When a coach uses Formm to analyse a client's form, they become brand advocates. The client sees the coach use it and downloads it themselves. One coach with 20 clients = 20 potential users. Target 50 coaches in NCR = 1,000 warm leads.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-system">2</div><div class="ts-text"><strong style="color:var(--t1)">Create "Formm Certified Gym" status.</strong> Gyms that have 10+ active Formm users get a window sticker, social badge, and co-marketing. This creates social proof, gives the gym a differentiator, and makes Formm feel established. Lean on the @realeactives case study — they did $5M on launch day because the world existed before the product.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-system">3</div><div class="ts-text"><strong style="color:var(--t1)">Target premium gyms first:</strong> Gold's Gym (Gurugram), Anytime Fitness (multiple NCR), Cult.fit premium locations, boutique strength studios. These attract the target demographic — urban, 25–38, fitness-serious, WHOOP/Garmin users.</div></div>
+      </div>
+    </div>
+
+    <div class="tactic">
+      <div class="tac-hdr">
+        <div class="tac-icon">🎓</div>
+        <div class="tac-meta">
+          <div class="tac-title">College Sports + Physio Institutional Channel</div>
+          <div class="tac-sub">University sports teams and physiotherapy clinics are high-credibility, low-cost distribution. One institution = dozens of engaged users who talk about it.</div>
+          <div class="tac-badges"><span class="badge b-system">INSTITUTIONAL</span><span class="badge b-amber">CREDIBILITY</span></div>
+        </div>
+      </div>
+      <div class="tac-body">
+        <div class="tac-step"><div class="ts-n ts-n-system">1</div><div class="ts-text"><strong style="color:var(--t1)">Partner with 3–5 Delhi/NCR university athletic departments</strong> (DU, JNU, Shiv Nadar, Ashoka). Offer free team accounts. The sport science angle is compelling for coaches — they get data they currently can't access. The athletes become organic advocates.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-system">2</div><div class="ts-text"><strong style="color:var(--t1)">Sports physiotherapy clinics</strong> are an underrated channel. Physios often see patients for injury rehab who are gym-goers. When a physio recommends Formm as part of return-to-play protocol, the credibility transfer is enormous. Target 10–15 NCR sports physios with a clinical partnership offer.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-system">3</div><div class="ts-text"><strong style="color:var(--t1)">The eventual press story:</strong> "The sports science platform used by [University] cricket team is now available for everyone." This is the @lilbieber / @skylrk dynamic from the post — an existing world (elite sports science) with a 9x multiplier applied (Formm). Formm beats the record that was 11 months old.</div></div>
+      </div>
+    </div>
+
+    <div class="tactic">
+      <div class="tac-hdr">
+        <div class="tac-icon">🔄</div>
+        <div class="tac-meta">
+          <div class="tac-title">The Referral Loop — better data with more users</div>
+          <div class="tac-sub">Unlike most referral programmes, Formm has a genuine product reason for referrals: aggregate movement data improves the AI for everyone. That's the referral pitch — not discounts.</div>
+          <div class="tac-badges"><span class="badge b-system">VIRAL LOOP</span><span class="badge b-teal">PRODUCT-LED</span></div>
+        </div>
+      </div>
+      <div class="tac-body">
+        <div class="tac-step"><div class="ts-n ts-n-system">1</div><div class="ts-text"><strong style="color:var(--t1)">Referral framing:</strong> "Invite a training partner and your AI gets smarter. Every form check from your gym improves the model for everyone in your training environment." This is a product-truth referral, not a discount referral. It reinforces the world rather than cheapening it.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-system">2</div><div class="ts-text"><strong style="color:var(--t1)">The Scout Score leaderboard within gym communities.</strong> When a user's gym has 5+ Formm users, unlock a gym leaderboard. This creates internal competition, retention, and word-of-mouth simultaneously. The gym becomes the community, Formm becomes the infrastructure.</div></div>
+        <div class="tac-step"><div class="ts-n ts-n-system">3</div><div class="ts-text"><strong style="color:var(--t1)">Shareable form check results.</strong> Every form analysis generates a shareable card with the score, key metric, and "powered by Formm AI." This is the organic content loop — users share their results, followers see the world, downloads follow. Make sharing the default, not an afterthought.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CAMPAIGNS ── -->
+<div class="sec" id="campaigns">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Execution · Campaigns</div>
+    <h2 class="sec-title">Launch campaigns — the world arrives before the product</h2>
+    <p class="sec-sub">Three campaigns, each building the world further. Campaign 1 runs before launch. Campaign 2 is the launch. Campaign 3 compounds the world after it.</p>
+  </div>
+
+  <div class="campaign">
+    <div class="camp-hdr" style="background:linear-gradient(135deg,rgba(255,107,107,.06),rgba(255,107,107,.01));border-bottom-color:rgba(255,107,107,.15);">
+      <div class="camp-label" style="color:var(--story)">Campaign 1 · Pre-launch · Month 1–2</div>
+      <div class="camp-title">"What Is Your Movement IQ?"</div>
+      <div class="camp-sub">Build the world. Create the category. Launch nothing yet. The goal is to make "movement quality" a term people in NCR fitness circles use before Formm is in the app store.</div>
+    </div>
+    <div class="camp-body">
+      <div>
+        <div class="camp-col-title">What we do</div>
+        <div class="camp-item">Launch the "Movement IQ" concept — a 30-second selfie video assessment that gives a rough score, no app required. Capture emails.</div>
+        <div class="camp-item">Founder posts daily about sports science on LinkedIn/Instagram. No product pitches. Pure education.</div>
+        <div class="camp-item">Send form check kits to 10 NCR gym coaches — free analysis of their signature movement. Get their public reaction on camera.</div>
+        <div class="camp-item">Partner with 2–3 fitness podcasts to discuss "why form quality is the most undertracked variable in Indian fitness." Don't mention Formm by name — let listeners connect the dots.</div>
+      </div>
+      <div>
+        <div class="camp-col-title">Success metrics</div>
+        <div class="camp-item">500+ email waitlist signups</div>
+        <div class="camp-item">3 pieces of organic press or podcast features</div>
+        <div class="camp-item">Founder Instagram: 1,000+ followers from target demographic</div>
+        <div class="camp-item">"Movement quality" used organically in NCR fitness content by non-Formm creators</div>
+        <div style="margin-top:10px;"><span class="pill p-a">Budget: ₹50,000–80,000</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign">
+    <div class="camp-hdr" style="background:linear-gradient(135deg,rgba(0,221,180,.06),rgba(0,221,180,.01));border-bottom-color:rgba(0,221,180,.15);">
+      <div class="camp-label" style="color:var(--teal)">Campaign 2 · Launch · Month 3</div>
+      <div class="camp-title">"Your Coach Never Saw This"</div>
+      <div class="camp-sub">The launch is the formality. The world is already built. The campaign reveals the product to people who are already inside the world — not strangers who need convincing.</div>
+    </div>
+    <div class="camp-body">
+      <div>
+        <div class="camp-col-title">What we do</div>
+        <div class="camp-item">Send personalised Scout Score reports to the 500 waitlist users on Day 1. They post their scores. Organic UGC at scale.</div>
+        <div class="camp-item">5 micro-influencers (10K–100K fitness followers, NCR-based) do live form checks on Stories. Real reactions, real scores. Not scripted.</div>
+        <div class="camp-item">"Delhi's top 100 gym-goers by Scout Score" — invite the top 100 from beta to a real-world event. Photo content. Community energy. FOMO for everyone not there.</div>
+        <div class="camp-item">PR push: "Delhi startup brings professional sports science to the gym" — target Indian fitness press, startup press, and sports media simultaneously.</div>
+      </div>
+      <div>
+        <div class="camp-col-title">Success metrics</div>
+        <div class="camp-item">1,000 downloads in first 7 days</div>
+        <div class="camp-item">500+ Scout Score shares on Instagram</div>
+        <div class="camp-item">₹0 CAC from organic/earned media in week 1</div>
+        <div class="camp-item">3+ press pieces in Indian fitness / startup media</div>
+        <div style="margin-top:10px;"><span class="pill p-a">Budget: ₹1,20,000–1,80,000</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign">
+    <div class="camp-hdr" style="background:linear-gradient(135deg,rgba(69,183,209,.06),rgba(69,183,209,.01));border-bottom-color:rgba(69,183,209,.15);">
+      <div class="camp-label" style="color:var(--system)">Campaign 3 · Growth · Month 4–6</div>
+      <div class="camp-title">"The Formm 100"</div>
+      <div class="camp-sub">Turn top users into the brand. Find Delhi's 100 most dedicated Formm athletes, make them visible, make others want to join the list.</div>
+    </div>
+    <div class="camp-body">
+      <div>
+        <div class="camp-col-title">What we do</div>
+        <div class="camp-item">Quarterly "Formm 100" — Delhi's top athletes by Scout Score progression. Not highest score: most improved. This is accessible to new users.</div>
+        <div class="camp-item">Each Formm 100 member gets a profile feature: video, form check highlight, Scout Score journey, what movement changed for them.</div>
+        <div class="camp-item">Formm 100 members become the brand's human proof — real people, real numbers, real stories. Not influencers. Actual users who happened to be consistent.</div>
+        <div class="camp-item">Expand to Mumbai and Bangalore gym communities with localised Formm 100 lists.</div>
+      </div>
+      <div>
+        <div class="camp-col-title">Success metrics</div>
+        <div class="camp-item">5,000 MAU (monthly active users)</div>
+        <div class="camp-item">40% of new users from referral or organic content</div>
+        <div class="camp-item">Formm 100 content generates 50K+ organic impressions</div>
+        <div class="camp-item">Presence established in Mumbai fitness circles</div>
+        <div style="margin-top:10px;"><span class="pill p-a">Budget: ₹80,000–1,20,000/month</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── INFLUENCERS ── -->
+<div class="sec" id="influencers">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Execution · Influencers</div>
+    <h2 class="sec-title">Influencer strategy — who to approach and exactly how</h2>
+    <p class="sec-sub">The post says @realeactives did $5M on launch day because the world was built two years before the product existed. The influencer strategy is about building the world — not product placement.</p>
+  </div>
+
+  <div class="callout c-i">
+    <div class="ci">🎯</div>
+    <div class="ct"><strong>The rule:</strong> Never approach an influencer to promote Formm. Approach them to do a genuine form check. The experience sells itself. A 30-second Reel of a fitness influencer seeing their Scout Score for the first time — genuine reaction, real number — is worth 10 scripted posts. The mystery does the work.</div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;margin-top:16px;">Tier 1 — Nano (2K–20K followers) · Most important</div>
+  <div class="infl-grid">
+    <div class="infl-row" style="grid-template-columns:1fr 180px 140px 80px;">
+      <div><div class="infl-name">NCR personal trainers with genuine client bases</div><div class="infl-type">Certified PTs · Gold's, Anytime, boutique studios</div></div>
+      <div class="infl-why">Their followers trust their form advice implicitly. A PT saying "this is what I use to check form" converts at 10x a celebrity endorsement.</div>
+      <div class="infl-ask">Free Pro account + honest public form check + no scripting required</div>
+      <div><span class="infl-tier it-nano">NANO</span></div>
+    </div>
+    <div class="infl-row" style="grid-template-columns:1fr 180px 140px 80px;">
+      <div><div class="infl-name">Sports physios + rehab specialists</div><div class="infl-type">Physiotherapy clinic owners, CSCS holders</div></div>
+      <div class="infl-why">Credibility multiplier. When a physio validates Formm's movement analysis, it moves the product from "gym app" to "clinical tool." Transforms the brand category.</div>
+      <div class="infl-ask">Clinical partnership + research collaboration offer + co-branded content</div>
+      <div><span class="infl-tier it-nano">NANO</span></div>
+    </div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;margin-top:16px;">Tier 2 — Micro (20K–200K) · Second priority</div>
+  <div class="infl-grid">
+    <div class="infl-row" style="grid-template-columns:1fr 180px 140px 80px;">
+      <div><div class="infl-name">Delhi/Mumbai fitness creators with form-focused content</div><div class="infl-type">Strength / powerlifting / functional fitness</div></div>
+      <div class="infl-why">Their audiences already care about technique. The form check content fits naturally. No stretch required. Engagement rate matters more than follower count here.</div>
+      <div class="infl-ask">Paid collaboration (₹15,000–40,000) for a genuine form check reveal video. Must be authentic, not scripted. React to their own score.</div>
+      <div><span class="infl-tier it-micro">MICRO</span></div>
+    </div>
+    <div class="infl-row" style="grid-template-columns:1fr 180px 140px 80px;">
+      <div><div class="infl-name">Cricket / IPL adjacent fitness coaches</div><div class="infl-type">Strength & conditioning for cricket audience</div></div>
+      <div class="infl-why">Cricket is India's fitness aspirational anchor. A cricket S&C coach using Formm connects the product to the highest-status athlete in the country. The "what IPL cricketers use" angle writes itself.</div>
+      <div class="infl-ask">Partnership + "Formm for Cricket Performance" content series. Position as the tool serious cricket fitness coaches use.</div>
+      <div><span class="infl-tier it-micro">MICRO</span></div>
+    </div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px;margin-top:16px;">Tier 3 — Mid (200K+) · Aspirational, post-product-market fit</div>
+  <div class="infl-grid">
+    <div class="infl-row" style="grid-template-columns:1fr 180px 140px 80px;">
+      <div><div class="infl-name">Prominent Indian fitness YouTubers / Instagram athletes</div><div class="infl-type">Pan-India fitness media with strength training audiences</div></div>
+      <div class="infl-why">Don't approach these until Formm has 1,000+ users and credible case studies. Then the story writes itself: "I reviewed the app all my followers are asking about." Organic interest converts better than early paid placement.</div>
+      <div class="infl-ask">Wait for organic inbound. Create content so good they come to Formm. If approaching: ₹80,000–2,00,000 for a genuine long-form review.</div>
+      <div><span class="infl-tier it-mid">MID</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTENT CALENDAR ── -->
+<div class="sec" id="content-calendar">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Execution · Content</div>
+    <h2 class="sec-title">Content series architecture — 90 days of signal</h2>
+    <p class="sec-sub">Every piece of content belongs to a series that builds the world. Consistent series > viral one-offs. The world is built through repetition of the right ideas, not individual hits.</p>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;overflow:hidden;margin-bottom:16px;">
+    <div style="padding:12px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;">Series name</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;">Frequency</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;">Platform</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;">Pillar</div>
+    </div>
+    <!-- Rows -->
+    <div style="padding:11px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"Sports Science Simplified"</div><div style="font-size:10px;color:var(--t2);">30-sec explainer of one sports science concept. No product. Pure education. E.g. "What ACWR actually means."</div></div>
+      <div style="font-size:11px;color:var(--t2);">3× / week</div>
+      <div style="font-size:11px;color:var(--t2);">Reels + TikTok</div>
+      <div><span class="badge b-signal">SIGNAL</span></div>
+    </div>
+    <div style="padding:11px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"The Form Check Files"</div><div style="font-size:10px;color:var(--t2);">Real user form check reveals. Score + key fault + fix. Community submission encouraged. Creates aspiration and FOMO.</div></div>
+      <div style="font-size:11px;color:var(--t2);">2× / week</div>
+      <div style="font-size:11px;color:var(--t2);">Instagram + YouTube</div>
+      <div><span class="badge b-story">STORY</span></div>
+    </div>
+    <div style="padding:11px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"Build in Public" (Founder)"</div><div style="font-size:10px;color:var(--t2);">Weekly update on what Formm is building, learning, shipping. Raw and honest. Builds the audience that becomes the launch community.</div></div>
+      <div style="font-size:11px;color:var(--t2);">1× / week</div>
+      <div style="font-size:11px;color:var(--t2);">LinkedIn + Twitter/X</div>
+      <div><span class="badge b-story">STORY</span></div>
+    </div>
+    <div style="padding:11px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"How Formm Sees Your Body"</div><div style="font-size:10px;color:var(--t2);">Behind-the-AI content. What the model detects, how it scores, what joint angles mean. Converts skeptics into believers.</div></div>
+      <div style="font-size:11px;color:var(--t2);">1× / week</div>
+      <div style="font-size:11px;color:var(--t2);">YouTube + Instagram</div>
+      <div><span class="badge b-signal">SIGNAL</span></div>
+    </div>
+    <div style="padding:11px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"What the Data Says"</div><div style="font-size:10px;color:var(--t2);">Monthly aggregate data drops from Formm's user base. Content nobody else can make. Builds authority and generates press.</div></div>
+      <div style="font-size:11px;color:var(--t2);">1× / month</div>
+      <div style="font-size:11px;color:var(--t2);">All platforms</div>
+      <div><span class="badge b-system">SYSTEM</span></div>
+    </div>
+    <div style="padding:11px 16px;border-bottom:1px solid var(--ln1);display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"Scout Score Milestone" posts</div><div style="font-size:10px;color:var(--t2);">User-generated. When users hit a new level, they share. Template provided by Formm. Organic reach + social proof + tribe signalling.</div></div>
+      <div style="font-size:11px;color:var(--t2);">User-driven</div>
+      <div style="font-size:11px;color:var(--t2);">Instagram Stories</div>
+      <div><span class="badge b-system">SYSTEM</span></div>
+    </div>
+    <div style="padding:11px 16px;display:grid;grid-template-columns:1fr 100px 120px 80px;gap:10px;align-items:start;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">"Formm vs The Old Way"</div><div style="font-size:10px;color:var(--t2);">Contrast posts. "Your trainer eyeballing your form vs 47 joint angle data points." Frames the villain and the world simultaneously.</div></div>
+      <div style="font-size:11px;color:var(--t2);">2× / week</div>
+      <div style="font-size:11px;color:var(--t2);">Instagram + TikTok</div>
+      <div><span class="badge b-story">STORY</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TIMELINE ── -->
+<div class="sec" id="timeline">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Execution · Timeline</div>
+    <h2 class="sec-title">12-month world-building timeline</h2>
+    <p class="sec-sub">"They built a worldview before they built an audience." The timeline reflects this — the world comes first, the product follows.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase" style="color:var(--story)">Pre-World</div><div class="tl-months">Month 0–1</div></div>
+      <div class="tl-line"><div class="tl-dot" style="background:var(--story)"></div></div>
+      <div class="tl-content">
+        <div class="tl-title">Build the worldview infrastructure — before a single follower</div>
+        <div class="tl-body">Define the manifesto. Lock the positioning language. Create the Scout Score mythology. Build the content bank (30 posts ready to publish). Set up all social profiles. Launch the waitlist landing page with "What Is Your Movement IQ?" hook. Apply to WHOOP developer portal. This all happens before any public posting.</div>
+        <div class="tl-tags"><span class="badge b-story">STORY</span><span class="badge b-teal">Deliverable: manifesto + 30 content pieces + waitlist page</span></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase" style="color:var(--signal)">Signal Launch</div><div class="tl-months">Month 1–2</div></div>
+      <div class="tl-line"><div class="tl-dot" style="background:var(--signal)"></div></div>
+      <div class="tl-content">
+        <div class="tl-title">Start the signal — education content goes live, no product mentions</div>
+        <div class="tl-body">Founder posts daily. "Sports Science Simplified" series launches. First 5 NCR gym coaches approached for free form check kits. First fitness podcast appearances booked. 2 micro-influencer organic seedings (no brief, no scripting — genuine form check). Target: 500 waitlist signups, 1,000 social followers.</div>
+        <div class="tl-tags"><span class="badge b-signal">SIGNAL</span><span class="badge b-teal">Target: 500 waitlist · 3 gym partners</span></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase" style="color:var(--teal)">Soft Launch</div><div class="tl-months">Month 3</div></div>
+      <div class="tl-line"><div class="tl-dot" style="background:var(--teal)"></div></div>
+      <div class="tl-content">
+        <div class="tl-title">"Your Coach Never Saw This" — waitlist drops, world converts to users</div>
+        <div class="tl-body">App goes live to waitlist first (48-hour exclusive). Personalised Scout Score reports sent to all waitlist users. 5 micro-influencer form check reveals go live simultaneously. Delhi fitness press release. Real event: invite top 20 waitlist users for an in-person form check session + photography. Target: 1,000 downloads in 7 days.</div>
+        <div class="tl-tags"><span class="badge b-system">SYSTEM</span><span class="badge b-teal">Target: 1,000 downloads · 3 press pieces</span></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase" style="color:var(--amber)">Growth</div><div class="tl-months">Month 4–6</div></div>
+      <div class="tl-line"><div class="tl-dot" style="background:var(--amber)"></div></div>
+      <div class="tl-content">
+        <div class="tl-title">"The Formm 100" — turn users into the brand</div>
+        <div class="tl-body">First Formm 100 list published. Gym partner network reaches 20+ NCR gyms. University sports team partnership signed. WHOOP integration live. Begin Mumbai seeding — 5 Mumbai gym coaches approached. Content: "What the Data Says" monthly drops from growing user base. Target: 5,000 MAU, 40% retention at 30 days.</div>
+        <div class="tl-tags"><span class="badge b-system">SYSTEM</span><span class="badge b-teal">Target: 5,000 MAU · Mumbai presence · University partner</span></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-phase" style="color:var(--purp)">Scale</div><div class="tl-months">Month 7–12</div></div>
+      <div class="tl-line"><div class="tl-dot" style="background:var(--purp)"></div></div>
+      <div class="tl-content">
+        <div class="tl-title">Institutional channels activate · Mid-tier influencer inbound begins</div>
+        <div class="tl-body">By month 7, if the world is built correctly, mid-tier influencers will be asking about Formm rather than being cold-approached. Institutional partnerships (physio clinics, university teams) generate press and credibility. Paid acquisition turns on only now — CAC is dramatically lower because the brand has organic heat. Target: 25,000 MAU, Mumbai + Bangalore presence, ₹2Cr ARR path visible.</div>
+        <div class="tl-tags"><span class="badge b-gold">SCALE</span><span class="badge b-teal">Target: 25,000 MAU · Paid acquisition turns on · Series A narrative ready</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── METRICS ── -->
+<div class="sec" id="metrics">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow">Execution · Metrics</div>
+    <h2 class="sec-title">How we know the world is being built</h2>
+    <p class="sec-sub">Three phases of metrics. Each phase measures a different layer: world-building (are people believing?), conversion (are believers joining?), compounding (is the system working?).</p>
+  </div>
+
+  <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:10px;color:var(--story)">Phase 1 — World metrics (months 1–2)</div>
+  <div class="metrics-grid" style="margin-bottom:20px;">
+    <div class="metric-card" style="border-color:rgba(255,107,107,.18)">
+      <div class="mc-phase" style="color:var(--story)">Belief signal</div>
+      <div class="mc-val" style="color:var(--story)">500+</div>
+      <div class="mc-label">Waitlist signups</div>
+      <div class="mc-note">Without paid advertising. If you're paying for these, the world isn't working.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(255,107,107,.18)">
+      <div class="mc-phase" style="color:var(--story)">Organic reach</div>
+      <div class="mc-val" style="color:var(--story)">50K+</div>
+      <div class="mc-label">Organic impressions/month</div>
+      <div class="mc-note">Content getting shared without prompting. The signal is working when strangers share it.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(255,107,107,.18)">
+      <div class="mc-phase" style="color:var(--story)">Vocabulary spread</div>
+      <div class="mc-val" style="color:var(--story)">3+</div>
+      <div class="mc-label">Non-Formm creators using "Scout Score" / "movement quality"</div>
+      <div class="mc-note">When your language enters the culture without you seeding it — the world is real.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(255,107,107,.18)">
+      <div class="mc-phase" style="color:var(--story)">Inbound</div>
+      <div class="mc-val" style="color:var(--story)">10+</div>
+      <div class="mc-label">Gym/coach inbound enquiries</div>
+      <div class="mc-note">People coming to you, not you going to them. The signal is working.</div>
+    </div>
+  </div>
+
+  <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:10px;color:var(--signal)">Phase 2 — Conversion metrics (month 3)</div>
+  <div class="metrics-grid" style="margin-bottom:20px;">
+    <div class="metric-card" style="border-color:rgba(78,205,196,.18)">
+      <div class="mc-phase" style="color:var(--signal)">Launch velocity</div>
+      <div class="mc-val" style="color:var(--signal)">1,000</div>
+      <div class="mc-label">Downloads in 7 days</div>
+      <div class="mc-note">Waitlist → user conversion. If world is built, this is easy.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(78,205,196,.18)">
+      <div class="mc-phase" style="color:var(--signal)">Activation</div>
+      <div class="mc-val" style="color:var(--signal)">60%</div>
+      <div class="mc-label">Complete first form check</div>
+      <div class="mc-note">The core activation event. Users who do this retain at 3× the rate of those who don't.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(78,205,196,.18)">
+      <div class="mc-phase" style="color:var(--signal)">UGC</div>
+      <div class="mc-val" style="color:var(--signal)">500+</div>
+      <div class="mc-label">Scout Score shares in week 1</div>
+      <div class="mc-note">The organic acquisition loop. Each share is a free ad to a warm audience.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(78,205,196,.18)">
+      <div class="mc-phase" style="color:var(--signal)">Earned media</div>
+      <div class="mc-val" style="color:var(--signal)">3+</div>
+      <div class="mc-label">Press pieces in first 2 weeks</div>
+      <div class="mc-note">YourStory, Inc42, Indian fitness press. The story should write itself if the world is compelling.</div>
+    </div>
+  </div>
+
+  <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:10px;color:var(--system)">Phase 3 — System metrics (months 4–12)</div>
+  <div class="metrics-grid">
+    <div class="metric-card" style="border-color:rgba(69,183,209,.18)">
+      <div class="mc-phase" style="color:var(--system)">Retention</div>
+      <div class="mc-val" style="color:var(--system)">40%</div>
+      <div class="mc-label">Day-30 retention</div>
+      <div class="mc-note">Industry average for fitness apps: 8%. If world is built, users have a reason to stay.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(69,183,209,.18)">
+      <div class="mc-phase" style="color:var(--system)">Organic mix</div>
+      <div class="mc-val" style="color:var(--system)">40%+</div>
+      <div class="mc-label">New users from referral/organic</div>
+      <div class="mc-note">If you're paying for more than 60% of new users, the system isn't working yet.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(69,183,209,.18)">
+      <div class="mc-phase" style="color:var(--system)">Community</div>
+      <div class="mc-val" style="color:var(--system)">25K</div>
+      <div class="mc-label">MAU by month 12</div>
+      <div class="mc-note">The number that makes the Series A story compelling. Not download count — active users with data.</div>
+    </div>
+    <div class="metric-card" style="border-color:rgba(69,183,209,.18)">
+      <div class="mc-phase" style="color:var(--system)">Institutional</div>
+      <div class="mc-val" style="color:var(--system)">50+</div>
+      <div class="mc-label">Gym / physio / team partners</div>
+      <div class="mc-note">The B2B distribution layer. Each partner is a recurring user acquisition channel.</div>
+    </div>
+  </div>
+
+  <div class="callout c-g" style="margin-top:20px;">
+    <div class="ci">✦</div>
+    <div class="ct"><strong>The meta-metric:</strong> When people describe Formm to others without being asked — and they use your language, not generic language — the world is real. "It gives you a Scout Score for your movement quality, like a sports science team in your phone" said by a user who found it organically is the signal that the playbook is working. That's the moment @lilbieber had at Coachella. That's what you're building toward.</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('on'); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick') === `show('${id}')`) b.classList.add('on');
+  });
+}
+</script>
+</body>
+</html>
