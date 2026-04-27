@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Wearable Integration: Technical Build Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #07070C;
+  --bg1:   #0E0E18;
+  --bg2:   #141420;
+  --bg3:   #1C1C2C;
+  --bg4:   #242436;
+  --bg5:   #2E2E44;
+  --ln1:   rgba(255,255,255,0.06);
+  --ln2:   rgba(255,255,255,0.10);
+  --ln3:   rgba(255,255,255,0.16);
+  --t1:    #EEEEF8;
+  --t2:    #9090B4;
+  --t3:    #545470;
+  --teal:  #00DEB5;
+  --teal2: #00BF9C;
+  --td:    rgba(0,222,181,0.10);
+  --td2:   rgba(0,222,181,0.05);
+  --green: #3DDBA0;
+  --gd:    rgba(61,219,160,0.10);
+  --amber: #F5A823;
+  --ad:    rgba(245,168,35,0.10);
+  --coral: #FF4D68;
+  --cd:    rgba(255,77,104,0.10);
+  --blue:  #4FA6FF;
+  --bd:    rgba(79,166,255,0.10);
+  --purp:  #9D82FF;
+  --pd:    rgba(157,130,255,0.10);
+  --r6:6px; --r10:10px; --r14:14px; --r18:18px; --r24:24px;
+  --display:'Syne',sans-serif;
+  --body:'DM Sans',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t1);font-family:var(--body);font-size:14px;line-height:1.65;overflow-x:hidden;}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:256px 1fr;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.side{
+  background:var(--bg1);border-right:1px solid var(--ln1);
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  display:flex;flex-direction:column;
+}
+.side::-webkit-scrollbar{width:3px;}
+.side::-webkit-scrollbar-thumb{background:var(--bg5);}
+.side-top{padding:22px 18px 18px;border-bottom:1px solid var(--ln1);}
+.s-brand{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
+.s-mark{width:28px;height:28px;border-radius:8px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:800;color:var(--bg);}
+.s-name{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.3px;}
+.s-sub{font-family:var(--mono);font-size:8px;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;}
+.s-desc{font-size:11px;color:var(--t2);line-height:1.5;}
+.side-nav{flex:1;padding:10px 0;}
+.s-group{padding:10px 16px 3px;font-family:var(--mono);font-size:8px;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;}
+.s-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;color:var(--t2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:.15s;border-left:2px solid transparent;}
+.s-item:hover{color:var(--t1);background:var(--ln1);}
+.s-item.on{color:var(--teal);border-left-color:var(--teal);background:var(--td2);}
+.s-dot{width:5px;height:5px;border-radius:50%;background:var(--bg5);transition:.15s;}
+.s-item.on .s-dot{background:var(--teal);}
+.s-badge{margin-left:auto;background:var(--teal);color:var(--bg);font-size:8px;font-family:var(--mono);font-weight:700;padding:1px 5px;border-radius:10px;}
+.s-progress{padding:14px 16px;border-top:1px solid var(--ln1);}
+.sp-label{font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.sp-bar{height:4px;background:var(--ln2);border-radius:2px;margin-bottom:4px;}
+.sp-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--teal2),var(--teal));}
+.sp-text{font-size:10px;color:var(--t3);}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;align-items:center;padding:48px 48px 100px;gap:64px;
+  background:radial-gradient(ellipse 800px 500px at 75% 0%,rgba(0,222,181,.025),transparent 60%),
+             radial-gradient(ellipse 600px 400px at 10% 90%,rgba(157,130,255,.025),transparent 60%),var(--bg);}
+
+/* ── SECTIONS ── */
+.sec{width:100%;max-width:1000px;display:none;}
+.sec.on{display:block;animation:fadeIn .3s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sec-hdr{margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--ln1);}
+.sec-num{font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.sec-title{font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;line-height:1.1;}
+.sec-sub{font-size:13px;color:var(--t2);max-width:600px;line-height:1.7;}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:20px;}
+.card-sm{border-radius:var(--r10);padding:14px;}
+.card-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+.card-sub{font-size:12px;color:var(--t2);line-height:1.55;}
+
+/* ── CODE BLOCKS ── */
+.code-block{background:var(--bg);border:1px solid var(--ln2);border-radius:var(--r10);padding:16px 18px;font-family:var(--mono);font-size:11px;line-height:1.7;overflow-x:auto;margin:12px 0;}
+.cb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--ln1);}
+.cb-lang{font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;}
+.cb-file{font-size:10px;color:var(--t3);}
+.kw{color:var(--purp);}
+.fn{color:var(--teal);}
+.str{color:var(--green);}
+.cm{color:var(--t3);font-style:italic;}
+.num{color:var(--amber);}
+.tp{color:var(--blue);}
+.var{color:var(--t1);}
+.op{color:var(--coral);}
+
+/* ── CALLOUTS ── */
+.callout{display:flex;gap:12px;padding:14px 16px;border-radius:var(--r10);margin:14px 0;}
+.c-info{background:var(--td);border:1px solid rgba(0,222,181,.2);}
+.c-warn{background:var(--ad);border:1px solid rgba(245,168,35,.2);}
+.c-err{background:var(--cd);border:1px solid rgba(255,77,104,.2);}
+.c-icon{font-size:15px;flex-shrink:0;}
+.c-text{font-size:12px;line-height:1.6;}
+.c-info .c-text{color:rgba(0,222,181,.9);}
+.c-warn .c-text{color:rgba(245,168,35,.9);}
+.c-err  .c-text{color:rgba(255,77,104,.9);}
+
+/* ── STEP LIST ── */
+.steps{display:flex;flex-direction:column;}
+.step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--ln1);}
+.step:last-child{border:none;}
+.step-n{width:26px;height:26px;border-radius:50%;background:var(--td);border:1px solid rgba(0,222,181,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--teal);flex-shrink:0;margin-top:2px;}
+.step-body{}
+.step-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.6;}
+.step-code{margin-top:8px;background:var(--bg);border:1px solid var(--ln2);border-radius:var(--r6);padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--teal);}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-family:var(--mono);font-weight:600;}
+.p-g{background:var(--gd);color:var(--green);border:1px solid rgba(61,219,160,.2);}
+.p-a{background:var(--ad);color:var(--amber);border:1px solid rgba(245,168,35,.2);}
+.p-r{background:var(--cd);color:var(--coral);border:1px solid rgba(255,77,104,.2);}
+.p-t{background:var(--td);color:var(--teal);border:1px solid rgba(0,222,181,.2);}
+.p-b{background:var(--bd);color:var(--blue);border:1px solid rgba(79,166,255,.2);}
+.p-p{background:var(--pd);color:var(--purp);border:1px solid rgba(157,130,255,.2);}
+
+/* ── TABLES ── */
+.tbl{width:100%;border-collapse:collapse;margin:12px 0;}
+.tbl th{padding:8px 12px;text-align:left;font-size:9px;font-family:var(--mono);color:var(--t3);letter-spacing:1.2px;text-transform:uppercase;background:var(--bg2);border-bottom:1px solid var(--ln1);}
+.tbl td{padding:10px 12px;font-size:12px;vertical-align:top;border-bottom:1px solid var(--ln1);}
+.tbl tr:hover td{background:var(--bg2);}
+.tbl tr:last-child td{border:none;}
+
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;align-items:center;gap:0;margin:16px 0;overflow-x:auto;padding:4px 0;}
+.flow-node{flex-shrink:0;text-align:center;width:110px;}
+.flow-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 6px;}
+.flow-name{font-size:11px;font-weight:600;}
+.flow-sub{font-size:9px;color:var(--t3);font-family:var(--mono);}
+.flow-arr{font-size:16px;color:var(--t3);flex-shrink:0;padding:0 4px;margin-top:-20px;}
+
+/* ── ARCH LAYERS ── */
+.arch-layer{border-radius:var(--r14);padding:16px 18px;margin-bottom:10px;position:relative;}
+.arch-label{font-size:9px;font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.arch-items{display:flex;flex-wrap:wrap;gap:8px;}
+.arch-item{padding:6px 12px;border-radius:var(--r6);font-size:11px;font-weight:600;}
+
+/* ── DEVICE CARDS ── */
+.dev-card{border-radius:var(--r14);padding:16px;}
+.dev-whoop{background:linear-gradient(135deg,rgba(255,59,59,.07),rgba(255,59,59,.02));border:1px solid rgba(255,59,59,.16);}
+.dev-oura{background:linear-gradient(135deg,rgba(157,130,255,.07),rgba(157,130,255,.02));border:1px solid rgba(157,130,255,.16);}
+.dev-garmin{background:linear-gradient(135deg,rgba(79,166,255,.07),rgba(79,166,255,.02));border:1px solid rgba(79,166,255,.16);}
+.dev-google{background:linear-gradient(135deg,rgba(61,219,160,.07),rgba(61,219,160,.02));border:1px solid rgba(61,219,160,.16);}
+.dev-name{font-family:var(--display);font-size:15px;font-weight:700;margin-bottom:3px;}
+.dev-type{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.dev-data{display:flex;flex-wrap:wrap;gap:4px;}
+.dev-tag{padding:2px 7px;border-radius:5px;font-size:9px;font-family:var(--mono);}
+
+/* ── SCREEN MOCK ── */
+.screen-mock{background:var(--bg1);border:1px solid var(--ln2);border-radius:var(--r18);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+.sm-bar{background:var(--bg2);padding:9px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--ln1);}
+.dot{width:8px;height:8px;border-radius:50%;}
+.dr{background:#FF5F57;}.dy{background:#FFBD2E;}.dg{background:#28C840;}
+.sm-url{margin:0 auto;background:var(--bg3);border-radius:5px;padding:3px 12px;font-family:var(--mono);font-size:9px;color:var(--t3);}
+.sm-nav{background:var(--bg2);display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:48px;border-bottom:1px solid var(--ln1);}
+.sm-logo{font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.3px;}
+.sm-tabs{display:flex;gap:2px;}
+.sm-tab{padding:6px 13px;border-radius:7px;font-size:11px;color:var(--t3);}
+.sm-tab.on{background:var(--td);color:var(--teal);font-weight:700;}
+.sm-ava{width:28px;height:28px;border-radius:50%;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.sm-body{padding:14px 18px;}
+
+/* ── INFERENCE CARD (screen element) ── */
+.inf-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);overflow:hidden;margin-bottom:8px;}
+.ic-header{padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.ic-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ic-g{background:var(--gd);border:1px solid rgba(61,219,160,.15);}
+.ic-a{background:var(--ad);border:1px solid rgba(245,168,35,.15);}
+.ic-r{background:var(--cd);border:1px solid rgba(255,77,104,.15);}
+.ic-b{background:var(--bd);border:1px solid rgba(79,166,255,.15);}
+.ic-p{background:var(--pd);border:1px solid rgba(157,130,255,.15);}
+.ic-head{font-size:12px;font-weight:600;margin-bottom:2px;}
+.ic-sub{font-size:11px;color:var(--t2);line-height:1.45;}
+.ic-footer{padding:8px 14px;border-top:1px solid var(--ln1);display:flex;gap:5px;flex-wrap:wrap;}
+.ic-src{padding:2px 7px;border-radius:4px;font-size:8px;font-family:var(--mono);}
+.ic-src-w{background:rgba(255,59,59,.1);color:#FF4D4D;border:1px solid rgba(255,59,59,.2);}
+.ic-src-o{background:rgba(157,130,255,.1);color:var(--purp);border:1px solid rgba(157,130,255,.2);}
+.ic-src-f{background:var(--td);color:var(--teal);border:1px solid rgba(0,222,181,.2);}
+.ic-src-g{background:var(--gd);color:var(--green);border:1px solid rgba(61,219,160,.2);}
+
+/* ── WEARABLE METRICS (screen) ── */
+.wm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.wm{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r10);padding:10px 12px;}
+.wm-dev{font-size:8px;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.wm-val{font-family:var(--display);font-size:18px;font-weight:700;line-height:1;margin-bottom:2px;}
+.wm-label{font-size:10px;color:var(--t3);}
+.wm-trend{font-size:10px;margin-top:3px;}
+.wm-bar{height:2px;background:var(--ln1);border-radius:1px;margin-top:5px;}
+.wm-fill{height:100%;border-radius:1px;}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--ln1);margin:24px 0;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<div class="side">
+  <div class="side-top">
+    <div class="s-brand">
+      <div class="s-mark">F</div>
+      <div>
+        <div class="s-name">Formm</div>
+        <div class="s-sub">Wearable Build Guide</div>
+      </div>
+    </div>
+    <div class="s-desc">Complete technical implementation — from first SDK call to live inference on the user's screen.</div>
+  </div>
+
+  <nav class="side-nav">
+    <div class="s-group">Architecture</div>
+    <button class="s-item on" onclick="show('overview')"><div class="s-dot"></div>System Architecture</button>
+    <button class="s-item" onclick="show('data-layer')"><div class="s-dot"></div>Data Ingestion Layer</button>
+
+    <div class="s-group">Android Code</div>
+    <button class="s-item" onclick="show('health-connect')"><div class="s-dot"></div>Health Connect SDK <span class="s-badge">FIRST</span></button>
+    <button class="s-item" onclick="show('terra-api')"><div class="s-dot"></div>Terra API (WHOOP/Oura)</button>
+    <button class="s-item" onclick="show('normalisation')"><div class="s-dot"></div>Z-Score Normalisation <span class="s-badge">CRITICAL</span></button>
+
+    <div class="s-group">Backend</div>
+    <button class="s-item" onclick="show('inference-engine')"><div class="s-dot"></div>Inference Engine</button>
+    <button class="s-item" onclick="show('api-endpoints')"><div class="s-dot"></div>API Endpoints</button>
+    <button class="s-item" onclick="show('jobs')"><div class="s-dot"></div>Background Jobs</button>
+
+    <div class="s-group">UI Screens</div>
+    <button class="s-item" onclick="show('screen-hub')"><div class="s-dot"></div>Wearable Hub Screen</button>
+    <button class="s-item" onclick="show('screen-feed')"><div class="s-dot"></div>Intelligence Feed</button>
+    <button class="s-item" onclick="show('screen-readiness')"><div class="s-dot"></div>Enriched Readiness</button>
+    <button class="s-item" onclick="show('screen-form-result')"><div class="s-dot"></div>Form Result + Sleep</button>
+    <button class="s-item" onclick="show('screen-coach')"><div class="s-dot"></div>Coach Context</button>
+
+    <div class="s-group">Ship It</div>
+    <button class="s-item" onclick="show('sequence')"><div class="s-dot"></div>Build Sequence</button>
+    <button class="s-item" onclick="show('edge-cases')"><div class="s-dot"></div>Edge Cases & Risks</button>
+  </nav>
+
+  <div class="s-progress">
+    <div class="sp-label">App completion</div>
+    <div class="sp-bar"><div class="sp-fill" style="width:70%"></div></div>
+    <div class="sp-text">70% built · wearables = next major unlock</div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+<!-- ── OVERVIEW ── -->
+<div class="sec on" id="overview">
+  <div class="sec-hdr">
+    <div class="sec-num">01 — Architecture</div>
+    <h2 class="sec-title">System Architecture</h2>
+    <p class="sec-sub">The entire wearable integration is four layers. Get the ordering right — each layer depends on the one below it.</p>
+  </div>
+
+  <!-- Architecture layers -->
+  <div style="margin-bottom:24px;">
+    <div class="arch-layer" style="background:linear-gradient(135deg,rgba(0,222,181,.06),rgba(0,222,181,.02));border:1px solid rgba(0,222,181,.14);">
+      <div class="arch-label" style="color:var(--teal);">Layer 4 — UI (what the user sees)</div>
+      <div class="arch-items">
+        <div class="arch-item" style="background:var(--td);color:var(--teal);">Wearable Hub</div>
+        <div class="arch-item" style="background:var(--td);color:var(--teal);">Intelligence Feed</div>
+        <div class="arch-item" style="background:var(--td);color:var(--teal);">Enriched Readiness</div>
+        <div class="arch-item" style="background:var(--td);color:var(--teal);">Form Result + Sleep Context</div>
+        <div class="arch-item" style="background:var(--td);color:var(--teal);">Coach Context Card</div>
+        <div class="arch-item" style="background:var(--td);color:var(--teal);">Dashboard Strip</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:18px;color:var(--t3);padding:4px;">↑ reads from</div>
+    <div class="arch-layer" style="background:linear-gradient(135deg,rgba(61,219,160,.06),rgba(61,219,160,.02));border:1px solid rgba(61,219,160,.14);">
+      <div class="arch-label" style="color:var(--green);">Layer 3 — Inference Engine (server-side, never on device)</div>
+      <div class="arch-items">
+        <div class="arch-item" style="background:var(--gd);color:var(--green);">Quality-adjusted load</div>
+        <div class="arch-item" style="background:var(--gd);color:var(--green);">Fatigue vs technique diagnosis</div>
+        <div class="arch-item" style="background:var(--gd);color:var(--green);">REM → motor learning flag</div>
+        <div class="arch-item" style="background:var(--gd);color:var(--green);">Red alert convergence</div>
+        <div class="arch-item" style="background:var(--gd);color:var(--green);">Illness early warning</div>
+        <div class="arch-item" style="background:var(--gd);color:var(--green);">Strain decoupling</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:18px;color:var(--t3);padding:4px;">↑ reads from</div>
+    <div class="arch-layer" style="background:linear-gradient(135deg,rgba(245,168,35,.06),rgba(245,168,35,.02));border:1px solid rgba(245,168,35,.14);">
+      <div class="arch-label" style="color:var(--amber);">Layer 2 — Z-Score Normalisation (CRITICAL — build before all inferences)</div>
+      <div class="arch-items">
+        <div class="arch-item" style="background:var(--ad);color:var(--amber);">Individual baselines per metric per device</div>
+        <div class="arch-item" style="background:var(--ad);color:var(--amber);">7-day rolling mean + SD per user</div>
+        <div class="arch-item" style="background:var(--ad);color:var(--amber);">Device-agnostic comparison via z-scores</div>
+        <div class="arch-item" style="background:var(--ad);color:var(--amber);">Minimum 7 readings before inference fires</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:18px;color:var(--t3);padding:4px;">↑ normalises from</div>
+    <div class="arch-layer" style="background:linear-gradient(135deg,rgba(79,166,255,.06),rgba(79,166,255,.02));border:1px solid rgba(79,166,255,.14);">
+      <div class="arch-label" style="color:var(--blue);">Layer 1 — Data Ingestion (raw wearable data)</div>
+      <div class="arch-items">
+        <div class="arch-item" style="background:var(--bd);color:var(--blue);">Android Health Connect SDK</div>
+        <div class="arch-item" style="background:var(--bd);color:var(--blue);">Terra API (WHOOP + Oura + Garmin)</div>
+        <div class="arch-item" style="background:var(--bd);color:var(--blue);">Apple HealthKit (iOS — V2)</div>
+        <div class="arch-item" style="background:var(--bd);color:var(--blue);">Formm camera rPPG (no device needed)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow -->
+  <div class="card" style="margin-bottom:20px;">
+    <div style="font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">Data flow — raw reading to user insight</div>
+    <div class="flow">
+      <div class="flow-node"><div class="flow-icon" style="background:rgba(255,59,59,.1);border:1px solid rgba(255,59,59,.2);">⌚</div><div class="flow-name">WHOOP</div><div class="flow-sub">Strain · HRV</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="flow-icon" style="background:var(--pd);border:1px solid rgba(157,130,255,.2);">💍</div><div class="flow-name">Oura</div><div class="flow-sub">HRV · Sleep</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="flow-icon" style="background:var(--bd);border:1px solid rgba(79,166,255,.2);">🏃</div><div class="flow-name">Garmin</div><div class="flow-sub">VO2max · GPS</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node"><div class="flow-icon" style="background:var(--gd);border:1px solid rgba(61,219,160,.2);">📱</div><div class="flow-name">Health Connect</div><div class="flow-sub">Android</div></div>
+      <div class="flow-arr" style="color:var(--teal);font-size:20px;">→</div>
+      <div class="flow-node" style="width:130px;"><div class="flow-icon" style="width:52px;height:52px;border-radius:14px;background:var(--td);border:2px solid rgba(0,222,181,.3);font-size:24px;">🧠</div><div class="flow-name" style="color:var(--teal);">Formm Engine</div><div class="flow-sub" style="color:var(--teal);">Normalise · Infer</div></div>
+      <div class="flow-arr" style="color:var(--teal);font-size:20px;">→</div>
+      <div class="flow-node" style="width:130px;"><div class="flow-icon" style="background:var(--pd);border:1px solid rgba(157,130,255,.2);">💡</div><div class="flow-name" style="color:var(--purp);">Sports Science Insight</div><div class="flow-sub">Plain language</div></div>
+    </div>
+  </div>
+
+  <div class="callout c-warn">
+    <div class="c-icon">⚠</div>
+    <div class="c-text"><strong>Build order is non-negotiable.</strong> Layer 2 (normalisation) must exist before Layer 3 (inference). An inference built on raw HRV values will give systematically wrong recommendations to users who switch devices or use multiple devices simultaneously. Never compare raw HRV across devices — only z-scores.</div>
+  </div>
+</div>
+
+<!-- ── DATA LAYER ── -->
+<div class="sec" id="data-layer">
+  <div class="sec-hdr">
+    <div class="sec-num">02 — Architecture</div>
+    <h2 class="sec-title">Data Ingestion Layer</h2>
+    <p class="sec-sub">What each device provides via API and how accurate the data is per peer-reviewed evidence.</p>
+  </div>
+
+  <div class="g2" style="margin-bottom:16px;">
+    <div class="dev-card dev-whoop">
+      <div class="dev-name">WHOOP 4.0</div>
+      <div class="dev-type" style="color:#FF4D4D;">Recovery-first · Screenless</div>
+      <div style="margin-bottom:8px;"><span class="pill p-a">HRV accuracy: CCC 0.94</span></div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Best for strain tracking and non-GPS training. HRV weighted toward last slow-wave sleep. Strong for daily load monitoring.</div>
+      <div class="dev-data">
+        <span class="dev-tag" style="background:rgba(255,59,59,.1);color:#FF6060;">HRV</span>
+        <span class="dev-tag" style="background:rgba(255,59,59,.1);color:#FF6060;">Strain 0–21</span>
+        <span class="dev-tag" style="background:rgba(255,59,59,.1);color:#FF6060;">Recovery %</span>
+        <span class="dev-tag" style="background:rgba(255,59,59,.1);color:#FF6060;">Sleep stages</span>
+        <span class="dev-tag" style="background:rgba(255,59,59,.1);color:#FF6060;">Skin temp</span>
+        <span class="dev-tag" style="background:rgba(255,59,59,.1);color:#FF6060;">Resp. rate</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--t3);font-family:var(--mono);">API: Terra SDK / REST · OAuth via Terra</div>
+    </div>
+    <div class="dev-card dev-oura">
+      <div class="dev-name">Oura Ring Gen 3/4</div>
+      <div class="dev-type" style="color:var(--purp);">Sleep-first · Clinical HRV</div>
+      <div style="margin-bottom:8px;"><span class="pill p-g">HRV accuracy: CCC 0.99 ★</span></div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Highest HRV and RHR accuracy of any consumer device (2025 Dial et al. validation, 536 nights, ECG reference). Primary HRV source when connected.</div>
+      <div class="dev-data">
+        <span class="dev-tag" style="background:var(--pd);color:var(--purp);">HRV (best)</span>
+        <span class="dev-tag" style="background:var(--pd);color:var(--purp);">Readiness score</span>
+        <span class="dev-tag" style="background:var(--pd);color:var(--purp);">Deep sleep</span>
+        <span class="dev-tag" style="background:var(--pd);color:var(--purp);">REM sleep</span>
+        <span class="dev-tag" style="background:var(--pd);color:var(--purp);">Skin temp</span>
+        <span class="dev-tag" style="background:var(--pd);color:var(--purp);">SpO2</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--t3);font-family:var(--mono);">API: Oura Cloud REST · OAuth via Terra</div>
+    </div>
+    <div class="dev-card dev-garmin">
+      <div class="dev-name">Garmin (Fenix / FR)</div>
+      <div class="dev-type" style="color:var(--blue);">Endurance athlete · GPS-first</div>
+      <div style="margin-bottom:8px;"><span class="pill p-a">HRV accuracy: CCC 0.87 (trend only)</span></div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Use for activity, GPS, VO2max, and running dynamics. Do NOT use Garmin HRV for precise readiness inferences — accuracy lower than Oura/WHOOP.</div>
+      <div class="dev-data">
+        <span class="dev-tag" style="background:var(--bd);color:var(--blue);">VO2max</span>
+        <span class="dev-tag" style="background:var(--bd);color:var(--blue);">Ground contact balance</span>
+        <span class="dev-tag" style="background:var(--bd);color:var(--blue);">Running cadence</span>
+        <span class="dev-tag" style="background:var(--bd);color:var(--blue);">Body Battery</span>
+        <span class="dev-tag" style="background:var(--bd);color:var(--blue);">Training effect</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--t3);font-family:var(--mono);">API: Garmin Health API via Terra · Webhooks</div>
+    </div>
+    <div class="dev-card dev-google">
+      <div class="dev-name">Android Health Connect</div>
+      <div class="dev-type" style="color:var(--green);">Broadest coverage · No subscription</div>
+      <div style="margin-bottom:8px;"><span class="pill p-t">Covers Samsung · Pixel · Xiaomi · Garmin bridge</span></div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">Required — Google is deprecating Fit APIs in 2026. Build Health Connect from day one. Covers the broadest Indian Android market.</div>
+      <div class="dev-data">
+        <span class="dev-tag" style="background:var(--gd);color:var(--green);">Heart rate</span>
+        <span class="dev-tag" style="background:var(--gd);color:var(--green);">HRV (device-dependent)</span>
+        <span class="dev-tag" style="background:var(--gd);color:var(--green);">Sleep</span>
+        <span class="dev-tag" style="background:var(--gd);color:var(--green);">Steps · Calories</span>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--t3);font-family:var(--mono);">API: Android SDK — Health Connect Jetpack v1.1.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HEALTH CONNECT ── -->
+<div class="sec" id="health-connect">
+  <div class="sec-hdr">
+    <div class="sec-num">03 — Android Code</div>
+    <h2 class="sec-title">Health Connect SDK</h2>
+    <p class="sec-sub">Build this first. Covers Samsung, Pixel, Xiaomi and the broad Indian Android market. Required for Google Fit migration in 2026.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <div class="step-title">Add dependency to build.gradle</div>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">Gradle</span><span class="cb-file">app/build.gradle</span></div>
+<span class="cm">// Health Connect — replaces deprecated Google Fit</span>
+<span class="kw">implementation</span> <span class="str">"androidx.health.connect:connect-client:1.1.0"</span>
+
+<span class="cm">// Terra SDK for WHOOP / Oura / Garmin cloud</span>
+<span class="kw">implementation</span> <span class="str">"co.tryterra:terra-android:0.1.23"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <div class="step-title">Declare permissions in AndroidManifest.xml</div>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">XML</span><span class="cb-file">AndroidManifest.xml</span></div>
+<span class="cm">&lt;!-- Health Connect permissions --&gt;</span>
+<span class="kw">&lt;uses-permission</span> <span class="var">android:name=</span><span class="str">"android.permission.health.READ_HEART_RATE"</span><span class="kw">/&gt;</span>
+<span class="kw">&lt;uses-permission</span> <span class="var">android:name=</span><span class="str">"android.permission.health.READ_SLEEP"</span><span class="kw">/&gt;</span>
+<span class="kw">&lt;uses-permission</span> <span class="var">android:name=</span><span class="str">"android.permission.health.READ_HEART_RATE_VARIABILITY"</span><span class="kw">/&gt;</span>
+<span class="kw">&lt;uses-permission</span> <span class="var">android:name=</span><span class="str">"android.permission.health.READ_RESTING_HEART_RATE"</span><span class="kw">/&gt;</span>
+<span class="kw">&lt;uses-permission</span> <span class="var">android:name=</span><span class="str">"android.permission.health.READ_STEPS"</span><span class="kw">/&gt;</span>
+
+<span class="cm">&lt;!-- Required: Health Connect availability check activity --&gt;</span>
+<span class="kw">&lt;activity-alias</span>
+    <span class="var">android:name=</span><span class="str">".HealthConnectRequestActivity"</span>
+    <span class="var">android:exported=</span><span class="str">"true"</span>
+    <span class="var">android:targetActivity=</span><span class="str">".MainActivity"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;intent-filter&gt;</span>
+    <span class="kw">&lt;action</span> <span class="var">android:name=</span><span class="str">"androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"</span><span class="kw">/&gt;</span>
+  <span class="kw">&lt;/intent-filter&gt;</span>
+<span class="kw">&lt;/activity-alias&gt;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-n">3</div>
+      <div class="step-body">
+        <div class="step-title">WearableRepository.kt — the single source of truth for all wearable data</div>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">Kotlin</span><span class="cb-file">data/WearableRepository.kt</span></div>
+<span class="kw">class</span> <span class="tp">WearableRepository</span>(
+    <span class="kw">private val</span> <span class="var">healthConnectClient</span>: <span class="tp">HealthConnectClient</span>,
+    <span class="kw">private val</span> <span class="var">api</span>: <span class="tp">FormmmApiService</span>
+) {
+    <span class="cm">// Request permissions — call from WearableHubFragment</span>
+    <span class="kw">val</span> <span class="var">PERMISSIONS</span> = <span class="fn">setOf</span>(
+        <span class="tp">HealthPermission</span>.getReadPermission(<span class="tp">HeartRateVariabilityRmssdRecord</span>::<span class="kw">class</span>),
+        <span class="tp">HealthPermission</span>.getReadPermission(<span class="tp">RestingHeartRateRecord</span>::<span class="kw">class</span>),
+        <span class="tp">HealthPermission</span>.getReadPermission(<span class="tp">SleepSessionRecord</span>::<span class="kw">class</span>),
+        <span class="tp">HealthPermission</span>.getReadPermission(<span class="tp">StepsRecord</span>::<span class="kw">class</span>)
+    )
+
+    <span class="cm">// Read today's HRV — called in morning sync job</span>
+    <span class="kw">suspend fun</span> <span class="fn">readTodayHRV</span>(): <span class="tp">Double</span>? {
+        <span class="kw">val</span> <span class="var">request</span> = <span class="tp">ReadRecordsRequest</span>(
+            recordType = <span class="tp">HeartRateVariabilityRmssdRecord</span>::<span class="kw">class</span>,
+            timeRangeFilter = <span class="tp">TimeRangeFilter</span>.between(
+                <span class="fn">LocalDate.now</span>().<span class="fn">atStartOfDay</span>().<span class="fn">toInstant</span>(<span class="tp">ZoneOffset.UTC</span>),
+                <span class="tp">Instant.now</span>()
+            )
+        )
+        <span class="kw">val</span> <span class="var">records</span> = <span class="var">healthConnectClient</span>.<span class="fn">readRecords</span>(<span class="var">request</span>).records
+        <span class="kw">return</span> <span class="var">records</span>.<span class="fn">lastOrNull</span>()?.heartRateVariabilityMillis
+    }
+
+    <span class="cm">// Read last night's sleep — returns SleepSummary</span>
+    <span class="kw">suspend fun</span> <span class="fn">readLastNightSleep</span>(): <span class="tp">SleepSummary</span>? {
+        <span class="kw">val</span> <span class="var">yesterday</span> = <span class="fn">LocalDate.now</span>().<span class="fn">minusDays</span>(<span class="num">1</span>)
+        <span class="kw">val</span> <span class="var">records</span> = <span class="var">healthConnectClient</span>.<span class="fn">readRecords</span>(
+            <span class="tp">ReadRecordsRequest</span>(
+                recordType = <span class="tp">SleepSessionRecord</span>::<span class="kw">class</span>,
+                timeRangeFilter = <span class="tp">TimeRangeFilter</span>.between(
+                    <span class="var">yesterday</span>.<span class="fn">atTime</span>(<span class="num">18</span>, <span class="num">0</span>).<span class="fn">toInstant</span>(<span class="tp">ZoneOffset</span>.of(<span class="str">"+05:30"</span>)),
+                    <span class="fn">LocalDate.now</span>().<span class="fn">atTime</span>(<span class="num">12</span>, <span class="num">0</span>).<span class="fn">toInstant</span>(<span class="tp">ZoneOffset</span>.of(<span class="str">"+05:30"</span>))
+                )
+            )
+        ).records
+        <span class="kw">return</span> <span class="var">records</span>.<span class="fn">lastOrNull</span>()?.let { <span class="fn">parseSleepStages</span>(it) }
+    }
+
+    <span class="cm">// Sync to Formm backend — normalisation happens server-side</span>
+    <span class="kw">suspend fun</span> <span class="fn">syncToBackend</span>(<span class="var">hrv</span>: <span class="tp">Double</span>?, <span class="var">sleep</span>: <span class="tp">SleepSummary</span>?) {
+        <span class="var">api</span>.<span class="fn">syncWearableData</span>(
+            <span class="tp">WearableSyncRequest</span>(
+                deviceType = <span class="str">"health_connect"</span>,
+                readings = <span class="fn">buildList</span> {
+                    <span class="var">hrv</span>?.<span class="fn">let</span> { <span class="fn">add</span>(<span class="tp">WearableReading</span>(<span class="str">"hrv_rmssd"</span>, it, <span class="tp">Instant.now</span>())) }
+                    <span class="var">sleep</span>?.<span class="fn">let</span> {
+                        <span class="fn">add</span>(<span class="tp">WearableReading</span>(<span class="str">"rem_pct"</span>, it.remPct, it.sessionEnd))
+                        <span class="fn">add</span>(<span class="tp">WearableReading</span>(<span class="str">"deep_min"</span>, it.deepMinutes, it.sessionEnd))
+                        <span class="fn">add</span>(<span class="tp">WearableReading</span>(<span class="str">"sleep_efficiency"</span>, it.efficiency, it.sessionEnd))
+                    }
+                }
+            )
+        )
+    }
+}
+        </div>
+        <div class="callout c-warn" style="margin-top:8px;">
+          <div class="c-icon">⚠</div>
+          <div class="c-text"><strong>IST timezone is critical for NCR users.</strong> Sleep sessions that start at 10pm IST and end at 6am IST must be queried with <code>ZoneOffset.of("+05:30")</code>. Using UTC will split overnight sleep sessions across two days and produce incorrect stage calculations.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-n">4</div>
+      <div class="step-body">
+        <div class="step-title">WorkManager sync job — fires every morning at 6am IST</div>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">Kotlin</span><span class="cb-file">workers/WearableSyncWorker.kt</span></div>
+<span class="kw">class</span> <span class="tp">WearableSyncWorker</span>(context: <span class="tp">Context</span>, params: <span class="tp">WorkerParameters</span>)
+    : <span class="tp">CoroutineWorker</span>(context, params) {
+
+    <span class="kw">override suspend fun</span> <span class="fn">doWork</span>(): <span class="tp">Result</span> {
+        <span class="kw">return try</span> {
+            <span class="kw">val</span> <span class="var">repo</span> = <span class="cm">/* inject WearableRepository */</span>
+            <span class="kw">val</span> <span class="var">hrv</span>   = <span class="var">repo</span>.<span class="fn">readTodayHRV</span>()
+            <span class="kw">val</span> <span class="var">sleep</span> = <span class="var">repo</span>.<span class="fn">readLastNightSleep</span>()
+            <span class="var">repo</span>.<span class="fn">syncToBackend</span>(<span class="var">hrv</span>, <span class="var">sleep</span>)
+            <span class="tp">Result</span>.<span class="fn">success</span>()
+        } <span class="kw">catch</span> (e: <span class="tp">Exception</span>) {
+            <span class="tp">Result</span>.<span class="fn">retry</span>() <span class="cm">// retry up to 3x with backoff</span>
+        }
+    }
+}
+
+<span class="cm">// Schedule in Application.onCreate()</span>
+<span class="kw">fun</span> <span class="fn">scheduleWearableSync</span>(context: <span class="tp">Context</span>) {
+    <span class="kw">val</span> <span class="var">istNow</span> = <span class="tp">ZonedDateTime</span>.<span class="fn">now</span>(<span class="tp">ZoneId</span>.of(<span class="str">"Asia/Kolkata"</span>))
+    <span class="kw">val</span> <span class="var">next6am</span> = <span class="var">istNow</span>
+        .<span class="fn">withHour</span>(<span class="num">6</span>).<span class="fn">withMinute</span>(<span class="num">0</span>).<span class="fn">withSecond</span>(<span class="num">0</span>)
+        .<span class="fn">let</span> { <span class="kw">if</span> (it.<span class="fn">isBefore</span>(<span class="var">istNow</span>)) it.<span class="fn">plusDays</span>(<span class="num">1</span>) <span class="kw">else</span> it }
+    <span class="kw">val</span> <span class="var">delay</span> = <span class="tp">Duration</span>.<span class="fn">between</span>(<span class="var">istNow</span>, <span class="var">next6am</span>)
+
+    <span class="tp">WorkManager</span>.<span class="fn">getInstance</span>(context).<span class="fn">enqueueUniquePeriodicWork</span>(
+        <span class="str">"wearable_sync"</span>,
+        <span class="tp">ExistingPeriodicWorkPolicy</span>.UPDATE,
+        <span class="tp">PeriodicWorkRequestBuilder</span>&lt;<span class="tp">WearableSyncWorker</span>&gt;(<span class="num">24</span>, <span class="tp">TimeUnit.HOURS</span>)
+            .<span class="fn">setInitialDelay</span>(<span class="var">delay</span>)
+            .<span class="fn">setConstraints</span>(<span class="tp">Constraints</span>(<span class="var">requiresNetworkConnectivity</span> = <span class="kw">true</span>))
+            .<span class="fn">build</span>()
+    )
+}
+        </div>
+        <div class="step-code">OEM battery optimisation: Xiaomi, OnePlus, Realme suppress WorkManager by default. Add to onboarding: "Allow background activity" → links to system battery settings. Test on at least 6 Indian handsets.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TERRA API ── -->
+<div class="sec" id="terra-api">
+  <div class="sec-hdr">
+    <div class="sec-num">04 — Android Code</div>
+    <h2 class="sec-title">Terra API — WHOOP, Oura, Garmin</h2>
+    <p class="sec-sub">Terra handles auth, normalisation, and webhooks for all cloud-based wearables. Cuts integration time from 6 months to 3 weeks.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <div class="step-title">TerraManager.kt — OAuth connection flow</div>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">Kotlin</span><span class="cb-file">data/TerraManager.kt</span></div>
+<span class="kw">class</span> <span class="tp">TerraManager</span>(<span class="kw">private val</span> <span class="var">context</span>: <span class="tp">Context</span>) {
+
+    <span class="kw">private val</span> <span class="var">terra</span> = <span class="tp">Terra</span>.<span class="fn">instance</span>(
+        devId    = <span class="tp">BuildConfig</span>.TERRA_DEV_ID,
+        referenceId = <span class="cm">/* Formm user ID */</span>
+    )
+
+    <span class="cm">// Connect a device — opens OAuth flow in WebView</span>
+    <span class="kw">fun</span> <span class="fn">connectDevice</span>(
+        activity: <span class="tp">Activity</span>,
+        provider: <span class="tp">TerraProvider</span>,    <span class="cm">// WHOOP, OURA, GARMIN</span>
+        onSuccess: (<span class="tp">String</span>) -> <span class="tp">Unit</span>,  <span class="cm">// terra user_id</span>
+        onError:   (<span class="tp">String</span>) -> <span class="tp">Unit</span>
+    ) {
+        <span class="var">terra</span>.<span class="fn">authenticateUser</span>(
+            activity  = activity,
+            resource  = provider,
+            successHandler = { user -> <span class="fn">onSuccess</span>(user.userId) },
+            failHandler    = { msg  -> <span class="fn">onError</span>(msg) }
+        )
+    }
+
+    <span class="cm">// Fetch historical data on first connect (backfill 30 days)</span>
+    <span class="kw">suspend fun</span> <span class="fn">backfillHistoricalData</span>(<span class="var">terraUserId</span>: <span class="tp">String</span>) {
+        <span class="kw">val</span> <span class="var">endDate</span>   = <span class="tp">LocalDate</span>.<span class="fn">now</span>()
+        <span class="kw">val</span> <span class="var">startDate</span> = <span class="var">endDate</span>.<span class="fn">minusDays</span>(<span class="num">30</span>)
+        <span class="cm">// Terra pushes historical data to your webhook automatically</span>
+        <span class="cm">// after authenticateUser() — no explicit call needed</span>
+        <span class="cm">// Backend webhook handler stores and normalises on arrival</span>
+    }
+}
+        </div>
+        <div class="step-code">WHOOP requires developer portal approval before Terra integration activates. Apply at developer.whoop.com immediately — approval takes 1–2 weeks. Don't wait until you need it.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <div class="step-title">Backend webhook handler — receives all Terra device data</div>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">Python</span><span class="cb-file">api/webhooks/terra_webhook.py</span></div>
+<span class="kw">@app</span>.<span class="fn">route</span>(<span class="str">"/api/terra/webhook"</span>, methods=[<span class="str">"POST"</span>])
+<span class="kw">def</span> <span class="fn">terra_webhook</span>():
+    <span class="var">payload</span> = <span class="var">request</span>.<span class="fn">get_json</span>()
+    <span class="var">user_id</span> = <span class="fn">get_formm_user_id</span>(<span class="var">payload</span>[<span class="str">"user"</span>][<span class="str">"user_id"</span>])
+    <span class="var">device</span>  = <span class="var">payload</span>[<span class="str">"user"</span>][<span class="str">"provider"</span>].<span class="fn">lower</span>()  <span class="cm"># "whoop", "oura", "garmin"</span>
+
+    <span class="kw">for</span> <span class="var">data_type</span>, <span class="var">data_list</span> <span class="kw">in</span> <span class="var">payload</span>.<span class="fn">get</span>(<span class="str">"data"</span>, {}).<span class="fn">items</span>():
+        <span class="kw">for</span> <span class="var">record</span> <span class="kw">in</span> <span class="var">data_list</span>:
+            <span class="fn">process_wearable_record</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">data_type</span>, <span class="var">record</span>)
+
+    <span class="kw">return</span> <span class="fn">jsonify</span>({<span class="str">"status"</span>: <span class="str">"ok"</span>}), <span class="num">200</span>
+
+<span class="kw">def</span> <span class="fn">process_wearable_record</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">data_type</span>, <span class="var">record</span>):
+    <span class="cm"># Extract readings based on Terra's normalised schema</span>
+    <span class="var">readings</span> = <span class="fn">extract_readings</span>(<span class="var">device</span>, <span class="var">data_type</span>, <span class="var">record</span>)
+
+    <span class="kw">for</span> <span class="var">metric</span>, <span class="var">value</span>, <span class="var">timestamp</span> <span class="kw">in</span> <span class="var">readings</span>:
+        <span class="cm"># Store raw reading</span>
+        <span class="fn">store_raw_reading</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">metric</span>, <span class="var">value</span>, <span class="var">timestamp</span>)
+        <span class="cm"># Compute z-score IMMEDIATELY — never store without normalising</span>
+        <span class="fn">update_normalisation</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">metric</span>)
+        <span class="cm"># Trigger inference check asynchronously</span>
+        <span class="fn">queue_inference_check</span>.<span class="fn">delay</span>(<span class="var">user_id</span>)  <span class="cm"># Celery task</span>
+
+<span class="kw">def</span> <span class="fn">extract_readings</span>(<span class="var">device</span>, <span class="var">data_type</span>, <span class="var">record</span>):
+    <span class="cm">"""Map Terra's normalised schema to Formm internal metrics."""</span>
+    <span class="var">readings</span> = []
+    <span class="kw">if</span> <span class="var">data_type</span> == <span class="str">"daily"</span>:
+        <span class="kw">if</span> <span class="var">hrv</span> := <span class="var">record</span>.<span class="fn">get</span>(<span class="str">"hrv_data"</span>, {}).<span class="fn">get</span>(<span class="str">"rmssd_sample_mean"</span>):
+            <span class="var">readings</span>.<span class="fn">append</span>((<span class="str">"hrv_rmssd"</span>, <span class="var">hrv</span>, <span class="var">record</span>[<span class="str">"date"</span>]))
+        <span class="kw">if</span> <span class="var">rhr</span> := <span class="var">record</span>.<span class="fn">get</span>(<span class="str">"heart_rate_data"</span>, {}).<span class="fn">get</span>(<span class="str">"resting_hr_bpm"</span>):
+            <span class="var">readings</span>.<span class="fn">append</span>((<span class="str">"resting_hr"</span>, <span class="var">rhr</span>, <span class="var">record</span>[<span class="str">"date"</span>]))
+    <span class="kw">elif</span> <span class="var">data_type</span> == <span class="str">"sleep"</span>:
+        <span class="var">stages</span> = <span class="var">record</span>.<span class="fn">get</span>(<span class="str">"sleep_durations_data"</span>, {})
+        <span class="kw">if</span> <span class="var">deep</span> := <span class="var">stages</span>.<span class="fn">get</span>(<span class="str">"asleep_stage_3_seconds"</span>):
+            <span class="var">readings</span>.<span class="fn">append</span>((<span class="str">"deep_sleep_min"</span>, <span class="var">deep</span>/<span class="num">60</span>, <span class="var">record</span>[<span class="str">"end_time"</span>]))
+        <span class="kw">if</span> <span class="var">rem</span> := <span class="var">stages</span>.<span class="fn">get</span>(<span class="str">"asleep_stage_rem_seconds"</span>):
+            <span class="var">total</span> = <span class="var">record</span>.<span class="fn">get</span>(<span class="str">"sleep_durations_data"</span>, {}).<span class="fn">get</span>(<span class="str">"total_sleep_seconds"</span>, <span class="num">1</span>)
+            <span class="var">readings</span>.<span class="fn">append</span>((<span class="str">"rem_pct"</span>, (<span class="var">rem</span>/<span class="var">total</span>)*<span class="num">100</span>, <span class="var">record</span>[<span class="str">"end_time"</span>]))
+    <span class="kw">elif</span> <span class="var">data_type</span> == <span class="str">"activity"</span> <span class="kw">and</span> <span class="var">device</span> == <span class="str">"whoop"</span>:
+        <span class="kw">if</span> <span class="var">strain</span> := <span class="var">record</span>.<span class="fn">get</span>(<span class="str">"strain_data"</span>, {}).<span class="fn">get</span>(<span class="str">"strain_level"</span>):
+            <span class="var">readings</span>.<span class="fn">append</span>((<span class="str">"whoop_strain"</span>, <span class="var">strain</span>, <span class="var">record</span>[<span class="str">"start_time"</span>]))
+    <span class="kw">return</span> <span class="var">readings</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NORMALISATION ── -->
+<div class="sec" id="normalisation">
+  <div class="sec-hdr">
+    <div class="sec-num">05 — Android Code</div>
+    <h2 class="sec-title">Z-Score Normalisation</h2>
+    <p class="sec-sub">The most critical component in the entire system. Build this before any inference logic. Get it wrong and every downstream insight is wrong.</p>
+  </div>
+
+  <div class="callout c-err">
+    <div class="c-icon">🚫</div>
+    <div class="c-text"><strong>Never compare raw HRV values across devices.</strong> Oura measures HRV over the entire night in 5-min windows. WHOOP weights toward last slow-wave sleep. Garmin uses a 30-min window of unknown timing. Apple Watch uses SDNN (not RMSSD). A 55ms reading means something different from each device. Only z-scores (deviation from personal baseline) are device-comparable.</div>
+  </div>
+
+  <div class="code-block" style="margin-top:16px;">
+    <div class="cb-header"><span class="cb-lang">Python</span><span class="cb-file">services/normalisation_service.py</span></div>
+<span class="kw">def</span> <span class="fn">update_normalisation</span>(<span class="var">user_id</span>: <span class="tp">int</span>, <span class="var">device</span>: <span class="tp">str</span>, <span class="var">metric</span>: <span class="tp">str</span>):
+    <span class="cm">"""Recompute 7-day baseline and z-score after each new reading.
+    Called immediately after every raw reading is stored."""</span>
+
+    <span class="cm"># Get last 7 readings for this user/device/metric</span>
+    <span class="var">readings</span> = <span class="fn">db</span>.<span class="fn">query</span>(<span class="str">"""
+        SELECT value FROM wearable_readings
+        WHERE user_id = %s AND device = %s AND metric = %s
+          AND timestamp >= NOW() - INTERVAL '7 days'
+        ORDER BY timestamp DESC LIMIT 7
+    """</span>, [<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">metric</span>])
+
+    <span class="kw">if</span> <span class="fn">len</span>(<span class="var">readings</span>) < <span class="num">7</span>:
+        <span class="cm"># Insufficient data — mark as "building baseline"</span>
+        <span class="cm"># DO NOT compute z-score from fewer than 7 readings</span>
+        <span class="fn">db</span>.<span class="fn">update_baseline</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">metric</span>,
+            mean=<span class="kw">None</span>, sd=<span class="kw">None</span>, status=<span class="str">"building"</span>)
+        <span class="kw">return</span>
+
+    <span class="var">values</span> = [<span class="var">r</span>[<span class="str">"value"</span>] <span class="kw">for</span> <span class="var">r</span> <span class="kw">in</span> <span class="var">readings</span>]
+    <span class="var">mean</span>   = <span class="fn">statistics.mean</span>(<span class="var">values</span>)
+    <span class="var">sd</span>     = <span class="fn">statistics.stdev</span>(<span class="var">values</span>)
+
+    <span class="kw">if</span> <span class="var">sd</span> == <span class="num">0</span>:
+        <span class="cm"># All readings identical — skip (would cause div by zero)</span>
+        <span class="kw">return</span>
+
+    <span class="cm"># Compute z-score for today's reading</span>
+    <span class="var">today_value</span> = <span class="var">readings</span>[<span class="num">0</span>][<span class="str">"value"</span>]
+    <span class="var">z_score</span>     = (<span class="var">today_value</span> - <span class="var">mean</span>) / <span class="var">sd</span>
+
+    <span class="cm"># Store baseline and today's z-score</span>
+    <span class="fn">db</span>.<span class="fn">update_baseline</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">metric</span>,
+        mean=<span class="var">mean</span>, sd=<span class="var">sd</span>, status=<span class="str">"active"</span>)
+    <span class="fn">db</span>.<span class="fn">update_today_z_score</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="var">metric</span>,
+        z_score=<span class="var">z_score</span>, reading_count=<span class="fn">len</span>(<span class="var">readings</span>))
+
+
+<span class="kw">def</span> <span class="fn">get_primary_hrv_z_score</span>(<span class="var">user_id</span>: <span class="tp">int</span>) -> <span class="tp">Optional[float]</span>:
+    <span class="cm">"""Get today's HRV z-score. Uses Oura if available (highest accuracy),
+    falls back to WHOOP, then Health Connect, then Formm camera rPPG."""</span>
+    <span class="var">device_priority</span> = [<span class="str">"oura"</span>, <span class="str">"whoop"</span>, <span class="str">"health_connect"</span>, <span class="str">"formm_rpgg"</span>]
+    <span class="kw">for</span> <span class="var">device</span> <span class="kw">in</span> <span class="var">device_priority</span>:
+        <span class="var">z</span> = <span class="fn">db</span>.<span class="fn">get_today_z_score</span>(<span class="var">user_id</span>, <span class="var">device</span>, <span class="str">"hrv_rmssd"</span>)
+        <span class="kw">if</span> <span class="var">z</span> <span class="kw">is not None</span>:
+            <span class="kw">return</span> <span class="var">z</span>, <span class="var">device</span>
+    <span class="kw">return None</span>, <span class="kw">None</span>
+  </div>
+
+  <div class="callout c-info">
+    <div class="c-icon">💡</div>
+    <div class="c-text"><strong>Device priority for HRV:</strong> Oura Gen 3/4 → WHOOP 4.0 → Health Connect → Formm camera rPPG. This ordering follows the 2025 Dial et al. peer-reviewed accuracy rankings. Always return which device sourced the HRV to the frontend so it can display the source badge.</div>
+  </div>
+</div>
+
+<!-- ── INFERENCE ENGINE ── -->
+<div class="sec" id="inference-engine">
+  <div class="sec-hdr">
+    <div class="sec-num">06 — Backend</div>
+    <h2 class="sec-title">Inference Engine</h2>
+    <p class="sec-sub">All inferences are server-side. Rule-based for V1 — fast to ship, auditable, and explainable. ML layer added in V2 once data volumes justify it.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="cb-header"><span class="cb-lang">Python</span><span class="cb-file">services/inference_engine.py</span></div>
+<span class="kw">class</span> <span class="tp">InferenceEngine</span>:
+
+    <span class="kw">def</span> <span class="fn">run_daily_inferences</span>(<span class="var">self</span>, <span class="var">user_id</span>: <span class="tp">int</span>) -> <span class="tp">List[Insight]</span>:
+        <span class="cm">"""Run all V1 inferences for a user. Called at 6am daily per user timezone."""</span>
+        <span class="var">insights</span> = []
+
+        <span class="cm"># Fetch all normalised data</span>
+        <span class="var">hrv_z</span>,  <span class="var">hrv_device</span>  = <span class="fn">get_primary_hrv_z_score</span>(<span class="var">user_id</span>)
+        <span class="var">sleep</span>               = <span class="fn">get_last_night_sleep</span>(<span class="var">user_id</span>)
+        <span class="var">acwr</span>                = <span class="fn">get_current_acwr</span>(<span class="var">user_id</span>)
+        <span class="var">form_trend</span>          = <span class="fn">get_form_score_trend</span>(<span class="var">user_id</span>, days=<span class="num">7</span>)
+        <span class="var">hrv_trend</span>           = <span class="fn">get_hrv_trend_7d</span>(<span class="var">user_id</span>)
+
+        <span class="cm"># ── INFERENCE 1: HRV-adjusted session target ──────────────</span>
+        <span class="kw">if</span> <span class="var">hrv_z</span> <span class="kw">is not None</span>:
+            <span class="var">insights</span>.<span class="fn">append</span>(<span class="var">self</span>.<span class="fn">_hrv_session_target</span>(<span class="var">user_id</span>, <span class="var">hrv_z</span>, <span class="var">hrv_device</span>))
+
+        <span class="cm"># ── INFERENCE 2: Red alert convergence ────────────────────</span>
+        <span class="kw">if</span> <span class="kw">all</span>([<span class="var">hrv_z</span>, <span class="var">acwr</span>, <span class="var">form_trend</span>]):
+            <span class="var">alert</span> = <span class="var">self</span>.<span class="fn">_check_convergence_alert</span>(<span class="var">hrv_z</span>, <span class="var">acwr</span>, <span class="var">form_trend</span>)
+            <span class="kw">if</span> <span class="var">alert</span>: <span class="var">insights</span>.<span class="fn">append</span>(<span class="var">alert</span>)
+
+        <span class="cm"># ── INFERENCE 3: Fatigue vs technique diagnosis ────────────</span>
+        <span class="kw">if</span> <span class="var">hrv_trend</span> <span class="kw">and</span> <span class="var">form_trend</span>:
+            <span class="var">diag</span> = <span class="var">self</span>.<span class="fn">_fatigue_vs_technique</span>(<span class="var">hrv_trend</span>, <span class="var">form_trend</span>)
+            <span class="kw">if</span> <span class="var">diag</span>: <span class="var">insights</span>.<span class="fn">append</span>(<span class="var">diag</span>)
+
+        <span class="cm"># ── INFERENCE 4: Illness early warning ────────────────────</span>
+        <span class="var">skin_temp_z</span> = <span class="fn">get_skin_temp_z</span>(<span class="var">user_id</span>)
+        <span class="var">resp_z</span>      = <span class="fn">get_resp_rate_z</span>(<span class="var">user_id</span>)
+        <span class="kw">if</span> <span class="var">skin_temp_z</span> <span class="kw">and</span> <span class="var">resp_z</span>:
+            <span class="var">illness</span> = <span class="var">self</span>.<span class="fn">_illness_flag</span>(<span class="var">skin_temp_z</span>, <span class="var">resp_z</span>)
+            <span class="kw">if</span> <span class="var">illness</span>: <span class="var">insights</span>.<span class="fn">append</span>(<span class="var">illness</span>)
+
+        <span class="kw">return</span> [<span class="var">i</span> <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="var">insights</span> <span class="kw">if</span> <span class="var">i</span> <span class="kw">is not None</span>]
+
+    <span class="kw">def</span> <span class="fn">_check_convergence_alert</span>(<span class="var">self</span>, <span class="var">hrv_z</span>, <span class="var">acwr</span>, <span class="var">form_trend</span>) -> <span class="tp">Optional[Insight]</span>:
+        <span class="cm">"""Red alert: three signals converging = mandatory rest."""</span>
+        <span class="var">form_slope</span> = <span class="fn">linear_regression_slope</span>(<span class="var">form_trend</span>[-<span class="num">3</span>:])
+        <span class="kw">if</span> (<span class="var">hrv_z</span>       < -<span class="num">1.5</span>
+        <span class="kw">and</span> <span class="var">acwr</span>       >  <span class="num">1.5</span>
+        <span class="kw">and</span> <span class="var">form_slope</span> < -<span class="num">0.10</span>):
+            <span class="kw">return</span> <span class="tp">Insight</span>(
+                type     = <span class="str">"convergence_risk_high"</span>,
+                severity = <span class="str">"mandatory"</span>,
+                headline = <span class="str">"Three risk signals converging"</span>,
+                body     = <span class="fn">f</span><span class="str">"HRV is {abs(hrv_z):.1f} SD below baseline, ACWR is "</span>
+                           <span class="fn">f</span><span class="str">"{acwr:.2f}, and form quality dropped "</span>
+                           <span class="fn">f</span><span class="str">"{abs(form_slope)*100:.0f}% over 3 sessions. "</span>
+                           <span class="str">"Mandatory rest today and tomorrow."</span>,
+                sources  = [<span class="str">"hrv"</span>, <span class="str">"acwr"</span>, <span class="str">"form_score"</span>],
+                action   = <span class="kw">None</span>  <span class="cm"># no action — rest is the action</span>
+            )
+        <span class="kw">return None</span>
+
+    <span class="kw">def</span> <span class="fn">_fatigue_vs_technique</span>(<span class="var">self</span>, <span class="var">hrv_trend</span>, <span class="var">form_trend</span>) -> <span class="tp">Optional[Insight]</span>:
+        <span class="cm">"""The most clinically important inference: diagnose WHY form is dropping."""</span>
+        <span class="var">form_slope</span> = <span class="fn">linear_regression_slope</span>(<span class="var">form_trend</span>[-<span class="num">5</span>:])
+        <span class="var">hrv_slope</span>  = <span class="fn">linear_regression_slope</span>(<span class="var">hrv_trend</span>[-<span class="num">7</span>:])
+
+        <span class="kw">if</span> <span class="var">form_slope</span> >= -<span class="num">0.03</span>:
+            <span class="kw">return None</span>  <span class="cm"># form not declining — inference irrelevant</span>
+
+        <span class="kw">if</span> <span class="var">hrv_slope</span> < -<span class="num">0.5</span>:
+            <span class="kw">return</span> <span class="tp">Insight</span>(
+                type=<span class="str">"fatigue_driven_degradation"</span>, severity=<span class="str">"amber"</span>,
+                headline=<span class="str">"Form dropping due to fatigue — not technique"</span>,
+                body=<span class="str">"Your form score has dropped alongside your HRV. "</span>
+                     <span class="str">"This is fatigue-driven degradation. Rest first — "</span>
+                     <span class="str">"more practice won't help until you recover."</span>,
+                sources=[<span class="str">"hrv"</span>, <span class="str">"form_score"</span>]
+            )
+        <span class="kw">elif</span> <span class="var">hrv_slope</span> > -<span class="num">0.2</span>:
+            <span class="kw">return</span> <span class="tp">Insight</span>(
+                type=<span class="str">"technique_regression"</span>, severity=<span class="str">"info"</span>,
+                headline=<span class="str">"Form gap detected — recovery is fine"</span>,
+                body=<span class="str">"Your form score is dropping but HRV is stable. "</span>
+                     <span class="str">"This is a genuine technique gap. Focused practice "</span>
+                     <span class="str">"(not rest) is the right response."</span>,
+                sources=[<span class="str">"hrv"</span>, <span class="str">"form_score"</span>]
+            )
+        <span class="kw">return None</span>
+  </div>
+</div>
+
+<!-- ── API ENDPOINTS ── -->
+<div class="sec" id="api-endpoints">
+  <div class="sec-hdr">
+    <div class="sec-num">07 — Backend</div>
+    <h2 class="sec-title">API Endpoints</h2>
+    <p class="sec-sub">Every existing endpoint is extended with optional wearable fields. No breaking changes — the app degrades gracefully for users without wearables.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Endpoint</th><th>Change</th><th>New fields</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/readiness/today</code><br><span style="font-size:11px;color:var(--t2);">Existing — extended</span></td>
+        <td><span class="pill p-a">EXTENDED</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">data_sources[], sleep_context{}, quality_adjusted_au?, illness_flag?, load_modifier</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/form-result/{id}</code><br><span style="font-size:11px;color:var(--t2);">Existing — extended</span></td>
+        <td><span class="pill p-a">EXTENDED</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">sleep_context{has_data, rem_pct, rem_flag, message}, fatigue_context?{hrv_trend, diagnosis}</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/coach/context</code><br><span style="font-size:11px;color:var(--t2);">Existing — extended</span></td>
+        <td><span class="pill p-a">EXTENDED</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">wearable_context{hrv_z, hrv_trend, recovery_score?, sleep_last_night, strain_yesterday?, quality_adjusted_au?}</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/load/acwr</code><br><span style="font-size:11px;color:var(--t2);">Existing — extended</span></td>
+        <td><span class="pill p-a">EXTENDED</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">strain_contribution{whoop_strain_today?, estimated_au_from_strain?, rpe_submitted: bool}</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/intelligence/feed</code><br><span style="font-size:11px;color:var(--t2);">New endpoint</span></td>
+        <td><span class="pill p-g">NEW</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">{items: [{id, type, severity, headline, body, sources[], action?, expires_at}], has_more}</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/wearables/status</code><br><span style="font-size:11px;color:var(--t2);">New endpoint</span></td>
+        <td><span class="pill p-g">NEW</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">{devices: [{device_type, connected, last_sync, metrics_enabled[], accuracy_tier, data_days}]}</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">POST /api/terra/webhook</code><br><span style="font-size:11px;color:var(--t2);">New endpoint</span></td>
+        <td><span class="pill p-g">NEW</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">Terra-managed schema — store raw, normalise, queue inference</td>
+      </tr>
+      <tr>
+        <td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">POST /api/wearable/sync</code><br><span style="font-size:11px;color:var(--t2);">New endpoint</span></td>
+        <td><span class="pill p-g">NEW</span></td>
+        <td style="font-size:11px;color:var(--t2);font-family:var(--mono);">{device_type, readings: [{metric, value, timestamp}]} → {accepted, normalised, baseline_updated}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── BACKGROUND JOBS ── -->
+<div class="sec" id="jobs">
+  <div class="sec-hdr">
+    <div class="sec-num">08 — Backend</div>
+    <h2 class="sec-title">Background Jobs</h2>
+    <p class="sec-sub">All computation runs server-side on a schedule. Android client only reads pre-computed results.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Job name</th><th>Schedule</th><th>What it does</th><th>Triggers</th></tr></thead>
+    <tbody>
+      <tr><td><strong>morning_readiness_job</strong></td><td>6am per user timezone (IST for India)</td><td>Runs all V1 inferences. Updates readiness score. Generates intelligence feed items. Sends push if alert severity ≥ amber.</td><td>WorkManager (Android) reads result on app open</td></tr>
+      <tr><td><strong>normalisation_job</strong></td><td>Real-time — triggered on each new reading</td><td>Recomputes 7-day mean/SD. Updates z-score for today's reading. Flags "building" status if &lt;7 readings.</td><td>Called synchronously inside Terra webhook and Health Connect sync</td></tr>
+      <tr><td><strong>quality_adjusted_load_job</strong></td><td>Triggered: form analysis complete</td><td>Checks for same-day WHOOP strain or session load. Computes quality_adjusted_au = session_au × (2 − form_quality). Stores in session_loads table.</td><td>Called by form analysis pipeline completion event</td></tr>
+      <tr><td><strong>weekly_insights_job</strong></td><td>Sunday midnight per user timezone</td><td>Fatigue vs technique diagnosis. HRV trend analysis. Form score trend. Generates weekly report.</td><td>Populates weekly_reports table read by Monday notification</td></tr>
+      <tr><td><strong>monthly_insights_job</strong></td><td>Last day of month, 11pm</td><td>Chronotype detection. Periodisation phase. HRV baseline evolution. Monthly progress report generation.</td><td>Populates monthly_reports table</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout c-info">
+    <div class="c-icon">⏰</div>
+    <div class="c-text"><strong>Timezone matters.</strong> All scheduled jobs must use user.timezone (default: Asia/Kolkata = UTC+5:30 for NCR users). A morning_readiness_job scheduled at UTC midnight fires at 5:30am IST — close enough. But a UTC 6am job fires at 11:30am IST — after the user has already trained. Store timezone on registration and use it for all scheduled jobs.</div>
+  </div>
+</div>
+
+<!-- ── SCREEN: WEARABLE HUB ── -->
+<div class="sec" id="screen-hub">
+  <div class="sec-hdr">
+    <div class="sec-num">09 — UI Screen</div>
+    <h2 class="sec-title">Wearable Hub Screen</h2>
+    <p class="sec-sub">Progress → Wearables tab. Connection management, sync status, and data permissions in one place.</p>
+  </div>
+
+  <div class="screen-mock">
+    <div class="sm-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="sm-url">formm.app/progress/wearables</div></div>
+    <div class="sm-nav"><div class="sm-logo">Formm</div><div class="sm-tabs"><div class="sm-tab">Train</div><div class="sm-tab">Recover</div><div class="sm-tab on">Progress</div></div><div class="sm-ava">S</div></div>
+    <div class="sm-body">
+      <div style="margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:3px;">Your wearables</div>
+        <div style="font-size:11px;color:var(--t2);">Connect to unlock sports science insights from your biometric data</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
+        <div style="border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(157,130,255,.25);background:var(--pd);">
+          <div style="font-size:18px;margin-bottom:3px;">💍</div>
+          <div style="font-size:10px;font-weight:600;">Oura</div>
+          <div style="font-size:8px;font-family:var(--mono);color:var(--green);margin-top:2px;">● Synced</div>
+        </div>
+        <div style="border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(255,59,59,.25);background:rgba(255,59,59,.08);">
+          <div style="font-size:18px;margin-bottom:3px;">⌚</div>
+          <div style="font-size:10px;font-weight:600;">WHOOP</div>
+          <div style="font-size:8px;font-family:var(--mono);color:var(--green);margin-top:2px;">● Synced</div>
+        </div>
+        <div style="border-radius:10px;padding:10px;text-align:center;border:1px solid var(--ln2);background:var(--bg2);">
+          <div style="font-size:18px;margin-bottom:3px;">🏃</div>
+          <div style="font-size:10px;font-weight:600;">Garmin</div>
+          <div style="font-size:8px;font-family:var(--mono);color:var(--teal);margin-top:2px;">+ Connect</div>
+        </div>
+        <div style="border-radius:10px;padding:10px;text-align:center;border:1px solid var(--ln2);background:var(--bg2);">
+          <div style="font-size:18px;margin-bottom:3px;">⌚</div>
+          <div style="font-size:10px;font-weight:600;">Apple Watch</div>
+          <div style="font-size:8px;font-family:var(--mono);color:var(--t3);margin-top:2px;">iOS only</div>
+        </div>
+      </div>
+      <div style="font-size:9px;font-family:var(--mono);color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Today's data</div>
+      <div class="wm-grid">
+        <div class="wm"><div class="wm-dev" style="color:var(--purp);">OURA RING</div><div class="wm-val" style="color:var(--green);">67ms</div><div class="wm-label">HRV (RMSSD)</div><div class="wm-trend" style="color:var(--green);">↑ +18% vs baseline</div><div class="wm-bar"><div class="wm-fill" style="width:80%;background:var(--green);"></div></div></div>
+        <div class="wm"><div class="wm-dev" style="color:var(--purp);">OURA RING</div><div class="wm-val" style="color:var(--green);">88m</div><div class="wm-label">Deep sleep</div><div class="wm-trend" style="color:var(--green);">↑ Above target</div><div class="wm-bar"><div class="wm-fill" style="width:78%;background:var(--green);"></div></div></div>
+        <div class="wm"><div class="wm-dev" style="color:#FF5555;">WHOOP</div><div class="wm-val" style="color:var(--green);">84%</div><div class="wm-label">Recovery score</div><div class="wm-trend" style="color:var(--green);">↑ Green zone</div><div class="wm-bar"><div class="wm-fill" style="width:84%;background:var(--green);"></div></div></div>
+        <div class="wm"><div class="wm-dev" style="color:#FF5555;">WHOOP</div><div class="wm-val">14.2</div><div class="wm-label">Yesterday's strain</div><div class="wm-trend" style="color:var(--amber);">Moderate-high</div><div class="wm-bar"><div class="wm-fill" style="width:68%;background:var(--amber);"></div></div></div>
+        <div class="wm"><div class="wm-dev" style="color:var(--purp);">OURA RING</div><div class="wm-val" style="color:var(--green);">51bpm</div><div class="wm-label">Resting HR</div><div class="wm-trend" style="color:var(--green);">Normal</div><div class="wm-bar"><div class="wm-fill" style="width:60%;background:var(--green);"></div></div></div>
+        <div class="wm"><div class="wm-dev" style="color:var(--purp);">OURA RING</div><div class="wm-val" style="color:var(--green);">+0.1°</div><div class="wm-label">Skin temp</div><div class="wm-trend" style="color:var(--green);">Normal baseline</div><div class="wm-bar"><div class="wm-fill" style="width:50%;background:var(--green);"></div></div></div>
+      </div>
+      <div style="background:var(--td);border:1px solid rgba(0,222,181,.18);border-radius:10px;padding:10px 12px;font-size:11px;color:rgba(0,222,181,.9);">
+        🔒 Your biometric data stays yours. Delete everything anytime from Settings → Data & Privacy.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: INTELLIGENCE FEED ── -->
+<div class="sec" id="screen-feed">
+  <div class="sec-hdr">
+    <div class="sec-num">10 — UI Screen</div>
+    <h2 class="sec-title">Intelligence Feed</h2>
+    <p class="sec-sub">The daily wearable intelligence experience. Plain-language insights with device source attribution. Maximum 4 items per day.</p>
+  </div>
+
+  <div class="screen-mock">
+    <div class="sm-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="sm-url">formm.app/recover/intelligence</div></div>
+    <div class="sm-nav"><div class="sm-logo">Formm</div><div class="sm-tabs"><div class="sm-tab">Train</div><div class="sm-tab on">Recover</div><div class="sm-tab">Progress</div></div><div class="sm-ava">S</div></div>
+    <div class="sm-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;">Today's intelligence</div>
+        <div style="background:var(--td);border:1px solid rgba(0,222,181,.2);color:var(--teal);font-size:9px;font-family:var(--mono);padding:3px 8px;border-radius:20px;letter-spacing:1px;">4 INSIGHTS</div>
+      </div>
+
+      <div class="inf-card">
+        <div class="ic-header">
+          <div class="ic-icon ic-g">🟢</div>
+          <div><div class="ic-head">Peak recovery — HRV at 14-day high</div><div class="ic-sub">HRV is 18% above your 7-day baseline. If you've been planning a PR attempt or max effort session, today is the optimal day. Your autonomic nervous system is fully recovered.</div></div>
+        </div>
+        <div class="ic-footer"><span class="ic-src ic-src-o">Oura HRV 67ms</span><span class="ic-src ic-src-f">Formm ACWR 1.1</span></div>
+      </div>
+
+      <div class="inf-card">
+        <div class="ic-header">
+          <div class="ic-icon ic-b">😴</div>
+          <div><div class="ic-head">Deep sleep strong — muscle repair complete</div><div class="ic-sub">88 minutes of deep sleep last night. Growth hormone secretion and muscle protein synthesis peaked during this window. Your posterior chain from Monday's deadlifts is fully recovered.</div></div>
+        </div>
+        <div class="ic-footer"><span class="ic-src ic-src-o">Oura deep sleep</span><span class="ic-src ic-src-f">Formm session log</span></div>
+      </div>
+
+      <div class="inf-card">
+        <div class="ic-header">
+          <div class="ic-icon ic-a">⚡</div>
+          <div><div class="ic-head">Yesterday's WHOOP strain was high — factor in today</div><div class="ic-sub">WHOOP recorded strain 14.2 — equivalent to ~430 AU. Your ACWR is still optimal (1.1), but if today is also hard, a rest day tomorrow protects your recovery window.</div></div>
+        </div>
+        <div class="ic-footer"><span class="ic-src ic-src-w">WHOOP strain 14.2</span><span class="ic-src ic-src-f">Formm ACWR</span></div>
+      </div>
+
+      <div class="inf-card">
+        <div class="ic-header">
+          <div class="ic-icon ic-p">🧠</div>
+          <div><div class="ic-head">REM strong — motor learning consolidated</div><div class="ic-sub">REM sleep was 22% of total (above your 20% average). Yesterday's squat technique work has been neurally consolidated. Today's form check will accurately reflect your improved movement pattern.</div></div>
+        </div>
+        <div class="ic-footer"><span class="ic-src ic-src-o">Oura REM 22%</span><span class="ic-src ic-src-f">Formm form check</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: READINESS ── -->
+<div class="sec" id="screen-readiness">
+  <div class="sec-hdr">
+    <div class="sec-num">11 — UI Screen</div>
+    <h2 class="sec-title">Enriched Readiness Screen</h2>
+    <p class="sec-sub">Existing screen extended — not replaced. Device source badges show where each data point came from. Wearable context cards added.</p>
+  </div>
+
+  <div class="screen-mock">
+    <div class="sm-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="sm-url">formm.app/recover/readiness</div></div>
+    <div class="sm-nav"><div class="sm-logo">Formm</div><div class="sm-tabs"><div class="sm-tab">Train</div><div class="sm-tab on">Recover</div><div class="sm-tab">Progress</div></div><div class="sm-ava">S</div></div>
+    <div class="sm-body">
+      <!-- Readiness hero with source badges -->
+      <div style="background:linear-gradient(135deg,rgba(61,219,160,.07),rgba(61,219,160,.02));border:1px solid rgba(61,219,160,.14);border-radius:16px;padding:18px;margin-bottom:12px;display:flex;gap:16px;align-items:center;">
+        <div style="position:relative;width:80px;height:80px;flex-shrink:0;">
+          <svg width="80" height="80" viewBox="0 0 80 80" style="transform:rotate(-90deg);">
+            <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+            <circle cx="40" cy="40" r="33" fill="none" stroke="#3DDBA0" stroke-width="6" stroke-dasharray="207.3" stroke-dashoffset="41" stroke-linecap="round"/>
+          </svg>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+            <div style="font-family:var(--display);font-size:20px;font-weight:700;color:var(--green);line-height:1;">8.4</div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--t3);">READY</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--green);margin-bottom:3px;">🟢 Train hard today</div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:8px;">HRV at 14-day high · sleep fully restorative · load optimal</div>
+          <div style="font-size:11px;color:var(--t3);">Target: <strong style="color:var(--t1);">420–490 AU · ~70 min · RPE 8/10</strong></div>
+          <!-- NEW: source attribution badges -->
+          <div style="display:flex;gap:4px;margin-top:7px;flex-wrap:wrap;">
+            <span style="font-size:8px;font-family:var(--mono);background:var(--pd);color:var(--purp);border:1px solid rgba(157,130,255,.2);padding:2px 6px;border-radius:4px;">Oura HRV 67ms</span>
+            <span style="font-size:8px;font-family:var(--mono);background:rgba(255,59,59,.1);color:#FF6060;border:1px solid rgba(255,59,59,.2);padding:2px 6px;border-radius:4px;">WHOOP 84%</span>
+            <span style="font-size:8px;font-family:var(--mono);background:var(--td);color:var(--teal);border:1px solid rgba(0,222,181,.2);padding:2px 6px;border-radius:4px;">ACWR 1.1</span>
+          </div>
+        </div>
+      </div>
+      <!-- Three factor cards with device labels -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:10px;padding:11px;">
+          <div style="font-size:8px;font-family:var(--mono);color:var(--purp);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Oura HRV</div>
+          <div style="font-size:17px;font-weight:700;color:var(--green);">↑ 8.2</div>
+          <div style="font-size:10px;color:var(--t3);">Above baseline</div>
+          <div style="height:3px;background:var(--ln1);border-radius:2px;margin-top:5px;"><div style="height:100%;width:82%;border-radius:2px;background:var(--green);"></div></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:10px;padding:11px;">
+          <div style="font-size:8px;font-family:var(--mono);color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Wellness</div>
+          <div style="font-size:17px;font-weight:700;color:var(--green);">7.6</div>
+          <div style="font-size:10px;color:var(--t3);">Sleep · mood · soreness</div>
+          <div style="height:3px;background:var(--ln1);border-radius:2px;margin-top:5px;"><div style="height:100%;width:76%;border-radius:2px;background:var(--green);"></div></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:10px;padding:11px;">
+          <div style="font-size:8px;font-family:var(--mono);color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Load factor</div>
+          <div style="font-size:17px;font-weight:700;color:var(--green);">9.0</div>
+          <div style="font-size:10px;color:var(--t3);">ACWR 1.1 · optimal</div>
+          <div style="height:3px;background:var(--ln1);border-radius:2px;margin-top:5px;"><div style="height:100%;width:90%;border-radius:2px;background:var(--green);"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: FORM RESULT ── -->
+<div class="sec" id="screen-form-result">
+  <div class="sec-hdr">
+    <div class="sec-num">12 — UI Screen</div>
+    <h2 class="sec-title">Form Result + Sleep Context</h2>
+    <p class="sec-sub">Existing form result screen extended. Sleep context banner appears only when Oura/WHOOP sleep data exists AND REM was below threshold. Never shown without data.</p>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span class="pill p-g">GOOD SLEEP</span> No banner shown</div>
+      <div class="screen-mock">
+        <div class="sm-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <div class="sm-body">
+          <div style="background:linear-gradient(135deg,rgba(61,219,160,.06),rgba(61,219,160,.02));border:1px solid rgba(61,219,160,.14);border-radius:14px;padding:16px;margin-bottom:10px;">
+            <div style="font-size:9px;color:var(--teal);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px;">Gym · Squat</div>
+            <div style="font-family:var(--display);font-size:17px;font-weight:700;margin-bottom:10px;">Your analysis is ready</div>
+            <div style="display:flex;gap:14px;align-items:center;">
+              <div style="position:relative;width:64px;height:64px;flex-shrink:0;">
+                <svg width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg);"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="5"/><circle cx="32" cy="32" r="26" fill="none" stroke="#3DDBA0" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="28" stroke-linecap="round"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;"><div style="font-family:var(--display);font-size:18px;font-weight:700;color:var(--green);">84</div><div style="font-size:8px;color:var(--t3);font-family:var(--mono);">/100</div></div>
+              </div>
+              <div><div style="font-size:12px;font-weight:600;margin-bottom:3px;">Strong — a few things to sharpen</div><div style="font-size:11px;color:var(--t2);">Technique is sound. Main opportunity is depth.</div><div style="font-size:10px;color:var(--green);margin-top:4px;">↑ 12% vs your first squat analysis</div></div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--t2);text-align:center;padding:8px;">No sleep banner — REM was normal (22%)</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span class="pill p-a">LOW REM</span> Banner shown</div>
+      <div class="screen-mock">
+        <div class="sm-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <div class="sm-body">
+          <div style="background:linear-gradient(135deg,rgba(61,219,160,.06),rgba(61,219,160,.02));border:1px solid rgba(61,219,160,.14);border-radius:14px;padding:16px;margin-bottom:10px;">
+            <div style="font-size:9px;color:var(--teal);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px;">Gym · Squat</div>
+            <div style="font-family:var(--display);font-size:17px;font-weight:700;margin-bottom:10px;">Your analysis is ready</div>
+            <div style="display:flex;gap:14px;align-items:center;">
+              <div style="position:relative;width:64px;height:64px;flex-shrink:0;">
+                <svg width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg);"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="5"/><circle cx="32" cy="32" r="26" fill="none" stroke="#F5A823" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="60" stroke-linecap="round"/></svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;"><div style="font-family:var(--display);font-size:18px;font-weight:700;color:var(--amber);">74</div><div style="font-size:8px;color:var(--t3);font-family:var(--mono);">/100</div></div>
+              </div>
+              <div><div style="font-size:12px;font-weight:600;margin-bottom:3px;">Developing — room to improve</div><div style="font-size:11px;color:var(--t2);">Several areas for improvement.</div></div>
+            </div>
+          </div>
+          <!-- SLEEP CONTEXT BANNER — the new element -->
+          <div style="background:var(--ad);border:1px solid rgba(245,168,35,.2);border-radius:10px;padding:11px 13px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:16px;flex-shrink:0;">😴</span>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--amber);margin-bottom:2px;">Sleep may have affected this score</div>
+              <div style="font-size:10px;color:rgba(245,168,35,.8);line-height:1.5;">Your REM sleep was 14% last night — below the threshold for complete motor memory consolidation. This score may underrepresent your true technique level. Retest after a full night's sleep.</div>
+              <div style="display:flex;gap:4px;margin-top:6px;"><span style="font-size:8px;font-family:var(--mono);background:var(--pd);color:var(--purp);border:1px solid rgba(157,130,255,.2);padding:1px 6px;border-radius:4px;">Oura REM 14%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN: COACH ── -->
+<div class="sec" id="screen-coach">
+  <div class="sec-hdr">
+    <div class="sec-num">13 — UI Screen</div>
+    <h2 class="sec-title">Coach with Wearable Context</h2>
+    <p class="sec-sub">The coach opening message references the user's wearable data directly. This is what makes it bespoke — it knows your physiological state before you say a word.</p>
+  </div>
+
+  <div class="screen-mock">
+    <div class="sm-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><div class="sm-url">formm.app/coach</div></div>
+    <div class="sm-nav"><div class="sm-logo">Formm</div><div class="sm-tabs"><div class="sm-tab on">Train</div><div class="sm-tab">Recover</div><div class="sm-tab">Progress</div></div><div class="sm-ava">S</div></div>
+    <div class="sm-body">
+      <!-- NEW: wearable context card above chat -->
+      <div style="background:var(--bd);border:1px solid rgba(79,166,255,.2);border-radius:12px;padding:11px 14px;margin-bottom:10px;">
+        <div style="font-size:8px;color:var(--blue);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;">Your data — coach has full context</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><div style="font-size:10px;color:var(--t3);">Readiness (Oura+WHOOP)</div><div style="font-size:12px;font-weight:600;color:var(--green);">8.4 · Green zone</div></div>
+          <div><div style="font-size:10px;color:var(--t3);">ACWR</div><div style="font-size:12px;font-weight:600;color:var(--green);">1.1 · optimal</div></div>
+          <div><div style="font-size:10px;color:var(--t3);">Last form check</div><div style="font-size:12px;font-weight:600;">Squat 84/100 · Apr 20</div></div>
+          <div><div style="font-size:10px;color:var(--t3);">WHOOP strain yesterday</div><div style="font-size:12px;font-weight:600;">14.2 · moderate-high</div></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+        <div style="background:var(--bg3);border:1px solid var(--ln1);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:12px;line-height:1.6;max-width:94%;">
+          Your recovery looks strong today — HRV is at a 14-day high and your WHOOP strain from yesterday (14.2) has been absorbed well.<br><br>Your squat scored 84/100 on Monday — depth is the main opportunity. The quality-adjusted load from that session was estimated at 510 AU (higher than your RPE suggested due to form dips). Worth factoring into today's planning. What are you training today?
+        </div>
+        <div style="background:var(--td);border:1px solid rgba(0,222,181,.15);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:12px;align-self:flex-end;max-width:85%;">
+          Heavy squat session — was thinking of going for a PR today
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--ln1);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:12px;line-height:1.6;max-width:94%;">
+          Good timing — today is as prepared as you've been in 2 weeks. A few things to optimise the PR attempt: do your ankle mobility work first (3×10 wall ankle stretches per side — this addresses the depth issue). Warm up to ~85% before your max attempt. And given yesterday's strain, stop after the PR attempt rather than adding volume. Your nervous system will be close to its limit.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="background:var(--bg3);border:1px solid var(--ln2);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--t2);cursor:pointer;">What's my quality-adjusted load?</div>
+        <div style="background:var(--bg3);border:1px solid var(--ln2);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--t2);cursor:pointer;">How's my load trend?</div>
+        <div style="background:var(--bg3);border:1px solid var(--ln2);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--t2);cursor:pointer;">Explain my HRV</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BUILD SEQUENCE ── -->
+<div class="sec" id="sequence">
+  <div class="sec-hdr">
+    <div class="sec-num">14 — Ship It</div>
+    <h2 class="sec-title">Build sequence — week by week</h2>
+    <p class="sec-sub">Each sprint is independently shippable. Stop at any sprint and users get value. Never skip normalisation.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-n">W1</div><div class="step-body"><div class="step-title">Android Health Connect SDK + backend /api/wearable/sync</div><div class="step-desc">Add Health Connect dependency. Request permissions. Read HRV + sleep. POST to backend. Backend stores raw readings. No inference yet — just data collection.</div><div class="step-code">Deliverable: Samsung/Pixel/Xiaomi health data flowing to backend. Test with 3 devices.</div></div></div>
+    <div class="step"><div class="step-n">W2</div><div class="step-body"><div class="step-title">Z-score normalisation pipeline (server-side)</div><div class="step-desc">Build update_normalisation() service. Wire it to /api/wearable/sync webhook. "Building baseline" state for &lt;7 readings. Unit test with mock data — verify WHOOP 55ms and Oura 55ms produce different z-scores before baseline is established, and the same z-score once baselines converge.</div><div class="step-code">Deliverable: every incoming reading has a z-score or "building" flag. No inference until this is passing all tests.</div></div></div>
+    <div class="step"><div class="step-n">W3</div><div class="step-body"><div class="step-title">Terra API for WHOOP (apply to WHOOP developer portal NOW — takes 1–2 weeks)</div><div class="step-desc">Terra webhook endpoint. Map WHOOP strain + sleep + HRV to internal schema. Quality-adjusted load computation — fires when form analysis + WHOOP strain both exist for same day.</div><div class="step-code">Deliverable: WHOOP strain auto-populates ACWR when user hasn't submitted RPE. quality_adjusted_au appears in session response.</div></div></div>
+    <div class="step"><div class="step-n">W4</div><div class="step-body"><div class="step-title">Oura API via Terra + REM sleep → form check banner</div><div class="step-desc">Oura sleep data (deep sleep, REM, efficiency, skin temp). Wire REM flag to form result response. Android: SleepContextBanner in FormResultFragment — shown only when has_data=true AND rem_flag=true.</div><div class="step-code">Deliverable: users with Oura see sleep context on their form check results. Test: poor REM night → banner appears next morning's form check.</div></div></div>
+    <div class="step"><div class="step-n">W5</div><div class="step-body"><div class="step-title">Intelligence Feed — backend inference engine + Android screen</div><div class="step-desc">Build InferenceEngine.run_daily_inferences(). Start with 3 inferences: HRV session target, red alert convergence, fatigue vs technique. IntelligenceFeedFragment with RecyclerView. /api/intelligence/feed endpoint.</div><div class="step-code">Deliverable: Intelligence Feed screen live with first 3 inferences. Dismiss tracking. FCM push on red alerts.</div></div></div>
+    <div class="step"><div class="step-n">W6</div><div class="step-body"><div class="step-title">Wearable Hub screen + enriched readiness + enriched dashboard</div><div class="step-desc">WearableHubFragment with device grid. Extend /api/readiness/today with data_sources and wearable context. Android readiness screen: add device source badges, wearable factor cards. Dashboard: add wearable strip card.</div><div class="step-code">Deliverable: complete V1 wearable experience. Users can connect devices, see data, and receive intelligence.</div></div></div>
+    <div class="step"><div class="step-n">W7</div><div class="step-body"><div class="step-title">Coach wearable context + remaining V1 inferences</div><div class="step-desc">Extend /api/coach/context with wearable_context. Update coach system prompt. Add illness early warning inference. Add WHOOP strain decoupling inference. Add dynamic prompt chips based on data state.</div><div class="step-code">Deliverable: coach opening message references wearable data. Full V1 inference library live.</div></div></div>
+    <div class="step"><div class="step-n">W8+</div><div class="step-body"><div class="step-title">V2: Garmin API, chronotype, periodisation phase detection</div><div class="step-desc">Garmin via Terra. VO2max trend. Ground contact balance + Formm asymmetry cross-domain validation. Monthly analysis jobs. Chronotype detection. Apply for Apple HealthKit access for iOS.</div><div class="step-code">V2 features activate only for users with sufficient data history. "Building" states gracefully handled throughout.</div></div></div>
+  </div>
+</div>
+
+<!-- ── EDGE CASES ── -->
+<div class="sec" id="edge-cases">
+  <div class="sec-hdr">
+    <div class="sec-num">15 — Ship It</div>
+    <h2 class="sec-title">Edge Cases & Risks</h2>
+    <p class="sec-sub">The things that will bite you if you don't handle them before launch.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-n">R1</div><div class="step-body"><div class="step-title">OEM battery optimisation kills WorkManager (Xiaomi, OnePlus, Realme)</div><div class="step-desc">The most common failure mode for Indian Android deployments. These OEMs aggressively kill background processes. Morning sync job will silently fail. Add to onboarding: a guided "Allow background activity" flow that deep-links to the OEM's specific battery settings screen. Test explicitly on Xiaomi MIUI and OnePlus OxygenOS before launch.</div></div></div>
+    <div class="step"><div class="step-n">R2</div><div class="step-body"><div class="step-title">User has both WHOOP and Oura — which HRV to use?</div><div class="step-desc">Always use Oura as primary HRV source (CCC 0.99 vs WHOOP CCC 0.94 per 2025 peer-reviewed study). WHOOP as secondary/validation. If both exist and z-scores diverge by >1.5: flag to user. Never average them — they use different algorithms. Display both values in expanded readiness breakdown with "primary source" label.</div></div></div>
+    <div class="step"><div class="step-n">R3</div><div class="step-body"><div class="step-title">WHOOP strain for "yesterday" vs session-specific strain</div><div class="step-desc">WHOOP strain accumulates throughout the day — there's no per-exercise strain split. Match WHOOP strain to Formm sessions by date, not by timestamp. Edge case: user uploads form video 2 days after session — use video's session_date for strain lookup, not upload timestamp. If multiple sessions in one day, allocate strain proportionally by session load AU.</div></div></div>
+    <div class="step"><div class="step-n">R4</div><div class="step-body"><div class="step-title">NCR summer heat (+40°C) affects skin temp baselines</div><div class="step-desc">Oura and WHOOP skin temperature sensors are affected by ambient temperature. In Indian summers, baseline skin temp will be elevated compared to winter. Use a 14-day rolling baseline for skin temp (not 7-day) to reduce seasonal drift. Add a note in the inference output when skin temp z-score is borderline: "Warm ambient temperatures can affect this reading."</div></div></div>
+    <div class="step"><div class="step-n">R5</div><div class="step-body"><div class="step-title">User connects wearable mid-inference cycle</div><div class="step-desc">User connects Oura on Day 8. They have 8 days of Oura data but zero previously. The normalisation pipeline needs 7 days minimum — on Day 8, they have exactly 7. But: the first 7-day baseline has high variance (user's body is still adapting to tracking). Suppress inferences that require z-score precision for the first 14 days after connection, not 7. Show "calibrating" state in UI for this window.</div></div></div>
+    <div class="step"><div class="step-n">R6</div><div class="step-body"><div class="step-title">Terra webhook delivery failures / duplicate events</div><div class="step-desc">Terra may retry webhooks on timeout. Implement idempotency keys on /api/terra/webhook: store (terra_user_id, data_type, timestamp) as unique key. Reject duplicates with 200 OK (not 4xx — Terra will retry on non-200). Handle Terra API rate limits: queue large historical backfills (first-connect 30-day backfill) as async batch jobs, not synchronous webhook processing.</div></div></div>
+    <div class="step"><div class="step-n">R7</div><div class="step-body"><div class="step-title">DPDP Act 2023 — health data is sensitive personal data</div><div class="step-desc">India's Digital Personal Data Protection Act classifies biometric data as sensitive. Explicit, specific consent required before collection. Store consent record with timestamp, version, and scope. Re-consent required if scope changes. Data localisation: health data must be stored in India or in a jurisdiction with equivalent protection. Add "Delete all wearable data" with immediate effect — not a 30-day delay.</div></div></div>
+  </div>
+
+  <div class="callout c-info" style="margin-top:8px;">
+    <div class="c-icon">⚡</div>
+    <div class="c-text"><strong>The most important thing to remember:</strong> The product must be fully valuable without any wearable connected. The Formm camera rPPG already provides the core HRV readiness signal with no hardware required. Wearables enhance accuracy and unlock additional inferences — they never gate core product value. Design every empty state and fallback to communicate capability, not incompleteness.</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.s-item').forEach(b => b.classList.remove('on'));
+  const sec = document.getElementById(id);
+  if (sec) { sec.classList.add('on'); sec.scrollIntoView({behavior:'smooth', block:'start'}); }
+  document.querySelectorAll('.s-item').forEach(b => {
+    if (b.getAttribute('onclick') === `show('${id}')`) b.classList.add('on');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Complete Visual Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ DESIGN TOKENS ══════════════════════════════════════════════════ */
+:root {
+  /* Backgrounds — slightly warm-tinted dark, not pure cold black */
+  --bg0: #08080C;
+  --bg1: #0F0F17;
+  --bg2: #15151F;
+  --bg3: #1C1C28;
+  --bg4: #242433;
+  --bg5: #2D2D40;
+
+  /* Lines */
+  --ln1: rgba(255,255,255,0.06);
+  --ln2: rgba(255,255,255,0.10);
+  --ln3: rgba(255,255,255,0.16);
+
+  /* Text */
+  --tx1: #F2F1EC;  /* warm white — not pure white */
+  --tx2: #9896AE;  /* secondary */
+  --tx3: #5A5870;  /* muted */
+
+  /* Brand — electric teal, Formm's signature */
+  --teal:    #00E0B5;
+  --teal2:   #00C49E;
+  --teal-glow: rgba(0,224,181,0.15);
+  --teal-dim:  rgba(0,224,181,0.08);
+
+  /* Status */
+  --green:   #36D99A;
+  --green-d: rgba(54,217,154,0.10);
+  --amber:   #F5A524;
+  --amber-d: rgba(245,165,36,0.10);
+  --coral:   #FF4560;
+  --coral-d: rgba(255,69,96,0.10);
+  --blue:    #4DA3FF;
+  --blue-d:  rgba(77,163,255,0.10);
+  --purple:  #9B7FFF;
+  --purple-d:rgba(155,127,255,0.10);
+
+  /* Radius */
+  --r6:  6px; --r10: 10px; --r14: 14px;
+  --r18: 18px; --r24: 24px;
+
+  /* Type */
+  --display: 'Clash Display', sans-serif;
+  --body:    'Cabinet Grotesk', sans-serif;
+  --mono:    'JetBrains Mono', monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg0);
+  color:var(--tx1);
+  font-family:var(--body);
+  font-size:14px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ═══ OUTER SHELL ════════════════════════════════════════════════════ */
+.outer{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  min-height:100vh;
+}
+
+/* ═══ LEFT PANEL — DESIGN BRIEF ══════════════════════════════════════ */
+.left{
+  background:var(--bg1);
+  border-right:1px solid var(--ln1);
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+}
+.left::-webkit-scrollbar{width:3px;}
+.left::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px;}
+
+.left-header{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--ln1);
+}
+.left-brand{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.brand-mark{
+  width:32px;height:32px;border-radius:9px;
+  background:var(--teal);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:16px;font-weight:700;
+  color:var(--bg0);
+}
+.brand-name{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.5px;}
+.brand-tag{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;}
+
+.left-title{font-family:var(--display);font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:4px;}
+.left-sub{font-size:11px;color:var(--tx3);line-height:1.5;}
+
+/* Screen nav */
+.screen-nav{flex:1;padding:12px 0;}
+.nav-section{
+  padding:12px 20px 4px;
+  font-family:var(--mono);font-size:9px;color:var(--tx3);
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 20px;
+  font-size:12px;color:var(--tx2);
+  cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;
+  transition:all .15s;
+  border-left:2px solid transparent;
+}
+.nav-btn:hover{color:var(--tx1);background:var(--ln1);}
+.nav-btn.active{color:var(--teal);border-left-color:var(--teal);background:var(--teal-dim);}
+.nav-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--bg5);flex-shrink:0;transition:.15s;
+}
+.nav-btn.active .nav-dot{background:var(--teal);}
+.nav-badge{
+  margin-left:auto;background:var(--teal);color:var(--bg0);
+  font-size:8px;font-family:var(--mono);font-weight:700;
+  padding:1px 5px;border-radius:10px;
+}
+
+/* Visual analysis below nav */
+.left-analysis{
+  padding:16px 20px;
+  border-top:1px solid var(--ln1);
+}
+.la-title{font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.la-issue{
+  display:flex;gap:8px;align-items:flex-start;
+  padding:6px 0;border-bottom:1px solid var(--ln1);font-size:11px;
+}
+.la-issue:last-child{border:none;}
+.la-icon{font-size:12px;flex-shrink:0;margin-top:1px;}
+.la-text{color:var(--tx2);line-height:1.4;}
+.la-text strong{color:var(--tx1);font-weight:600;}
+
+/* ═══ RIGHT PANEL — PROTOTYPE ════════════════════════════════════════ */
+.right{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 40px 80px;
+  gap:60px;
+  background:
+    radial-gradient(ellipse 600px 400px at 70% 10%, rgba(0,224,181,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 400px 300px at 20% 80%, rgba(155,127,255,0.04) 0%, transparent 60%),
+    var(--bg0);
+}
+
+/* ═══ SECTION HEADERS ════════════════════════════════════════════════ */
+.proto-section{width:100%;max-width:1040px;}
+.proto-hdr{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:24px;padding-bottom:16px;
+  border-bottom:1px solid var(--ln1);
+}
+.proto-hdr-left{}
+.proto-tag{
+  font-family:var(--mono);font-size:9px;color:var(--teal);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;
+}
+.proto-title{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.1;}
+.proto-sub{font-size:13px;color:var(--tx2);margin-top:4px;max-width:480px;}
+.proto-badge{
+  font-family:var(--mono);font-size:10px;
+  padding:4px 10px;border-radius:20px;
+  background:var(--teal-dim);color:var(--teal);
+  border:1px solid rgba(0,224,181,.2);
+  white-space:nowrap;
+}
+
+/* ═══ APP FRAME ══════════════════════════════════════════════════════ */
+.app-frame{
+  background:var(--bg1);
+  border:1px solid var(--ln2);
+  border-radius:var(--r24);
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.03),
+    0 40px 120px rgba(0,0,0,.7),
+    0 0 80px rgba(0,224,181,.04);
+  width:100%;
+}
+.app-bar{
+  background:var(--bg2);
+  padding:11px 18px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--ln1);
+}
+.app-dot{width:9px;height:9px;border-radius:50%;}
+.dot-r{background:#FF5F57;} .dot-y{background:#FFBD2E;} .dot-g{background:#28C840;}
+.app-url{
+  margin:0 auto;background:var(--bg3);border-radius:6px;
+  padding:4px 14px;font-family:var(--mono);font-size:10px;color:var(--tx3);
+}
+
+/* ═══ APP INNER NAVIGATION ═══════════════════════════════════════════ */
+.app-nav{
+  background:var(--bg2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:52px;
+  border-bottom:1px solid var(--ln1);
+}
+.app-logo{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.5px;}
+.app-tabs{display:flex;gap:2px;}
+.app-tab{
+  padding:7px 16px;border-radius:8px;
+  font-size:12px;font-weight:500;color:var(--tx3);cursor:pointer;
+  transition:all .15s;
+}
+.app-tab.on{background:var(--teal-dim);color:var(--teal);font-weight:700;}
+.app-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--teal);color:var(--bg0);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+}
+
+/* ═══ DASHBOARD SCREEN ════════════════════════════════════════════════ */
+.screen-dashboard{padding:20px;}
+
+/* Today card — the hero */
+.today-card{
+  background:
+    radial-gradient(ellipse 300px 200px at 80% 50%, rgba(54,217,154,0.06) 0%, transparent 70%),
+    var(--bg2);
+  border:1px solid rgba(54,217,154,0.14);
+  border-radius:var(--r18);
+  padding:20px 22px;
+  display:grid;
+  grid-template-columns:1fr 84px;
+  gap:16px;
+  align-items:center;
+  margin-bottom:14px;
+  position:relative;
+  overflow:hidden;
+}
+.today-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(54,217,154,0.3),transparent);
+}
+.tc-eyebrow{
+  font-family:var(--mono);font-size:9px;color:var(--teal);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;
+}
+.tc-greeting{
+  font-family:var(--display);font-size:20px;font-weight:700;
+  letter-spacing:-.3px;margin-bottom:10px;
+}
+.tc-zone-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--green-d);border:1px solid rgba(54,217,154,.2);
+  border-radius:8px;padding:7px 12px;margin-bottom:6px;
+}
+.tc-zone-text{font-size:13px;font-weight:700;color:var(--green);}
+.tc-desc{font-size:11px;color:var(--tx2);line-height:1.5;margin-bottom:6px;}
+.tc-target{
+  font-size:11px;color:var(--tx3);
+}
+.tc-target strong{color:var(--tx1);font-size:12px;}
+
+/* Readiness ring */
+.rd-ring{position:relative;width:84px;height:84px;}
+.rd-ring svg{transform:rotate(-90deg);}
+.rd-ring-inner{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;
+}
+.rd-ring-score{
+  font-family:var(--display);font-size:22px;font-weight:700;
+  color:var(--green);line-height:1;
+}
+.rd-ring-label{font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:.5px;}
+
+/* Stats row */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;
+}
+.stat-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:12px 14px;
+  transition:border-color .2s;
+}
+.stat-card:hover{border-color:var(--ln2);}
+.stat-ic{font-size:15px;margin-bottom:5px;}
+.stat-val{
+  font-family:var(--display);font-size:19px;font-weight:700;
+  line-height:1;margin-bottom:3px;
+}
+.stat-lbl{font-size:10px;color:var(--tx3);}
+
+/* Action cards */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.action-primary{
+  background:var(--teal);
+  border-radius:var(--r14);padding:15px 18px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:all .15s;
+}
+.action-primary:hover{background:var(--teal2);transform:translateY(-1px);}
+.action-secondary{
+  background:var(--bg2);border:1px solid var(--ln2);
+  border-radius:var(--r14);padding:15px 18px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:all .15s;
+}
+.action-secondary:hover{border-color:var(--ln3);transform:translateY(-1px);}
+.action-icon{font-size:22px;}
+.action-name{font-size:13px;font-weight:700;color:var(--bg0);}
+.action-name-s{font-size:13px;font-weight:700;}
+.action-sub{font-size:10px;opacity:.65;color:var(--bg0);margin-top:1px;}
+.action-sub-s{font-size:10px;color:var(--tx3);margin-top:1px;}
+
+/* Form insight strip */
+.insight-strip{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:13px 16px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:border-color .2s;
+}
+.insight-strip:hover{border-color:rgba(0,224,181,.2);}
+.is-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:var(--teal-dim);border:1px solid rgba(0,224,181,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.is-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.is-sub{font-size:11px;color:var(--tx2);}
+.is-arrow{font-size:14px;color:var(--teal);margin-left:auto;}
+
+/* ═══ FORM ANALYSIS SCREEN ════════════════════════════════════════════ */
+.screen-form{padding:0;}
+.form-tabs{
+  display:flex;background:var(--bg3);margin:16px 20px;
+  padding:3px;border-radius:10px;
+}
+.form-tab{
+  flex:1;padding:7px;text-align:center;border-radius:7px;
+  font-size:11px;font-weight:500;color:var(--tx3);cursor:pointer;transition:.15s;
+}
+.form-tab.on{background:var(--teal);color:var(--bg0);font-weight:700;}
+
+.form-body{padding:0 20px 20px;}
+.form-selects{display:flex;gap:8px;margin-bottom:14px;}
+.form-select{
+  flex:1;background:var(--bg3);border:1px solid var(--ln2);
+  border-radius:var(--r10);padding:0 14px;height:44px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:.15s;
+}
+.form-select:hover{border-color:var(--ln3);}
+.fs-label{font-size:8px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:1px;}
+.fs-val{font-size:13px;font-weight:600;}
+
+.upload-zone{
+  border:1.5px dashed rgba(0,224,181,.22);
+  border-radius:var(--r18);padding:30px;text-align:center;
+  background:rgba(0,224,181,.02);
+  cursor:pointer;transition:all .2s;margin-bottom:12px;
+}
+.upload-zone:hover{border-color:rgba(0,224,181,.4);background:rgba(0,224,181,.04);}
+.upload-icon{font-size:32px;margin-bottom:8px;display:block;}
+.upload-title{font-size:14px;font-weight:700;margin-bottom:3px;}
+.upload-sub{font-size:11px;color:var(--tx2);}
+.upload-format{
+  margin-top:10px;display:inline-block;
+  background:var(--bg3);border:1px solid var(--ln1);
+  border-radius:6px;padding:4px 12px;
+  font-family:var(--mono);font-size:10px;color:var(--tx3);
+}
+
+.shoot-tips{
+  background:rgba(245,165,36,.06);border:1px solid rgba(245,165,36,.18);
+  border-radius:var(--r10);padding:12px 14px;
+}
+.st-hdr{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;
+}
+.st-label{font-size:9px;color:var(--amber);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;}
+.st-tip{font-size:11px;color:rgba(245,165,36,.85);padding:2px 0;}
+.st-tip::before{content:'→ ';}
+
+.form-cta{
+  margin-top:14px;background:var(--teal);color:var(--bg0);
+  padding:13px;text-align:center;border-radius:var(--r10);
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:.15s;
+}
+.form-cta:hover{background:var(--teal2);}
+
+/* ═══ ANALYSIS RESULT SCREEN ═════════════════════════════════════════ */
+.screen-result{padding:20px;}
+.result-hero{
+  background:
+    radial-gradient(ellipse 300px 200px at 80% 30%, rgba(54,217,154,.05) 0%, transparent 60%),
+    var(--bg2);
+  border:1px solid rgba(54,217,154,.14);
+  border-radius:var(--r18);padding:20px;margin-bottom:14px;
+}
+.rh-movement{font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.rh-title{font-family:var(--display);font-size:19px;font-weight:700;margin-bottom:14px;}
+.rh-main{display:flex;gap:16px;align-items:center;}
+.rh-gauge{position:relative;width:76px;height:76px;flex-shrink:0;}
+.rh-gauge svg{transform:rotate(-90deg);}
+.rh-gauge-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.rh-score{font-family:var(--display);font-size:24px;font-weight:700;color:var(--green);line-height:1;}
+.rh-max{font-size:9px;color:var(--tx3);font-family:var(--mono);}
+.rh-verdict{font-size:14px;font-weight:700;margin-bottom:4px;}
+.rh-desc{font-size:12px;color:var(--tx2);line-height:1.55;}
+
+.result-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.rm-card{
+  background:var(--bg3);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:12px 13px;
+}
+.rm-name{font-size:10px;color:var(--tx3);margin-bottom:5px;}
+.rm-val{font-size:18px;font-weight:700;margin-bottom:4px;}
+.rm-bar{height:3px;background:var(--ln1);border-radius:2px;}
+.rm-fill{height:100%;border-radius:2px;}
+
+.result-faults{
+  background:rgba(245,165,36,.06);border:1px solid rgba(245,165,36,.18);
+  border-radius:var(--r14);padding:14px 16px;margin-bottom:12px;
+}
+.rf-hdr{font-size:10px;color:var(--amber);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.fault{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(245,165,36,.08);align-items:flex-start;}
+.fault:last-child{border:none;padding-bottom:0;}
+.fault-emoji{font-size:14px;flex-shrink:0;}
+.fault-name{font-size:12px;font-weight:600;margin-bottom:2px;}
+.fault-fix{font-size:11px;color:rgba(245,165,36,.8);line-height:1.45;}
+
+.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ra-save{background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r10);padding:11px;text-align:center;font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;}
+.ra-coach{background:var(--teal);color:var(--bg0);border-radius:var(--r10);padding:11px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* ═══ READINESS SCREEN ════════════════════════════════════════════════ */
+.screen-readiness{padding:16px 20px;}
+.readiness-hero{
+  background:
+    radial-gradient(ellipse 280px 180px at 75% 40%, rgba(54,217,154,.06) 0%, transparent 70%),
+    var(--bg2);
+  border:1px solid rgba(54,217,154,.14);
+  border-radius:var(--r18);padding:20px;
+  display:flex;gap:18px;align-items:center;margin-bottom:14px;
+}
+.rh2-gauge{position:relative;width:92px;height:92px;flex-shrink:0;}
+.rh2-gauge svg{transform:rotate(-90deg);}
+.rh2-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.rh2-score{font-family:var(--display);font-size:28px;font-weight:700;color:var(--green);line-height:1;}
+.rh2-of{font-size:9px;color:var(--tx3);font-family:var(--mono);}
+.rh2-right{}
+.rh2-zone{font-size:16px;font-weight:700;color:var(--green);margin-bottom:4px;}
+.rh2-desc{font-size:12px;color:var(--tx2);line-height:1.55;margin-bottom:8px;}
+.rh2-target{
+  background:var(--green-d);border:1px solid rgba(54,217,154,.2);
+  border-radius:8px;padding:8px 12px;font-size:12px;
+}
+.rh2-target strong{color:var(--green);}
+
+.rd-factors{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.rdf{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:11px 12px;
+}
+.rdf-label{font-size:8px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.rdf-val{font-size:17px;font-weight:700;margin-bottom:2px;}
+.rdf-desc{font-size:10px;color:var(--tx3);margin-bottom:5px;}
+.rdf-bar{height:3px;background:var(--ln1);border-radius:2px;}
+.rdf-fill{height:100%;border-radius:2px;}
+
+.rd-accuracy{
+  display:flex;align-items:center;gap:7px;
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:8px 12px;
+  margin-bottom:12px;font-size:11px;color:var(--tx2);
+}
+.acc-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+.acc-link{color:var(--teal);margin-left:4px;cursor:pointer;}
+
+.checkin-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:16px;
+}
+.ci-title{font-size:13px;font-weight:700;margin-bottom:12px;}
+.ci-slider{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.ci-lbl{font-size:11px;color:var(--tx2);width:64px;flex-shrink:0;}
+.ci-track{flex:1;height:4px;background:var(--ln1);border-radius:2px;position:relative;}
+.ci-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--coral),var(--amber),var(--green));}
+.ci-thumb{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:13px;height:13px;border-radius:50%;
+  background:white;box-shadow:0 0 0 2.5px rgba(255,255,255,.25);
+  cursor:grab;
+}
+.ci-val{font-family:var(--mono);font-size:11px;color:var(--tx3);width:22px;text-align:right;}
+.ci-submit{
+  background:var(--teal);color:var(--bg0);
+  text-align:center;padding:11px;border-radius:var(--r10);
+  font-size:13px;font-weight:700;cursor:pointer;margin-top:12px;
+  transition:.15s;
+}
+.ci-submit:hover{background:var(--teal2);}
+
+/* ═══ READINESS AMBER ═════════════════════════════════════════════════ */
+.readiness-hero-amber{
+  background:
+    radial-gradient(ellipse 280px 180px at 75% 40%, rgba(245,165,36,.05) 0%, transparent 70%),
+    var(--bg2);
+  border:1px solid rgba(245,165,36,.14);
+  border-radius:var(--r18);padding:20px;
+  display:flex;gap:18px;align-items:center;margin-bottom:14px;
+}
+.amber-zone{font-size:16px;font-weight:700;color:var(--amber);margin-bottom:4px;}
+.amber-target{background:rgba(245,165,36,.08);border:1px solid rgba(245,165,36,.2);border-radius:8px;padding:8px 12px;font-size:12px;}
+.amber-target strong{color:var(--amber);}
+.amber-mods{
+  background:rgba(245,165,36,.06);border:1px solid rgba(245,165,36,.18);
+  border-radius:var(--r14);padding:14px 16px;margin-bottom:10px;
+}
+.am-hdr{font-size:9px;color:var(--amber);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;}
+.am-item{font-size:11px;color:rgba(245,165,36,.85);padding:3px 0;}
+.am-item::before{content:'→ ';}
+.override-row{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:10px 14px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;color:var(--tx2);cursor:pointer;
+}
+.override-arrow{color:var(--tx3);}
+
+/* ═══ SCOUT SCORE SCREEN ══════════════════════════════════════════════ */
+.screen-scout-locked{padding:16px 20px;}
+.sc-lock{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r18);padding:28px 24px;text-align:center;margin-bottom:12px;
+}
+.sc-lock-icon{font-size:40px;margin-bottom:12px;display:block;}
+.sc-lock-title{font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:6px;}
+.sc-lock-desc{font-size:13px;color:var(--tx2);margin-bottom:20px;line-height:1.6;}
+.sc-progress{
+  background:var(--bg3);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:14px 16px;margin-bottom:16px;text-align:left;
+}
+.sc-prog-lbl{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;}
+.sc-prog-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;}
+.sc-prog-bar{height:6px;background:var(--ln1);border-radius:3px;}
+.sc-prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal2),var(--teal));}
+.sc-prog-note{font-size:10px;color:var(--tx3);margin-top:6px;}
+.sc-cta{
+  display:inline-block;background:var(--purple);color:white;
+  padding:11px 24px;border-radius:var(--r10);
+  font-size:13px;font-weight:700;cursor:pointer;
+}
+.sc-what{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:16px;}
+.sc-what-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.sc-metric{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:11px;color:var(--tx2);}
+
+/* Scout unlocked */
+.screen-scout-unlocked{padding:16px 20px;}
+.sc-hero{
+  background:
+    radial-gradient(ellipse 280px 180px at 75% 40%, rgba(155,127,255,.07) 0%, transparent 70%),
+    var(--bg2);
+  border:1px solid rgba(155,127,255,.2);
+  border-radius:var(--r18);padding:20px;margin-bottom:12px;
+}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.sc-name{font-family:var(--display);font-size:22px;font-weight:700;margin-bottom:2px;}
+.sc-level-lbl{font-size:10px;color:var(--tx3);font-family:var(--mono);}
+.sc-num{font-family:var(--display);font-size:56px;font-weight:800;color:var(--purple);line-height:1;}
+.sc-ladder{display:flex;gap:4px;margin-bottom:10px;}
+.sc-rung{
+  flex:1;background:var(--bg3);border-radius:6px;
+  padding:5px 3px;text-align:center;
+  font-size:8px;color:var(--tx3);font-family:var(--mono);line-height:1.35;
+}
+.sc-rung.now{background:var(--purple-d);border:1px solid rgba(155,127,255,.3);color:var(--purple);}
+.sc-next{font-size:11px;color:var(--tx2);}
+.sc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sc-m{background:var(--bg3);border:1px solid var(--ln1);border-radius:var(--r10);padding:12px;}
+.sc-m-name{font-size:10px;color:var(--tx3);margin-bottom:5px;}
+.sc-m-val{font-size:18px;font-weight:700;color:var(--purple);}
+.sc-m-bar{height:3px;background:var(--ln1);border-radius:2px;margin-top:5px;}
+.sc-m-fill{height:100%;border-radius:2px;background:var(--purple);}
+.sc-advice{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:12px 14px;margin-top:10px;font-size:12px;color:var(--tx2);
+}
+
+/* ═══ COACH SCREEN ════════════════════════════════════════════════════ */
+.screen-coach{padding:16px 20px;}
+.coach-ctx{
+  background:var(--blue-d);border:1px solid rgba(77,163,255,.2);
+  border-radius:var(--r14);padding:13px 16px;margin-bottom:12px;
+}
+.ctx-lbl{font-size:9px;color:var(--blue);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.ctx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ctx-item{}
+.ctx-key{font-size:10px;color:var(--tx3);}
+.ctx-val{font-size:12px;font-weight:600;}
+
+.chat-area{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.chat-ai{
+  background:var(--bg3);border:1px solid var(--ln1);
+  border-radius:10px 10px 10px 2px;padding:11px 14px;
+  font-size:12px;color:var(--tx1);line-height:1.6;max-width:94%;
+}
+.chat-user{
+  background:var(--teal-dim);border:1px solid rgba(0,224,181,.15);
+  border-radius:10px 10px 2px 10px;padding:11px 14px;
+  font-size:12px;line-height:1.6;align-self:flex-end;max-width:88%;
+}
+
+.coach-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.chip{
+  background:var(--bg3);border:1px solid var(--ln2);
+  border-radius:20px;padding:5px 11px;
+  font-size:11px;color:var(--tx2);cursor:pointer;transition:.15s;
+}
+.chip:hover{border-color:var(--ln3);color:var(--tx1);}
+
+.coach-input{display:flex;gap:8px;}
+.ci-box{
+  flex:1;background:var(--bg3);border:1px solid var(--ln2);
+  border-radius:var(--r10);padding:9px 12px;
+  font-size:12px;color:var(--tx1);font-family:var(--body);
+}
+.ci-send{
+  width:36px;height:36px;background:var(--teal);
+  border-radius:var(--r10);display:flex;align-items:center;
+  justify-content:center;font-size:14px;color:var(--bg0);cursor:pointer;
+}
+
+/* ═══ TRAINING PLANS ══════════════════════════════════════════════════ */
+.screen-plans{padding:16px 20px;}
+.plans-readiness-strip{
+  background:var(--green-d);border:1px solid rgba(54,217,154,.2);
+  border-radius:var(--r10);padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;font-size:12px;
+}
+.prs-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.prs-text{color:var(--tx1);}
+.prs-text strong{color:var(--green);}
+.qw-title{font-size:12px;font-weight:700;margin-bottom:3px;}
+.qw-sub{font-size:11px;color:var(--tx2);margin-bottom:10px;}
+.mood-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.mood-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:14px 12px;
+  text-align:center;cursor:pointer;transition:.15s;
+}
+.mood-card:hover{border-color:var(--ln2);}
+.mood-card.pre-selected{border-color:rgba(54,217,154,.3);background:var(--green-d);}
+.mood-emoji{font-size:22px;margin-bottom:5px;display:block;}
+.mood-name{font-size:12px;font-weight:700;}
+.mood-desc{font-size:10px;color:var(--tx3);margin-top:2px;}
+.plans-section-title{font-size:11px;font-weight:700;margin-bottom:8px;color:var(--tx2);}
+.plan-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;cursor:pointer;transition:.15s;
+}
+.plan-card:hover{border-color:var(--ln2);}
+.pc-left{}
+.pc-name{font-size:13px;font-weight:700;margin-bottom:2px;}
+.pc-meta{font-size:11px;color:var(--tx3);}
+.pc-load{
+  background:var(--bg3);border:1px solid var(--ln1);
+  border-radius:6px;padding:4px 10px;
+  font-family:var(--mono);font-size:10px;color:var(--tx2);
+  text-align:right;
+}
+.pc-load-val{font-size:13px;font-weight:700;color:var(--tx1);margin-top:1px;}
+
+/* ═══ PROGRESS SCREEN ═════════════════════════════════════════════════ */
+.screen-progress{padding:16px 20px;}
+.progress-tabs{display:flex;background:var(--bg3);padding:3px;border-radius:10px;margin-bottom:14px;}
+.pt{flex:1;padding:7px;text-align:center;border-radius:7px;font-size:11px;color:var(--tx3);cursor:pointer;}
+.pt.on{background:var(--teal);color:var(--bg0);font-weight:700;}
+.prog-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.ps-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:12px;}
+.ps-icon{font-size:14px;margin-bottom:4px;}
+.ps-val{font-family:var(--display);font-size:18px;font-weight:700;line-height:1;margin-bottom:2px;}
+.ps-lbl{font-size:10px;color:var(--tx3);}
+
+.form-trend-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r18);padding:16px;margin-bottom:12px;
+}
+.ftc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ftc-title{font-size:13px;font-weight:700;}
+.ftc-badge{background:var(--green-d);border:1px solid rgba(54,217,154,.2);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--green);font-weight:600;}
+/* SVG chart area */
+.chart-area{height:80px;width:100%;position:relative;}
+
+.ftc-movement-list{display:flex;flex-direction:column;gap:8px;}
+.ftc-mov{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg3);border:1px solid var(--ln1);
+  border-radius:var(--r10);padding:10px 12px;
+}
+.ftc-mov-name{font-size:12px;font-weight:600;flex:1;}
+.ftc-mov-score{font-family:var(--mono);font-size:12px;}
+.ftc-mov-trend{font-size:11px;font-weight:600;}
+
+/* ═══ RECOVERY SCREEN ════════════════════════════════════════════════ */
+.screen-recovery{padding:16px 20px;}
+.rec-tabs{display:flex;background:var(--bg3);padding:3px;border-radius:10px;margin-bottom:14px;}
+.rec-tab{flex:1;padding:6px;text-align:center;border-radius:7px;font-size:11px;color:var(--tx3);cursor:pointer;}
+.rec-tab.on{background:var(--teal);color:var(--bg0);font-weight:700;}
+.rec-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:.15s;
+}
+.rec-card:hover{border-color:var(--ln2);}
+.rec-icon{
+  width:42px;height:42px;border-radius:11px;
+  background:var(--teal-dim);border:1px solid rgba(0,224,181,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.rec-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+.rec-meta{font-size:11px;color:var(--tx2);}
+.rec-arrow{font-size:14px;color:var(--tx3);margin-left:auto;}
+.rec-tip-card{
+  background:var(--bg2);border:1px solid var(--ln1);
+  border-radius:var(--r14);padding:16px;
+}
+.rec-tip-title{font-size:11px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.rec-tip{font-size:12px;color:var(--tx2);padding:4px 0;border-bottom:1px solid var(--ln1);}
+.rec-tip:last-child{border:none;}
+.rec-tip::before{content:'· ';color:var(--teal);}
+
+/* ═══ ONBOARDING SCREENS ═════════════════════════════════════════════ */
+.screen-onboard{
+  padding:32px 28px;
+  display:flex;flex-direction:column;gap:16px;
+  min-height:480px;
+}
+.ob-dots{display:flex;gap:6px;justify-content:center;}
+.ob-dot{width:28px;height:4px;border-radius:2px;background:var(--bg4);}
+.ob-dot.on{background:var(--teal);}
+.ob-headline{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.5px;text-align:center;line-height:1.2;}
+.ob-sub{font-size:13px;color:var(--tx2);text-align:center;margin-top:-4px;}
+.ob-chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;}
+.ob-chip{
+  padding:8px 16px;border-radius:24px;
+  border:1px solid var(--ln2);font-size:12px;color:var(--tx2);cursor:pointer;
+  transition:.15s;
+}
+.ob-chip.on{background:var(--teal-dim);border-color:rgba(0,224,181,.3);color:var(--teal);}
+.ob-input{
+  background:var(--bg3);border:1px solid var(--ln2);
+  border-radius:var(--r10);padding:12px 16px;
+  font-size:14px;color:var(--tx1);font-family:var(--body);width:100%;
+}
+.ob-input::placeholder{color:var(--tx3);}
+.ob-upload-box{
+  border:1.5px dashed rgba(0,224,181,.25);border-radius:var(--r14);
+  padding:24px;text-align:center;background:rgba(0,224,181,.02);cursor:pointer;
+}
+.ob-cta{
+  background:var(--teal);color:var(--bg0);
+  padding:14px;text-align:center;border-radius:var(--r10);
+  font-size:14px;font-weight:700;cursor:pointer;margin-top:auto;
+  transition:.15s;
+}
+.ob-skip{text-align:center;font-size:11px;color:var(--tx3);cursor:pointer;}
+
+/* ═══ GRID LAYOUTS ════════════════════════════════════════════════════ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+/* ═══ VISUAL ANALYSIS CALLOUTS ════════════════════════════════════════ */
+.callout{
+  display:flex;gap:12px;padding:14px 16px;
+  border-radius:var(--r10);margin-top:20px;
+}
+.callout-info{background:var(--teal-dim);border:1px solid rgba(0,224,181,.2);}
+.callout-warn{background:var(--amber-d);border:1px solid rgba(245,165,36,.2);}
+.callout-err {background:var(--coral-d); border:1px solid rgba(255,69,96,.2);}
+.callout-icon{font-size:16px;flex-shrink:0;}
+.callout-text{font-size:12px;line-height:1.6;}
+.callout-info .callout-text{color:rgba(0,224,181,.9);}
+.callout-warn .callout-text{color:rgba(245,165,36,.9);}
+.callout-err  .callout-text{color:rgba(255,69,96,.9);}
+
+/* ═══ COLOUR PALETTE DISPLAY ══════════════════════════════════════════ */
+.palette{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;}
+.swatch{width:56px;}
+.sw-block{height:40px;border-radius:var(--r10);border:1px solid rgba(255,255,255,.07);margin-bottom:4px;}
+.sw-name{font-size:9px;font-family:var(--mono);color:var(--tx3);}
+.sw-hex{font-size:8px;font-family:var(--mono);color:var(--tx3);}
+
+/* ═══ BEFORE/AFTER COMPARE ════════════════════════════════════════════ */
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.ba-col{}
+.ba-label{
+  font-size:9px;font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:10px;padding:4px 10px;border-radius:20px;display:inline-block;
+}
+.ba-before{background:var(--coral-d);border:1px solid rgba(255,69,96,.2);color:var(--coral);}
+.ba-after {background:var(--green-d);border:1px solid rgba(54,217,154,.2);color:var(--green);}
+.ba-item{font-size:12px;color:var(--tx2);padding:5px 0;border-bottom:1px solid var(--ln1);}
+.ba-item:last-child{border:none;}
+.ba-before .ba-item::before{content:'✗  ';color:var(--coral);}
+.ba-after  .ba-item::before{content:'✓  ';color:var(--green);}
+
+/* ═══ RESPONSIVE FRAME WIDTHS ══════════════════════════════════════════ */
+.frame-mobile{max-width:390px;}
+.frame-full{max-width:100%;}
+
+/* ═══ DIVIDER ═════════════════════════════════════════════════════════ */
+.divider{height:1px;background:var(--ln1);margin:20px 0;}
+
+/* ═══ ANIMATIONS ══════════════════════════════════════════════════════ */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.proto-section{animation:fadeIn .4s ease both;}
+
+/* highlight on-screen element */
+.highlight{position:relative;}
+.highlight::after{
+  content:'';position:absolute;inset:-2px;border-radius:inherit;
+  border:1.5px solid var(--teal);pointer-events:none;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ═══ SCROLLBAR ═══════════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="outer">
+
+<!-- ══════════════ LEFT PANEL ══════════════ -->
+<div class="left">
+  <div class="left-header">
+    <div class="left-brand">
+      <div class="brand-mark">F</div>
+      <div>
+        <div class="brand-name">Formm</div>
+        <div class="brand-tag">Visual Redesign</div>
+      </div>
+    </div>
+    <div class="left-title">Complete Look & Feel Redesign</div>
+    <div class="left-sub">New visual language, design tokens, and all core screens with live interactive prototypes.</div>
+  </div>
+
+  <nav class="screen-nav">
+    <div class="nav-section">Visual System</div>
+    <button class="nav-btn active" onclick="show('visual-system')"><div class="nav-dot"></div>Design Language</button>
+    <button class="nav-btn" onclick="show('colours')"><div class="nav-dot"></div>Colour Palette</button>
+    <button class="nav-btn" onclick="show('typography')"><div class="nav-dot"></div>Typography</button>
+
+    <div class="nav-section">Core Screens</div>
+    <button class="nav-btn" onclick="show('onboarding')"><div class="nav-dot"></div>Onboarding <span class="nav-badge">NEW</span></button>
+    <button class="nav-btn" onclick="show('dashboard')"><div class="nav-dot"></div>Dashboard <span class="nav-badge">KEY</span></button>
+    <button class="nav-btn" onclick="show('form-upload')"><div class="nav-dot"></div>Form Analysis</button>
+    <button class="nav-btn" onclick="show('form-result')"><div class="nav-dot"></div>Analysis Result <span class="nav-badge">NEW</span></button>
+    <button class="nav-btn" onclick="show('readiness-green')"><div class="nav-dot"></div>Readiness · Green</button>
+    <button class="nav-btn" onclick="show('readiness-amber')"><div class="nav-dot"></div>Readiness · Amber</button>
+    <button class="nav-btn" onclick="show('scout-locked')"><div class="nav-dot"></div>Scout Score · Locked</button>
+    <button class="nav-btn" onclick="show('scout-unlocked')"><div class="nav-dot"></div>Scout Score · Live</button>
+    <button class="nav-btn" onclick="show('coach')"><div class="nav-dot"></div>Bespoke Coach</button>
+    <button class="nav-btn" onclick="show('plans')"><div class="nav-dot"></div>Training Plans</button>
+    <button class="nav-btn" onclick="show('progress')"><div class="nav-dot"></div>Progress</button>
+    <button class="nav-btn" onclick="show('recovery')"><div class="nav-dot"></div>Recovery</button>
+  </nav>
+
+  <div class="left-analysis">
+    <div class="la-title">Visual critique — current app</div>
+    <div class="la-issue"><div class="la-icon">🔠</div><div class="la-text"><strong>Font:</strong> Generic system UI — no brand character or distinctiveness</div></div>
+    <div class="la-issue"><div class="la-icon">🎨</div><div class="la-text"><strong>Colour:</strong> Cold blue-teal, inconsistent saturation across modules</div></div>
+    <div class="la-issue"><div class="la-icon">📦</div><div class="la-text"><strong>Cards:</strong> Flat, same border radius everywhere — no visual hierarchy</div></div>
+    <div class="la-issue"><div class="la-icon">📐</div><div class="la-text"><strong>Spacing:</strong> Inconsistent gutters, cards feel disconnected</div></div>
+    <div class="la-issue"><div class="la-icon">⬛</div><div class="la-text"><strong>Background:</strong> Pure cold black — no depth or warmth</div></div>
+    <div class="la-issue"><div class="la-icon">✨</div><div class="la-text"><strong>Empty states:</strong> No visual delight or forward motion</div></div>
+  </div>
+</div>
+
+<!-- ══════════════ RIGHT PANEL ══════════════ -->
+<div class="right">
+
+<!-- ───── VISUAL SYSTEM ───── -->
+<div class="proto-section" id="visual-system">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">01 — Visual System</div>
+      <div class="proto-title">The new design language</div>
+      <div class="proto-sub">Warm-dark, precision-data, sports-science credibility. Inspired by elite performance software, not generic wellness apps.</div>
+    </div>
+    <div class="proto-badge">FOUNDATION</div>
+  </div>
+
+  <div class="before-after">
+    <div class="ba-col">
+      <div class="ba-label ba-before">Current look</div>
+      <div class="ba-item">Pure cold black (#0A0A0A) — no depth</div>
+      <div class="ba-item">Generic Inter/system font — no brand</div>
+      <div class="ba-item">Flat equal-weight cards everywhere</div>
+      <div class="ba-item">Cyan-blue (#00C4A0) — too generic</div>
+      <div class="ba-item">No gradient, no texture, no atmosphere</div>
+      <div class="ba-item">All borders same weight (1px)</div>
+      <div class="ba-item">Colour used decoratively, not semantically</div>
+    </div>
+    <div class="ba-col">
+      <div class="ba-label ba-after">New look</div>
+      <div class="ba-item">Warm dark (#08080C) — subtle warmth</div>
+      <div class="ba-item">Clash Display + Cabinet Grotesk — distinctive</div>
+      <div class="ba-item">Layered card hierarchy (bg2/bg3/bg4)</div>
+      <div class="ba-item">Electric teal (#00E0B5) — sharper, ownable</div>
+      <div class="ba-item">Radial glow accents on hero cards</div>
+      <div class="ba-item">Variable border opacity (ln1/ln2/ln3)</div>
+      <div class="ba-item">Colour strictly semantic (green=safe, amber=caution)</div>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">💡</div>
+    <div class="callout-text"><strong>Design philosophy:</strong> The visual language says "elite sports science tool" not "wellness app." Inspired by Catapult, Whoop, and Bloomberg Terminal — precision data presented with clarity and weight. Every visual decision earns trust before the user reads a word.</div>
+  </div>
+</div>
+
+<!-- ───── COLOURS ───── -->
+<div class="proto-section" id="colours" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">02 — Colour System</div>
+      <div class="proto-title">Semantic colour palette</div>
+      <div class="proto-sub">Every colour earns its place. Green = safe/optimal. Amber = caution. Coral = danger. Teal = brand. Purple = Scout Score only.</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <div style="font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">Brand & Status</div>
+    <div class="palette">
+      <div class="swatch"><div class="sw-block" style="background:#00E0B5;"></div><div class="sw-name">Teal</div><div class="sw-hex">#00E0B5</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#36D99A;"></div><div class="sw-name">Green</div><div class="sw-hex">#36D99A</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#F5A524;"></div><div class="sw-name">Amber</div><div class="sw-hex">#F5A524</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#FF4560;"></div><div class="sw-name">Coral</div><div class="sw-hex">#FF4560</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#4DA3FF;"></div><div class="sw-name">Blue</div><div class="sw-hex">#4DA3FF</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#9B7FFF;"></div><div class="sw-name">Purple</div><div class="sw-hex">#9B7FFF</div></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <div style="font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">Background Scale (warm-tinted)</div>
+    <div class="palette">
+      <div class="swatch"><div class="sw-block" style="background:#08080C;border:1px solid rgba(255,255,255,.15);"></div><div class="sw-name">BG0</div><div class="sw-hex">#08080C</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#0F0F17;border:1px solid rgba(255,255,255,.12);"></div><div class="sw-name">BG1</div><div class="sw-hex">#0F0F17</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#15151F;border:1px solid rgba(255,255,255,.1);"></div><div class="sw-name">BG2</div><div class="sw-hex">#15151F</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#1C1C28;border:1px solid rgba(255,255,255,.08);"></div><div class="sw-name">BG3</div><div class="sw-hex">#1C1C28</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#242433;border:1px solid rgba(255,255,255,.07);"></div><div class="sw-name">BG4</div><div class="sw-hex">#242433</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#2D2D40;border:1px solid rgba(255,255,255,.06);"></div><div class="sw-name">BG5</div><div class="sw-hex">#2D2D40</div></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <div style="font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">Text Scale</div>
+    <div class="palette">
+      <div class="swatch"><div class="sw-block" style="background:#F2F1EC;"></div><div class="sw-name">Text 1</div><div class="sw-hex">#F2F1EC</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#9896AE;"></div><div class="sw-name">Text 2</div><div class="sw-hex">#9896AE</div></div>
+      <div class="swatch"><div class="sw-block" style="background:#5A5870;"></div><div class="sw-name">Text 3</div><div class="sw-hex">#5A5870</div></div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚠</div>
+    <div class="callout-text"><strong>Semantic rule — never break it:</strong> Green is only used for safe/optimal states. Amber for caution. Coral/red for danger. Teal for brand and interactive actions. Purple exclusively for Scout Score. Using any of these colours for decoration destroys the semantic meaning the user has learned.</div>
+  </div>
+</div>
+
+<!-- ───── TYPOGRAPHY ───── -->
+<div class="proto-section" id="typography" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">03 — Typography</div>
+      <div class="proto-title">Two fonts. One identity.</div>
+      <div class="proto-sub">Clash Display for all display moments. Cabinet Grotesk for all body copy. JetBrains Mono for data labels, timestamps, and system values.</div>
+    </div>
+  </div>
+
+  <div class="g2" style="gap:20px;">
+    <div class="app-frame">
+      <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+      <div style="padding:24px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Clash Display — Display font</div>
+        <div style="font-family:var(--display);font-size:38px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:12px;">Move Better.<br>Train Smarter.</div>
+        <div style="font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;">Section headings</div>
+        <div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:6px;">Card titles & scores</div>
+        <div style="font-family:var(--display);font-size:52px;font-weight:800;letter-spacing:-2px;color:var(--teal);line-height:1;">7.8</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:8px;">Readiness scores, Scout Score, key metrics</div>
+        <div class="divider"></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">JetBrains Mono — Data labels</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">WEDNESDAY · APR 22</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--tx3);">ACWR · 1.1 · OPTIMAL</div>
+      </div>
+    </div>
+    <div class="app-frame">
+      <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+      <div style="padding:24px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Cabinet Grotesk — Body font</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px;">Primary body / headings 16/700</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:6px;">Secondary body 14/500</div>
+        <div style="font-size:13px;color:var(--tx1);margin-bottom:6px;">Regular body copy 13/400</div>
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:6px;">Supporting text 12/400</div>
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:6px;">Captions and meta 11/400</div>
+        <div style="font-size:10px;color:var(--tx3);">Labels and fine print 10/400</div>
+        <div class="divider"></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Type in context</div>
+        <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:14px;">
+          <div style="font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:3px;">🟢 Train hard today</div>
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:8px;">Recovery signals are strong. Your body is ready for intensity.</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--teal);">TARGET: 380–450 AU · ~65 MIN · RPE 7/10</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── ONBOARDING ───── -->
+<div class="proto-section" id="onboarding" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">04 — Onboarding</div>
+      <div class="proto-title">Value before the ask</div>
+      <div class="proto-sub">4 steps. Under 3 minutes. The first form analysis happens during onboarding — the dashboard is never all-zeros.</div>
+    </div>
+    <div class="proto-badge">NEW FLOW</div>
+  </div>
+
+  <div class="g2" style="gap:16px;">
+    <div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:var(--teal);color:var(--bg0);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">1</span> Step 1 — Goal & name</div>
+      <div class="app-frame frame-mobile">
+        <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+        <div class="screen-onboard">
+          <div class="ob-dots"><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+          <div class="ob-headline">What brings you to Formm?</div>
+          <div class="ob-sub">We'll personalise everything around your goal</div>
+          <div class="ob-chips">
+            <div class="ob-chip on">Improve my form</div>
+            <div class="ob-chip">Prevent injury</div>
+            <div class="ob-chip">Train like an athlete</div>
+            <div class="ob-chip">Get stronger</div>
+            <div class="ob-chip">Track progress</div>
+          </div>
+          <input class="ob-input" placeholder="Your name" value="Samrat">
+          <div class="ob-cta">Continue →</div>
+          <div class="ob-skip">Skip for now</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:var(--teal);color:var(--bg0);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">2</span> Step 2 — Sport & level</div>
+      <div class="app-frame frame-mobile">
+        <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+        <div class="screen-onboard">
+          <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+          <div class="ob-headline">Your sport &amp; level</div>
+          <div class="ob-sub">Calibrates AI analysis to your context</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">Primary sport</div>
+          <div class="ob-chips">
+            <div class="ob-chip on">Gym / Lifting</div>
+            <div class="ob-chip">Cricket</div>
+            <div class="ob-chip">Running</div>
+            <div class="ob-chip">Football</div>
+            <div class="ob-chip">Badminton</div>
+          </div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;margin-top:4px;">Training level</div>
+          <div class="ob-chips">
+            <div class="ob-chip">Beginner</div>
+            <div class="ob-chip on">Recreational</div>
+            <div class="ob-chip">Competitive</div>
+            <div class="ob-chip">Semi-pro</div>
+          </div>
+          <div class="ob-cta">Continue →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2" style="gap:16px;margin-top:20px;">
+    <div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:var(--teal);color:var(--bg0);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">3</span> Step 3 — First form check (value moment)</div>
+      <div class="app-frame frame-mobile">
+        <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+        <div class="screen-onboard">
+          <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div></div>
+          <div class="ob-headline">Let's analyse your movement</div>
+          <div class="ob-sub">Upload a 10-second video. Instant feedback.</div>
+          <div class="ob-upload-box">
+            <div style="font-size:32px;margin-bottom:8px;">📹</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:3px;">Tap to upload video</div>
+            <div style="font-size:11px;color:var(--tx2);">Squat, deadlift, or any movement</div>
+          </div>
+          <div style="background:rgba(245,165,36,.07);border:1px solid rgba(245,165,36,.18);border-radius:var(--r10);padding:10px 12px;font-size:11px;color:rgba(245,165,36,.85);">💡 Film from the side, full body in frame, 2–4 reps</div>
+          <div class="ob-cta">Analyse My Form →</div>
+          <div class="ob-skip">Skip — do later</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><span style="background:var(--teal);color:var(--bg0);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">4</span> Step 4 — HRV scan</div>
+      <div class="app-frame frame-mobile">
+        <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+        <div class="screen-onboard">
+          <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div></div>
+          <div class="ob-headline">Measure your recovery in 60 seconds</div>
+          <div class="ob-sub">No wearable needed. The same metric elite coaches track daily.</div>
+          <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+            <div style="width:68px;height:68px;border-radius:50%;background:var(--teal-dim);border:2px solid rgba(0,224,181,.3);display:flex;align-items:center;justify-content:center;font-size:30px;">🫀</div>
+            <div style="font-size:12px;color:var(--tx2);text-align:center;line-height:1.5;">Sit still · look at camera<br>60 seconds · good lighting helps</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="font-size:11px;color:var(--tx2);display:flex;gap:8px;align-items:center;"><span style="color:var(--teal);">✓</span> No data leaves device during scan</div>
+            <div style="font-size:11px;color:var(--tx2);display:flex;gap:8px;align-items:center;"><span style="color:var(--teal);">✓</span> Gets more accurate after 7 mornings</div>
+          </div>
+          <div class="ob-cta">Start 60-Second Scan →</div>
+          <div class="ob-skip">Skip for now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── DASHBOARD ───── -->
+<div class="proto-section" id="dashboard" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">05 — Dashboard</div>
+      <div class="proto-title">The daily briefing</div>
+      <div class="proto-sub">Opens to one question answered: what should I do today and why. No feature catalogue. No zeros.</div>
+    </div>
+    <div class="proto-badge">HERO SCREEN</div>
+  </div>
+
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/dashboard</div></div>
+    <div class="app-nav">
+      <div class="app-logo">Formm</div>
+      <div class="app-tabs">
+        <div class="app-tab on">Train</div>
+        <div class="app-tab">Recover</div>
+        <div class="app-tab">Progress</div>
+      </div>
+      <div class="app-avatar">S</div>
+    </div>
+    <div class="screen-dashboard">
+      <!-- TODAY CARD -->
+      <div class="today-card">
+        <div>
+          <div class="tc-eyebrow">Wednesday · April 22</div>
+          <div class="tc-greeting">Good morning, Samrat.</div>
+          <div class="tc-zone-pill"><span>🟢</span><span class="tc-zone-text">Train hard today</span></div>
+          <div class="tc-desc">HRV is elevated, wellness looks good, your load is in the optimal zone.</div>
+          <div class="tc-target">Target: <strong>380–450 AU · ~65 min · RPE 7/10</strong></div>
+        </div>
+        <div class="rd-ring">
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle cx="42" cy="42" r="35" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+            <circle cx="42" cy="42" r="35" fill="none" stroke="#36D99A" stroke-width="6" stroke-dasharray="219.9" stroke-dashoffset="44" stroke-linecap="round"/>
+          </svg>
+          <div class="rd-ring-inner">
+            <div class="rd-ring-score">7.8</div>
+            <div class="rd-ring-label">READY</div>
+          </div>
+        </div>
+      </div>
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-ic">🔥</div><div class="stat-val">12</div><div class="stat-lbl">Day streak</div></div>
+        <div class="stat-card"><div class="stat-ic">⚡</div><div class="stat-val" style="color:var(--green);">1.1</div><div class="stat-lbl">ACWR · optimal</div></div>
+        <div class="stat-card"><div class="stat-ic">🏆</div><div class="stat-val" style="color:var(--purple);">72</div><div class="stat-lbl">Scout score</div></div>
+        <div class="stat-card"><div class="stat-ic">📈</div><div class="stat-val" style="color:var(--teal);">+14%</div><div class="stat-lbl">Form · month</div></div>
+      </div>
+      <!-- ACTIONS -->
+      <div class="action-row">
+        <div class="action-primary">
+          <div class="action-icon">📹</div>
+          <div>
+            <div class="action-name">Analyse my form</div>
+            <div class="action-sub">Upload video · &lt;30s results</div>
+          </div>
+        </div>
+        <div class="action-secondary">
+          <div class="action-icon" style="font-size:20px;">💬</div>
+          <div>
+            <div class="action-name-s">Ask my coach</div>
+            <div class="action-sub-s">Based on today's data</div>
+          </div>
+        </div>
+      </div>
+      <!-- INSIGHT STRIP -->
+      <div class="insight-strip">
+        <div class="is-icon">🦵</div>
+        <div>
+          <div class="is-title">Squat improved 14% this month</div>
+          <div class="is-sub">Knee tracking ✓ · Depth slightly low · 3 analyses</div>
+        </div>
+        <div class="is-arrow">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── FORM UPLOAD ───── -->
+<div class="proto-section" id="form-upload" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">06 — Form Analysis</div>
+      <div class="proto-title">Upload — refined flow</div>
+      <div class="proto-sub">Shooting tips prevent the #1 cause of poor results. Copy leads with the action, not the file format.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/train/form</div></div>
+    <div class="app-nav"><div class="app-logo">Formm</div><div class="app-tabs"><div class="app-tab on">Train</div><div class="app-tab">Recover</div><div class="app-tab">Progress</div></div><div class="app-avatar">S</div></div>
+    <div class="screen-form">
+      <div class="form-tabs">
+        <div class="form-tab on">Form Check</div>
+        <div class="form-tab">Journey</div>
+        <div class="form-tab">History</div>
+        <div class="form-tab">Scout Score</div>
+      </div>
+      <div class="form-body">
+        <div class="form-selects">
+          <div class="form-select">
+            <div><div class="fs-label">Sport</div><div class="fs-val">Gym / Lifting</div></div>
+            <span style="color:var(--tx3);">▾</span>
+          </div>
+          <div class="form-select">
+            <div><div class="fs-label">Movement</div><div class="fs-val">Squat</div></div>
+            <span style="color:var(--tx3);">▾</span>
+          </div>
+        </div>
+        <div class="upload-zone">
+          <span class="upload-icon">📹</span>
+          <div class="upload-title">Upload your movement video</div>
+          <div class="upload-sub">10–30 seconds · from your camera roll</div>
+          <div class="upload-format">MP4 · MOV · up to 200MB</div>
+        </div>
+        <div class="shoot-tips">
+          <div class="st-hdr">
+            <div class="st-label">📐 Best results</div>
+            <div style="font-size:10px;color:var(--amber);cursor:pointer;">Hide</div>
+          </div>
+          <div class="st-tip">Film from the side — full body in frame</div>
+          <div class="st-tip">Complete 2–4 reps (not just one)</div>
+          <div class="st-tip">Good lighting, stable phone</div>
+          <div class="st-tip">Wear fitted clothing — loose clothes hide joint angles</div>
+        </div>
+        <div class="form-cta">Analyse My Form →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── FORM RESULT ───── -->
+<div class="proto-section" id="form-result" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">07 — Analysis Result</div>
+      <div class="proto-title">The payoff screen</div>
+      <div class="proto-sub">This screen doesn't exist in the current product. It's the most important screen in the app — designed from scratch.</div>
+    </div>
+    <div class="proto-badge">NEW SCREEN</div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/train/form/result</div></div>
+    <div class="screen-result">
+      <div class="result-hero">
+        <div class="rh-movement">Gym · Squat · April 22, 2026</div>
+        <div class="rh-title">Your analysis is ready</div>
+        <div class="rh-main">
+          <div class="rh-gauge">
+            <svg width="76" height="76" viewBox="0 0 76 76">
+              <circle cx="38" cy="38" r="31" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+              <circle cx="38" cy="38" r="31" fill="none" stroke="#36D99A" stroke-width="6" stroke-dasharray="194.8" stroke-dashoffset="34" stroke-linecap="round"/>
+            </svg>
+            <div class="rh-gauge-inner"><div class="rh-score">84</div><div class="rh-max">/100</div></div>
+          </div>
+          <div>
+            <div class="rh-verdict">Strong — a few things to sharpen</div>
+            <div class="rh-desc">Technique is sound with good knee tracking. Main opportunity is depth — stopping slightly above parallel.</div>
+            <div style="margin-top:8px;font-size:11px;color:var(--green);">↑ 12% vs your first squat analysis</div>
+          </div>
+        </div>
+      </div>
+      <div class="result-metrics">
+        <div class="rm-card"><div class="rm-name">Form accuracy</div><div class="rm-val" style="color:var(--green);">88</div><div class="rm-bar"><div class="rm-fill" style="width:88%;background:var(--green);"></div></div></div>
+        <div class="rm-card"><div class="rm-name">Range of motion</div><div class="rm-val" style="color:var(--amber);">71</div><div class="rm-bar"><div class="rm-fill" style="width:71%;background:var(--amber);"></div></div></div>
+        <div class="rm-card"><div class="rm-name">Stability</div><div class="rm-val" style="color:var(--green);">90</div><div class="rm-bar"><div class="rm-fill" style="width:90%;background:var(--green);"></div></div></div>
+        <div class="rm-card"><div class="rm-name">Symmetry</div><div class="rm-val" style="color:var(--green);">86</div><div class="rm-bar"><div class="rm-fill" style="width:86%;background:var(--green);"></div></div></div>
+      </div>
+      <div class="result-faults">
+        <div class="rf-hdr">What to work on</div>
+        <div class="fault"><div class="fault-emoji">⬇️</div><div><div class="fault-name">Depth — slightly above parallel</div><div class="fault-fix">Fix: ankle mobility before squatting. 10 ankle circles per side, then re-attempt depth.</div></div></div>
+        <div class="fault"><div class="fault-emoji">🔼</div><div><div class="fault-name">Hip hinge — torso slightly forward</div><div class="fault-fix">Fix: think "push hips back first, not sit down." Box squat drill helps reinforce the pattern.</div></div></div>
+      </div>
+      <div class="result-actions">
+        <div class="ra-save">Save to history</div>
+        <div class="ra-coach">Ask coach about this →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── READINESS GREEN ───── -->
+<div class="proto-section" id="readiness-green" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">08 — Readiness</div>
+      <div class="proto-title">Green zone — train hard</div>
+      <div class="proto-sub">All three contributing factors visible. One concrete session prescription. Real-time slider updates.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/recover/readiness</div></div>
+    <div class="app-nav"><div class="app-logo">Formm</div><div class="app-tabs"><div class="app-tab">Train</div><div class="app-tab on">Recover</div><div class="app-tab">Progress</div></div><div class="app-avatar">S</div></div>
+    <div class="screen-readiness">
+      <div class="readiness-hero">
+        <div class="rh2-gauge">
+          <svg width="92" height="92" viewBox="0 0 92 92">
+            <circle cx="46" cy="46" r="38" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="7"/>
+            <circle cx="46" cy="46" r="38" fill="none" stroke="#36D99A" stroke-width="7" stroke-dasharray="238.8" stroke-dashoffset="48" stroke-linecap="round"/>
+          </svg>
+          <div class="rh2-inner"><div class="rh2-score">7.8</div><div class="rh2-of">/ 10</div></div>
+        </div>
+        <div class="rh2-right">
+          <div class="rh2-zone">🟢 Train hard today</div>
+          <div class="rh2-desc">Recovery signals are strong. Your body is ready for intensity.</div>
+          <div class="rh2-target">Session target: <strong>380–450 AU</strong><br><span style="font-size:11px;color:var(--tx2);">~65 min · 7/10 RPE · strength focus</span></div>
+        </div>
+      </div>
+      <div class="rd-factors">
+        <div class="rdf"><div class="rdf-label">HRV</div><div class="rdf-val" style="color:var(--green);">↑ 8.2</div><div class="rdf-desc">Above baseline</div><div class="rdf-bar"><div class="rdf-fill" style="width:82%;background:var(--green);"></div></div></div>
+        <div class="rdf"><div class="rdf-label">Wellness</div><div class="rdf-val" style="color:var(--green);">7.6</div><div class="rdf-desc">Sleep · mood · soreness</div><div class="rdf-bar"><div class="rdf-fill" style="width:76%;background:var(--green);"></div></div></div>
+        <div class="rdf"><div class="rdf-label">Load factor</div><div class="rdf-val" style="color:var(--green);">9.0</div><div class="rdf-desc">ACWR 1.1 · sweet spot</div><div class="rdf-bar"><div class="rdf-fill" style="width:90%;background:var(--green);"></div></div></div>
+      </div>
+      <div class="rd-accuracy"><div class="acc-dot"></div>Accuracy: <strong style="color:var(--tx1);margin:0 4px;">Good</strong> · 6 weeks of data · <span class="acc-link">How this improves ›</span></div>
+      <div class="checkin-card">
+        <div class="ci-title">This morning's check-in</div>
+        <div class="ci-slider"><div class="ci-lbl">Sleep</div><div class="ci-track"><div class="ci-fill" style="width:75%;"></div><div class="ci-thumb" style="left:calc(75% - 6px);"></div></div><div class="ci-val">7.5</div></div>
+        <div class="ci-slider"><div class="ci-lbl">Soreness</div><div class="ci-track"><div class="ci-fill" style="width:60%;"></div><div class="ci-thumb" style="left:calc(60% - 6px);"></div></div><div class="ci-val">6</div></div>
+        <div class="ci-slider"><div class="ci-lbl">Mood</div><div class="ci-track"><div class="ci-fill" style="width:80%;"></div><div class="ci-thumb" style="left:calc(80% - 6px);"></div></div><div class="ci-val">8</div></div>
+        <div class="ci-submit">✓ Confirmed · 7:24am</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── READINESS AMBER ───── -->
+<div class="proto-section" id="readiness-amber" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">09 — Readiness</div>
+      <div class="proto-title">Amber zone — train but modulate</div>
+      <div class="proto-sub">Specific modifications listed. Override is visible but secondary. Framed as guidance, not restriction.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/recover/readiness</div></div>
+    <div class="app-nav"><div class="app-logo">Formm</div><div class="app-tabs"><div class="app-tab">Train</div><div class="app-tab on">Recover</div><div class="app-tab">Progress</div></div><div class="app-avatar">S</div></div>
+    <div class="screen-readiness">
+      <div class="readiness-hero-amber">
+        <div class="rh2-gauge">
+          <svg width="92" height="92" viewBox="0 0 92 92">
+            <circle cx="46" cy="46" r="38" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="7"/>
+            <circle cx="46" cy="46" r="38" fill="none" stroke="#F5A524" stroke-width="7" stroke-dasharray="238.8" stroke-dashoffset="95" stroke-linecap="round"/>
+          </svg>
+          <div class="rh2-inner"><div class="rh2-score" style="color:var(--amber);">6.0</div><div class="rh2-of">/ 10</div></div>
+        </div>
+        <div class="rh2-right">
+          <div class="amber-zone">🟡 Train, but modulate</div>
+          <div class="rh2-desc">Your load is elevated. Train today — keep it controlled.</div>
+          <div class="amber-target">Target: <strong>250–320 AU</strong><br><span style="font-size:11px;color:var(--tx2);">Drop heaviest sets 20% · skip AMRAP</span></div>
+        </div>
+      </div>
+      <div class="rd-factors">
+        <div class="rdf" style="border-color:rgba(245,165,36,.2);"><div class="rdf-label">HRV</div><div class="rdf-val" style="color:var(--amber);">↓ 5.8</div><div class="rdf-desc">Below baseline</div><div class="rdf-bar"><div class="rdf-fill" style="width:58%;background:var(--amber);"></div></div></div>
+        <div class="rdf"><div class="rdf-label">Wellness</div><div class="rdf-val" style="color:var(--green);">7.2</div><div class="rdf-desc">Sleep · mood · soreness</div><div class="rdf-bar"><div class="rdf-fill" style="width:72%;background:var(--green);"></div></div></div>
+        <div class="rdf" style="border-color:rgba(245,165,36,.2);"><div class="rdf-label">Load factor</div><div class="rdf-val" style="color:var(--amber);">5.0</div><div class="rdf-desc">ACWR 1.38 · caution</div><div class="rdf-bar"><div class="rdf-fill" style="width:50%;background:var(--amber);"></div></div></div>
+      </div>
+      <div class="amber-mods">
+        <div class="am-hdr">What to modify today</div>
+        <div class="am-item">Reduce top set weight by 15–20%</div>
+        <div class="am-item">Skip AMRAP finishers or intervals</div>
+        <div class="am-item">Add 5 minutes mobility at the end</div>
+        <div class="am-item">Aim for 7+ hours sleep tonight</div>
+      </div>
+      <div class="override-row"><span>I want to train harder anyway</span><span class="override-arrow">Override ›</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── SCOUT LOCKED ───── -->
+<div class="proto-section" id="scout-locked" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">10 — Scout Score</div>
+      <div class="proto-title">Locked state — 1 of 5 analyses</div>
+      <div class="proto-sub">Replaces the broken "0/100 — Top 99%" empty state. Progress bar turns incompleteness into a goal.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+    <div class="screen-scout-locked">
+      <div class="sc-lock">
+        <span class="sc-lock-icon">🏆</span>
+        <div class="sc-lock-title">Scout Score unlocks at 5 analyses</div>
+        <div class="sc-lock-desc">Complete 5 form analyses to earn your athletic performance rating — from Recreational through to Elite/Pro.</div>
+        <div class="sc-progress">
+          <div class="sc-prog-lbl">Progress to unlock</div>
+          <div class="sc-prog-row"><span style="font-weight:700;">1 of 5 analyses</span><span style="color:var(--teal);">20%</span></div>
+          <div class="sc-prog-bar"><div class="sc-prog-fill" style="width:20%;"></div></div>
+          <div class="sc-prog-note">4 more analyses needed · any movement counts</div>
+        </div>
+        <div class="sc-cta">Analyse a movement now →</div>
+      </div>
+      <div class="sc-what">
+        <div class="sc-what-title">What Scout Score measures</div>
+        <div class="sc-metric"><span style="font-size:14px;">📐</span> Form accuracy across all movements</div>
+        <div class="sc-metric"><span style="font-size:14px;">🔄</span> Range of motion consistency</div>
+        <div class="sc-metric"><span style="font-size:14px;">⚖️</span> Left-right symmetry under load</div>
+        <div class="sc-metric"><span style="font-size:14px;">🎯</span> Stability and movement control</div>
+        <div class="sc-metric"><span style="font-size:14px;">📈</span> Improvement rate over time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── SCOUT UNLOCKED ───── -->
+<div class="proto-section" id="scout-unlocked" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">11 — Scout Score</div>
+      <div class="proto-title">Unlocked — 72 · Advanced</div>
+      <div class="proto-sub">Score with level ladder. Each metric shows its value and a coloured progress bar. Path to next level is specific.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div></div>
+    <div class="screen-scout-unlocked">
+      <div class="sc-hero">
+        <div class="sc-top">
+          <div><div class="sc-name">Scout Score</div><div class="sc-level-lbl">Advanced · Updated today</div></div>
+          <div class="sc-num">72</div>
+        </div>
+        <div class="sc-ladder">
+          <div class="sc-rung">Recreational<br>0–40</div>
+          <div class="sc-rung">Intermediate<br>40–60</div>
+          <div class="sc-rung now">Advanced<br>60–75</div>
+          <div class="sc-rung">Collegiate<br>75–85</div>
+          <div class="sc-rung">Elite/Pro<br>85–100</div>
+        </div>
+        <div class="sc-next">3 pts to Collegiate · Best metric: Stability (<strong style="color:var(--tx1);">90</strong>)</div>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-m"><div class="sc-m-name">Form accuracy</div><div class="sc-m-val">88</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:88%;"></div></div></div>
+        <div class="sc-m"><div class="sc-m-name">Range of motion</div><div class="sc-m-val" style="color:var(--amber);">71</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:71%;background:var(--amber);"></div></div></div>
+        <div class="sc-m"><div class="sc-m-name">Stability</div><div class="sc-m-val">90</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:90%;"></div></div></div>
+        <div class="sc-m"><div class="sc-m-name">Symmetry</div><div class="sc-m-val">86</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:86%;"></div></div></div>
+      </div>
+      <div class="sc-advice"><strong style="color:var(--tx1);">To reach Collegiate (75):</strong> Focus on Range of Motion — your lowest metric at 71. Ankle mobility work and hip flexor stretching before each session.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── COACH ───── -->
+<div class="proto-section" id="coach" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">12 — Bespoke Coach</div>
+      <div class="proto-title">Opens with your data</div>
+      <div class="proto-sub">The coach knows you before you say a word. No blank prompt box. The opening message is generated from your actual data.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/coach</div></div>
+    <div class="app-nav"><div class="app-logo">Formm</div><div class="app-tabs"><div class="app-tab on">Train</div><div class="app-tab">Recover</div><div class="app-tab">Progress</div></div><div class="app-avatar">S</div></div>
+    <div class="screen-coach">
+      <div class="coach-ctx">
+        <div class="ctx-lbl">Your data — coach has full context</div>
+        <div class="ctx-grid">
+          <div class="ctx-item"><div class="ctx-key">Readiness</div><div class="ctx-val" style="color:var(--green);">7.8 · Green</div></div>
+          <div class="ctx-item"><div class="ctx-key">ACWR</div><div class="ctx-val" style="color:var(--green);">1.1 · optimal</div></div>
+          <div class="ctx-item"><div class="ctx-key">Last form check</div><div class="ctx-val">Squat 84/100</div></div>
+          <div class="ctx-item"><div class="ctx-key">Scout Score</div><div class="ctx-val">72 · Advanced</div></div>
+        </div>
+      </div>
+      <div class="chat-area">
+        <div class="chat-ai">Based on your data today, recovery looks strong and your load is optimal — a good day to push hard.<br><br>Your squat scored 84/100 on Monday. The depth is the main opportunity — Range of Motion is your lowest Scout Score metric at 71. Want to work on that, or is there something else on your mind?</div>
+        <div class="chat-user">Yes, what's the fastest way to improve depth?</div>
+        <div class="chat-ai">Almost always an ankle mobility issue, not strength. Try this before squatting:<br><br>1. 10 ankle circles each direction, both sides<br>2. Wall ankle stretch — toe 5cm from wall, knee to wall without heel lifting, 3×10 per side<br>3. Goblet squat with 5-second pause at the bottom<br><br>Do this for 2 weeks and you'll likely add 3–5cm of depth.</div>
+      </div>
+      <div class="coach-chips">
+        <div class="chip">Today's session plan</div>
+        <div class="chip">How's my load trend?</div>
+        <div class="chip">Recovery tips tonight</div>
+        <div class="chip">Explain my Scout Score</div>
+      </div>
+      <div class="coach-input">
+        <input class="ci-box" placeholder="Ask your coach...">
+        <div class="ci-send">↑</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── PLANS ───── -->
+<div class="proto-section" id="plans" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">13 — Training Plans</div>
+      <div class="proto-title">Readiness-connected plans</div>
+      <div class="proto-sub">Mood selector pre-selects based on today's readiness. Session load in AU shown on each plan card.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/train/plans</div></div>
+    <div class="screen-plans">
+      <div class="plans-readiness-strip">
+        <div class="prs-dot"></div>
+        <div class="prs-text">Readiness <strong>7.8 · Green</strong> — an intense session is recommended today</div>
+      </div>
+      <div class="qw-title">Quick Workout</div>
+      <div class="qw-sub">Generate a session based on how you feel</div>
+      <div class="mood-grid">
+        <div class="mood-card pre-selected"><span class="mood-emoji">⚡</span><div class="mood-name">Energetic</div><div class="mood-desc">High intensity</div></div>
+        <div class="mood-card"><span class="mood-emoji">🌙</span><div class="mood-name">Calm</div><div class="mood-desc">Mindful training</div></div>
+        <div class="mood-card"><span class="mood-emoji">🔥</span><div class="mood-name">Motivated</div><div class="mood-desc">Push your limits</div></div>
+        <div class="mood-card"><span class="mood-emoji">💚</span><div class="mood-name">Recovery</div><div class="mood-desc">Light activity</div></div>
+        <div class="mood-card"><span class="mood-emoji">⚖️</span><div class="mood-name">Balanced</div><div class="mood-desc">Strength + cardio</div></div>
+        <div class="mood-card"><span class="mood-emoji">☁️</span><div class="mood-name">Stressed</div><div class="mood-desc">Breathing focus</div></div>
+      </div>
+      <div class="plans-section-title">Your saved plans</div>
+      <div class="plan-card">
+        <div class="pc-left"><div class="pc-name">Upper body strength</div><div class="pc-meta">5 exercises · 45 min · Intermediate</div></div>
+        <div class="pc-load"><div style="font-size:9px;color:var(--tx3);font-family:var(--mono);">EST. LOAD</div><div class="pc-load-val">~380 AU</div></div>
+      </div>
+      <div class="plan-card">
+        <div class="pc-left"><div class="pc-name">Squat focus + accessories</div><div class="pc-meta">6 exercises · 55 min · Advanced</div></div>
+        <div class="pc-load"><div style="font-size:9px;color:var(--tx3);font-family:var(--mono);">EST. LOAD</div><div class="pc-load-val">~440 AU</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── PROGRESS ───── -->
+<div class="proto-section" id="progress" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">14 — Progress</div>
+      <div class="proto-title">Form trend as the hero metric</div>
+      <div class="proto-sub">Form score trend leads — not session count. Load-based stats replace empty activity counts.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/progress</div></div>
+    <div class="app-nav"><div class="app-logo">Formm</div><div class="app-tabs"><div class="app-tab">Train</div><div class="app-tab">Recover</div><div class="app-tab on">Progress</div></div><div class="app-avatar">S</div></div>
+    <div class="screen-progress">
+      <div class="progress-tabs">
+        <div class="pt on">Overview</div>
+        <div class="pt">Community</div>
+        <div class="pt">Wearables</div>
+        <div class="pt">Analytics</div>
+      </div>
+      <div class="prog-stats">
+        <div class="ps-card"><div class="ps-icon">🔥</div><div class="ps-val">12</div><div class="ps-lbl">Streak</div></div>
+        <div class="ps-card"><div class="ps-icon">⚡</div><div class="ps-val" style="color:var(--green);">1.1</div><div class="ps-lbl">ACWR</div></div>
+        <div class="ps-card"><div class="ps-icon">🏋️</div><div class="ps-val">2,840</div><div class="ps-lbl">AU this week</div></div>
+        <div class="ps-card"><div class="ps-icon">🏆</div><div class="ps-val" style="color:var(--purple);">72</div><div class="ps-lbl">Scout score</div></div>
+      </div>
+      <div class="form-trend-card">
+        <div class="ftc-header">
+          <div class="ftc-title">Form score trends</div>
+          <div class="ftc-badge">↑ 14% this month</div>
+        </div>
+        <!-- Simplified SVG sparkline -->
+        <svg width="100%" height="60" viewBox="0 0 500 60" style="margin-bottom:12px;">
+          <polyline points="0,55 80,48 160,42 240,35 320,28 400,22 500,18" fill="none" stroke="rgba(54,217,154,0.2)" stroke-width="1.5"/>
+          <polyline points="0,55 80,48 160,42 240,35 320,28 400,22 500,18" fill="none" stroke="#36D99A" stroke-width="2" stroke-dasharray="4 0"/>
+          <circle cx="500" cy="18" r="4" fill="#36D99A"/>
+          <text x="10" y="56" fill="#5A5870" font-size="9" font-family="JetBrains Mono">Week 1</text>
+          <text x="450" y="56" fill="#5A5870" font-size="9" font-family="JetBrains Mono">Now</text>
+        </svg>
+        <div class="ftc-movement-list">
+          <div class="ftc-mov"><span style="font-size:16px;">🦵</span><div class="ftc-mov-name">Squat</div><div class="ftc-mov-score" style="color:var(--green);">84/100</div><div class="ftc-mov-trend" style="color:var(--green);">↑14%</div></div>
+          <div class="ftc-mov"><span style="font-size:16px;">🏋️</span><div class="ftc-mov-name">Deadlift</div><div class="ftc-mov-score" style="color:var(--amber);">76/100</div><div class="ftc-mov-trend" style="color:var(--green);">↑8%</div></div>
+          <div class="ftc-mov"><span style="font-size:16px;">💪</span><div class="ftc-mov-name">Bench press</div><div class="ftc-mov-score" style="color:var(--green);">81/100</div><div class="ftc-mov-trend" style="color:var(--green);">↑5%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───── RECOVERY ───── -->
+<div class="proto-section" id="recovery" style="display:none;">
+  <div class="proto-hdr">
+    <div class="proto-hdr-left">
+      <div class="proto-tag">15 — Recovery</div>
+      <div class="proto-title">Recovery & Mobility</div>
+      <div class="proto-sub">Clean, functional, well-organised. Minimal changes — this screen works well already. Updated visual language applied.</div>
+    </div>
+  </div>
+  <div class="app-frame">
+    <div class="app-bar"><div class="app-dot dot-r"></div><div class="app-dot dot-y"></div><div class="app-dot dot-g"></div><div class="app-url">formm.app/recover/mobility</div></div>
+    <div class="app-nav"><div class="app-logo">Formm</div><div class="app-tabs"><div class="app-tab">Train</div><div class="app-tab on">Recover</div><div class="app-tab">Progress</div></div><div class="app-avatar">S</div></div>
+    <div class="screen-recovery">
+      <div class="rec-tabs">
+        <div class="rec-tab on">Stretching</div>
+        <div class="rec-tab">Foam Rolling</div>
+        <div class="rec-tab">Mobility</div>
+        <div class="rec-tab">Active Recovery</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-icon">🧘</div>
+        <div><div class="rec-title">Full Body Stretch</div><div class="rec-meta">15 min · Beginner · 8 exercises</div></div>
+        <div class="rec-arrow">›</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-icon">🌊</div>
+        <div><div class="rec-title">Pre-Workout Dynamic Stretch</div><div class="rec-meta">10 min · All Levels · 7 exercises</div></div>
+        <div class="rec-arrow">›</div>
+      </div>
+      <div class="rec-card">
+        <div class="rec-icon">🌙</div>
+        <div><div class="rec-title">Post-Workout Cool Down</div><div class="rec-meta">12 min · All Levels · 7 exercises</div></div>
+        <div class="rec-arrow">›</div>
+      </div>
+      <div class="rec-tip-card">
+        <div class="rec-tip-title">Recovery tips</div>
+        <div class="rec-tip">Never stretch cold muscles — light cardio first</div>
+        <div class="rec-tip">Hold static stretches 30–60 seconds for best results</div>
+        <div class="rec-tip">Breathe into the stretch — exhale to deepen</div>
+        <div class="rec-tip">Consistency beats intensity in mobility work</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /right -->
+</div><!-- /outer -->
+
+<script>
+function show(id) {
+  // Hide all sections
+  document.querySelectorAll('.proto-section').forEach(s => {
+    s.style.display = 'none';
+  });
+  // Show target
+  const target = document.getElementById(id);
+  if (target) {
+    target.style.display = 'block';
+    target.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  // Update nav
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b => {
+    if (b.getAttribute('onclick') === `show('${id}')`) {
+      b.classList.add('active');
+    }
+  });
+}
+
+// Show first section by default
+show('visual-system');
+</script>
+</body>
+</html>

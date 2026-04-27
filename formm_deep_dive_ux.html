@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Deep Dive UX Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════════ */
+:root {
+  --bg:       #060609;
+  --bg1:      #0D0D14;
+  --bg2:      #13131E;
+  --bg3:      #1A1A28;
+  --bg4:      #222234;
+  --surface:  #2A2A40;
+  --line:     rgba(255,255,255,0.07);
+  --line2:    rgba(255,255,255,0.12);
+  --line3:    rgba(255,255,255,0.18);
+  --t1:       #EEEEF5;
+  --t2:       #9898B8;
+  --t3:       #5C5C7A;
+  --teal:     #00E5B8;
+  --teal2:    #00C4A0;
+  --teal-d:   rgba(0,229,184,0.10);
+  --teal-d2:  rgba(0,229,184,0.05);
+  --amber:    #FFB020;
+  --amber-d:  rgba(255,176,32,0.10);
+  --coral:    #FF4D6A;
+  --coral-d:  rgba(255,77,106,0.10);
+  --green:    #3DDB96;
+  --green-d:  rgba(61,219,150,0.10);
+  --blue:     #4E9EFF;
+  --blue-d:   rgba(78,158,255,0.10);
+  --purple:   #9B7FFF;
+  --purple-d: rgba(155,127,255,0.10);
+  --r4:  4px;
+  --r8:  8px;
+  --r12: 12px;
+  --r16: 16px;
+  --r20: 20px;
+  --r24: 24px;
+  --display: 'Syne', sans-serif;
+  --body:    'Instrument Sans', sans-serif;
+  --mono:    'JetBrains Mono', monospace;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════════════════════
+   LAYOUT
+════════════════════════════════════════════ */
+.shell { display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width:240px; min-width:240px;
+  background: var(--bg1);
+  border-right: 1px solid var(--line);
+  position: sticky; top:0; height:100vh;
+  overflow-y: auto; padding:20px 0;
+  z-index:50;
+}
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:4px; }
+.sb-logo {
+  padding: 0 16px 20px;
+  display:flex; align-items:center; gap:10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom:16px;
+}
+.sb-mark {
+  width:30px; height:30px; border-radius:8px;
+  background: var(--teal); color: var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--display); font-size:15px; font-weight:800;
+}
+.sb-name { font-family:var(--display); font-size:16px; font-weight:700; letter-spacing:-0.3px; }
+.sb-ver { font-size:9px; color:var(--t3); font-family:var(--mono); }
+.sb-group { margin-top:16px; }
+.sb-group-label {
+  padding: 0 16px 6px;
+  font-size:9px; font-family:var(--mono); color:var(--t3);
+  letter-spacing:1.5px; text-transform:uppercase;
+}
+.sb-item {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 16px; font-size:12px; color:var(--t2);
+  cursor:pointer; transition:all .15s; text-decoration:none;
+  border-left:2px solid transparent;
+}
+.sb-item:hover { color:var(--t1); background:var(--line); }
+.sb-item.on { color:var(--teal); border-left-color:var(--teal); background:var(--teal-d2); }
+.sb-item-dot {
+  width:5px; height:5px; border-radius:50%;
+  background:var(--bg4); flex-shrink:0;
+}
+.sb-item.on .sb-item-dot { background:var(--teal); }
+.sb-new {
+  margin-left:auto; background:var(--teal); color:var(--bg);
+  font-size:8px; font-family:var(--mono); font-weight:700;
+  padding:1px 5px; border-radius:10px;
+}
+
+/* MAIN */
+.main { flex:1; min-width:0; }
+
+/* PAGE HEADER */
+.page-hdr {
+  padding: 48px 64px 0;
+  max-width: 1200px;
+}
+.page-tag {
+  font-family:var(--mono); font-size:10px; color:var(--teal);
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;
+}
+.page-title {
+  font-family:var(--display); font-size:42px; font-weight:800;
+  letter-spacing:-1px; line-height:1.1; margin-bottom:12px;
+}
+.page-sub { font-size:15px; color:var(--t2); max-width:580px; line-height:1.7; }
+
+/* ════════════════════════════════════════════
+   SECTION CONTAINERS
+════════════════════════════════════════════ */
+.section {
+  padding: 64px;
+  max-width: 1200px;
+  border-bottom: 1px solid var(--line);
+}
+.section:last-child { border-bottom:none; }
+.section-tag { font-family:var(--mono); font-size:10px; color:var(--teal); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.section-title { font-family:var(--display); font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-bottom:8px; }
+.section-sub { font-size:14px; color:var(--t2); max-width:620px; margin-bottom:32px; }
+
+/* ════════════════════════════════════════════
+   ATOMIC COMPONENTS (design system)
+════════════════════════════════════════════ */
+
+/* Pill */
+.pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px;
+  font-size:10px; font-family:var(--mono); font-weight:500;
+}
+.pill-t  { background:var(--teal-d);   color:var(--teal);   border:1px solid rgba(0,229,184,.2); }
+.pill-g  { background:var(--green-d);  color:var(--green);  border:1px solid rgba(61,219,150,.2); }
+.pill-a  { background:var(--amber-d);  color:var(--amber);  border:1px solid rgba(255,176,32,.2); }
+.pill-r  { background:var(--coral-d);  color:var(--coral);  border:1px solid rgba(255,77,106,.2); }
+.pill-b  { background:var(--blue-d);   color:var(--blue);   border:1px solid rgba(78,158,255,.2); }
+.pill-p  { background:var(--purple-d); color:var(--purple); border:1px solid rgba(155,127,255,.2); }
+
+/* Card */
+.card {
+  background:var(--bg2); border:1px solid var(--line);
+  border-radius:var(--r16); overflow:hidden;
+}
+.card-sm { border-radius:var(--r12); }
+.card-lg { border-radius:var(--r20); }
+
+/* Callout */
+.callout {
+  display:flex; gap:14px; padding:16px 20px;
+  border-radius:var(--r12); margin:20px 0;
+}
+.callout-warn  { background:var(--amber-d); border:1px solid rgba(255,176,32,.2); }
+.callout-info  { background:var(--teal-d);  border:1px solid rgba(0,229,184,.2); }
+.callout-error { background:var(--coral-d); border:1px solid rgba(255,77,106,.2); }
+.callout-icon { font-size:16px; flex-shrink:0; }
+.callout-text { font-size:13px; line-height:1.6; }
+.callout-warn  .callout-text { color:rgba(255,176,32,.9); }
+.callout-info  .callout-text { color:rgba(0,229,184,.9); }
+.callout-error .callout-text { color:rgba(255,77,106,.9); }
+
+/* Divider */
+.div { height:1px; background:var(--line); margin:48px 0; }
+
+/* ════════════════════════════════════════════
+   SCREEN PREVIEWS (phone + browser frames)
+════════════════════════════════════════════ */
+.preview-label {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.preview-label-tag {
+  font-family:var(--mono); font-size:10px; color:var(--t3);
+  background:var(--bg3); border:1px solid var(--line);
+  padding:3px 8px; border-radius:20px;
+}
+.preview-label-name { font-size:13px; font-weight:600; }
+.preview-label-sub  { font-size:12px; color:var(--t2); margin-top:1px; }
+
+.browser {
+  border:1px solid var(--line2); border-radius:var(--r16);
+  overflow:hidden; background:var(--bg2);
+  box-shadow:0 32px 80px rgba(0,0,0,.6);
+}
+.browser-bar {
+  background:var(--bg3); padding:10px 16px;
+  display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid var(--line);
+}
+.bw { width:9px;height:9px;border-radius:50%; }
+.bw-r{background:#FF5F57;} .bw-y{background:#FFBD2E;} .bw-g{background:#28C840;}
+.browser-url {
+  flex:1; background:var(--bg4); border-radius:6px;
+  padding:4px 12px; font-family:var(--mono); font-size:10px;
+  color:var(--t3); text-align:center; margin:0 8px;
+}
+.screen { /* inner content of browser */ }
+
+/* ════════════════════════════════════════════
+   GRID UTILITIES
+════════════════════════════════════════════ */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.gf { display:flex; flex-wrap:wrap; gap:12px; }
+
+/* ════════════════════════════════════════════
+   STEP LIST
+════════════════════════════════════════════ */
+.steps { display:flex; flex-direction:column; gap:0; }
+.step {
+  display:flex; gap:20px; padding:20px 0;
+  border-bottom:1px solid var(--line);
+  animation: fadeUp .4s ease both;
+}
+.step:last-child { border-bottom:none; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.step-n {
+  width:28px; height:28px; border-radius:50%;
+  background:var(--teal-d); border:1px solid rgba(0,229,184,.25);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:11px; color:var(--teal);
+  flex-shrink:0; margin-top:2px;
+}
+.step-body {}
+.step-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+.step-desc { font-size:13px; color:var(--t2); line-height:1.65; }
+.step-code {
+  margin-top:10px; background:var(--bg);
+  border:1px solid var(--line2); border-radius:var(--r8);
+  padding:10px 14px; font-family:var(--mono); font-size:11px; color:var(--teal);
+  line-height:1.6;
+}
+.step-note {
+  margin-top:8px; font-size:12px; color:var(--t3); font-style:italic;
+}
+
+/* ════════════════════════════════════════════
+   TABLES
+════════════════════════════════════════════ */
+.tbl { width:100%; border-collapse:collapse; margin:16px 0 28px; }
+.tbl th {
+  text-align:left; padding:9px 14px;
+  font-size:10px; font-family:var(--mono); color:var(--t3);
+  letter-spacing:1.2px; text-transform:uppercase;
+  background:var(--bg2); border-bottom:1px solid var(--line);
+}
+.tbl td {
+  padding:11px 14px; font-size:13px; vertical-align:top;
+  border-bottom:1px solid var(--line);
+}
+.tbl tr:hover td { background:var(--bg2); }
+.tbl tr:last-child td { border:none; }
+
+/* ════════════════════════════════════════════
+   COMPONENT ANATOMY (design system deep dive)
+════════════════════════════════════════════ */
+.anatomy {
+  background:var(--bg2); border:1px solid var(--line);
+  border-radius:var(--r16); margin:20px 0;
+}
+.anatomy-header {
+  padding:16px 20px; border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.anatomy-title { font-size:13px; font-weight:600; }
+.anatomy-body  { padding:20px; }
+.anatomy-row {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:12px 0; border-bottom:1px solid var(--line);
+}
+.anatomy-row:last-child { border-bottom:none; }
+.anatomy-prop {
+  width:140px; min-width:140px;
+  font-family:var(--mono); font-size:11px; color:var(--teal);
+}
+.anatomy-val  { font-size:13px; color:var(--t2); }
+
+/* ════════════════════════════════════════════
+   COPY GUIDELINES
+════════════════════════════════════════════ */
+.copy-row {
+  display:flex; gap:16px; margin-bottom:12px;
+}
+.copy-bad {
+  flex:1; background:var(--coral-d); border:1px solid rgba(255,77,106,.2);
+  border-radius:var(--r8); padding:12px 14px;
+}
+.copy-good {
+  flex:1; background:var(--green-d); border:1px solid rgba(61,219,150,.2);
+  border-radius:var(--r8); padding:12px 14px;
+}
+.copy-label {
+  font-size:9px; font-family:var(--mono); letter-spacing:1.5px;
+  text-transform:uppercase; margin-bottom:6px; font-weight:700;
+}
+.copy-bad  .copy-label { color:var(--coral); }
+.copy-good .copy-label { color:var(--green); }
+.copy-text { font-size:13px; line-height:1.55; }
+
+/* ════════════════════════════════════════════
+   MICRO-INTERACTION SPECS
+════════════════════════════════════════════ */
+.motion-spec {
+  background:var(--bg2); border:1px solid var(--line);
+  border-radius:var(--r12); padding:16px 18px; margin-bottom:10px;
+}
+.motion-name { font-size:13px; font-weight:600; margin-bottom:4px; }
+.motion-row  { display:flex; gap:20px; flex-wrap:wrap; }
+.motion-prop { font-size:12px; }
+.motion-key  { color:var(--t3); font-family:var(--mono); font-size:10px; }
+.motion-val  { color:var(--t1); }
+
+/* ════════════════════════════════════════════
+   ACTUAL SCREEN DESIGNS
+════════════════════════════════════════════ */
+
+/* --- DASHBOARD SCREEN --- */
+.ds-topbar {
+  background:var(--bg2); height:52px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px; border-bottom:1px solid var(--line);
+}
+.ds-logo { font-family:var(--display); font-size:17px; font-weight:700; letter-spacing:-.3px; }
+.ds-tabs { display:flex; gap:2px; }
+.ds-tab  { padding:6px 14px; border-radius:7px; font-size:13px; color:var(--t2); cursor:pointer; }
+.ds-tab.on { background:var(--teal-d); color:var(--teal); font-weight:600; }
+.ds-ava  { width:30px;height:30px;border-radius:50%;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700; }
+.ds-body { padding:16px 20px; }
+
+.today-strip {
+  background: linear-gradient(135deg, rgba(0,229,184,.07), rgba(0,229,184,.02));
+  border:1px solid rgba(0,229,184,.15);
+  border-radius:var(--r16); padding:18px 20px;
+  display:flex; gap:16px; align-items:center; margin-bottom:14px;
+}
+.ts-left { flex:1; }
+.ts-date { font-family:var(--mono); font-size:9px; color:var(--teal); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:3px; }
+.ts-greet { font-family:var(--display); font-size:19px; font-weight:700; letter-spacing:-.3px; margin-bottom:8px; }
+.ts-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--green-d); border:1px solid rgba(61,219,150,.2);
+  border-radius:var(--r8); padding:7px 12px;
+}
+.ts-zone  { font-size:13px; font-weight:600; color:var(--green); }
+.ts-desc  { font-size:11px; color:var(--t2); margin-top:4px; }
+.ts-target{ font-size:11px; color:var(--t2); margin-top:2px; }
+.ts-target strong { color:var(--t1); }
+.ts-ring  { position:relative; width:72px; height:72px; flex-shrink:0; }
+.ts-ring svg { transform:rotate(-90deg); }
+.ts-center { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center; }
+.ts-score { font-family:var(--display); font-size:20px; font-weight:700; color:var(--green); line-height:1; }
+.ts-rlabel{ font-size:8px; color:var(--t3); font-family:var(--mono); letter-spacing:.5px; }
+
+.ds-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.ds-stat  {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r12); padding:12px 14px;
+}
+.ds-stat-icon { font-size:14px; margin-bottom:5px; }
+.ds-stat-val  { font-family:var(--display); font-size:18px; font-weight:700; line-height:1; margin-bottom:2px; }
+.ds-stat-lbl  { font-size:10px; color:var(--t3); }
+
+.ds-ctas { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.ds-cta-primary {
+  background:var(--teal); color:var(--bg);
+  border-radius:var(--r12); padding:14px 18px;
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.ds-cta-secondary {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r12); padding:14px 18px;
+  display:flex; align-items:center; gap:12px; cursor:pointer;
+}
+.cta-icon { font-size:20px; }
+.cta-name { font-size:13px; font-weight:700; }
+.cta-sub  { font-size:11px; opacity:.6; margin-top:1px; }
+
+.ds-insight {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r12); padding:14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.di-icon  { width:38px;height:38px;border-radius:10px;background:var(--teal-d);border:1px solid rgba(0,229,184,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
+.di-title { font-size:13px; font-weight:600; margin-bottom:2px; }
+.di-sub   { font-size:11px; color:var(--t2); }
+.di-arrow { font-size:16px; color:var(--teal); }
+
+/* --- FORM ANALYSIS SCREEN --- */
+.fa-tabs {
+  display:flex; background:var(--bg3); padding:3px;
+  border-radius:10px; margin:16px 20px;
+}
+.fa-tab {
+  flex:1; padding:7px; text-align:center;
+  border-radius:7px; font-size:12px; color:var(--t2); cursor:pointer;
+}
+.fa-tab.on { background:var(--teal); color:var(--bg); font-weight:700; }
+.fa-body { padding:0 20px 20px; }
+.fa-dropdowns { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.fa-drop {
+  background:var(--bg3); border:1px solid var(--line2);
+  border-radius:var(--r8); padding:11px 14px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:13px; cursor:pointer;
+}
+.fa-drop-hint { font-size:11px; color:var(--t3); }
+.fa-upload {
+  border:1.5px dashed rgba(0,229,184,.25); border-radius:var(--r12);
+  padding:28px; text-align:center; background:rgba(0,229,184,.025);
+  cursor:pointer; transition:all .2s;
+}
+.fa-upload:hover { background:rgba(0,229,184,.05); border-color:rgba(0,229,184,.4); }
+.fa-upload-icon { font-size:28px; margin-bottom:8px; }
+.fa-upload-title { font-size:14px; font-weight:600; margin-bottom:3px; }
+.fa-upload-sub  { font-size:11px; color:var(--t2); }
+.fa-tips {
+  margin-top:12px; background:var(--amber-d);
+  border:1px solid rgba(255,176,32,.2); border-radius:var(--r8);
+  padding:10px 12px;
+}
+.fa-tips-hdr { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
+.fa-tips-lbl { font-size:10px; color:var(--amber); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; }
+.fa-tip { font-size:11px; color:rgba(255,176,32,.8); padding:2px 0; }
+.fa-tip::before { content:"→ "; }
+
+/* Result screen */
+.fa-result { padding:16px 20px; }
+.far-score-bar {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r16); padding:20px; margin-bottom:14px;
+}
+.far-movement { font-size:11px; color:var(--t3); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.far-title  { font-family:var(--display); font-size:20px; font-weight:700; margin-bottom:12px; }
+.far-gauge-row { display:flex; align-items:center; gap:16px; }
+.far-gauge {
+  width:72px; height:72px; position:relative; flex-shrink:0;
+}
+.far-gauge svg { transform:rotate(-90deg); }
+.far-gauge-inner { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center; }
+.far-score { font-family:var(--display); font-size:22px; font-weight:700; color:var(--green); line-height:1; }
+.far-max   { font-size:9px; color:var(--t3); font-family:var(--mono); }
+.far-verdict { font-size:13px; font-weight:600; margin-bottom:4px; }
+.far-desc  { font-size:12px; color:var(--t2); line-height:1.6; }
+
+.far-metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.far-metric {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r8); padding:12px;
+}
+.far-m-name { font-size:11px; color:var(--t3); margin-bottom:6px; }
+.far-m-val  { font-size:16px; font-weight:700; margin-bottom:4px; }
+.far-m-bar  { height:3px; background:var(--line); border-radius:2px; }
+.far-m-fill { height:100%; border-radius:2px; }
+
+.far-faults {
+  background:var(--amber-d); border:1px solid rgba(255,176,32,.2);
+  border-radius:var(--r12); padding:14px 16px;
+}
+.far-faults-hdr { font-size:11px; color:var(--amber); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.fault-row { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid rgba(255,176,32,.1); align-items:flex-start; }
+.fault-row:last-child { border:none; padding-bottom:0; }
+.fault-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+.fault-name { font-size:12px; font-weight:600; margin-bottom:2px; }
+.fault-fix  { font-size:11px; color:rgba(255,176,32,.8); }
+
+/* --- READINESS SCREEN --- */
+.rd-body { padding:16px 20px; }
+.rd-hero {
+  background:linear-gradient(135deg,rgba(61,219,150,.07),rgba(61,219,150,.02));
+  border:1px solid rgba(61,219,150,.15);
+  border-radius:var(--r16); padding:20px;
+  display:flex; gap:18px; align-items:center; margin-bottom:14px;
+}
+.rd-gauge-wrap { position:relative;width:88px;height:88px;flex-shrink:0; }
+.rd-gauge-wrap svg { transform:rotate(-90deg); }
+.rd-gauge-inner { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center; }
+.rd-score { font-family:var(--display); font-size:26px; font-weight:700; color:var(--green); line-height:1; }
+.rd-of10  { font-size:9px; color:var(--t3); font-family:var(--mono); }
+.rd-right {}
+.rd-zone  { font-size:16px; font-weight:700; color:var(--green); margin-bottom:4px; }
+.rd-rec   { font-size:12px; color:var(--t2); line-height:1.55; margin-bottom:8px; }
+.rd-target-badge {
+  background:var(--green-d); border:1px solid rgba(61,219,150,.2);
+  border-radius:var(--r8); padding:8px 12px; font-size:12px;
+}
+.rd-target-badge strong { color:var(--green); }
+
+.rd-factors { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.rd-factor {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r8); padding:12px;
+}
+.rd-f-label { font-size:9px; color:var(--t3); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.rd-f-val   { font-size:18px; font-weight:700; margin-bottom:2px; }
+.rd-f-desc  { font-size:10px; color:var(--t3); margin-bottom:6px; }
+.rd-f-bar   { height:3px; background:var(--line); border-radius:2px; }
+.rd-f-fill  { height:100%; border-radius:2px; }
+
+.rd-accuracy {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:14px; padding:8px 12px;
+  background:var(--bg3); border:1px solid var(--line); border-radius:var(--r8);
+  font-size:12px; color:var(--t2);
+}
+.rd-acc-dot { width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0; }
+
+.rd-checkin {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r12); padding:16px;
+}
+.rd-ci-title { font-size:13px; font-weight:600; margin-bottom:12px; }
+.rd-slider { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.rd-sl-lbl { font-size:11px; color:var(--t2); width:60px; flex-shrink:0; }
+.rd-sl-track { flex:1; height:4px; background:var(--line); border-radius:2px; position:relative; }
+.rd-sl-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--coral),var(--amber),var(--green)); }
+.rd-sl-thumb { position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:white;box-shadow:0 0 0 2px rgba(255,255,255,.3); }
+.rd-sl-val  { font-family:var(--mono); font-size:11px; color:var(--t3); width:22px; text-align:right; }
+.rd-ci-submit {
+  background:var(--teal); color:var(--bg);
+  text-align:center; padding:11px; border-radius:var(--r8);
+  font-size:13px; font-weight:700; cursor:pointer; margin-top:12px;
+}
+
+/* --- SCOUT SCORE SCREEN --- */
+.sc-body { padding:16px 20px; }
+.sc-locked {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r16); padding:28px 20px; text-align:center;
+  margin-bottom:14px;
+}
+.sc-lock-icon { font-size:36px; margin-bottom:10px; }
+.sc-lock-title { font-family:var(--display); font-size:18px; font-weight:700; margin-bottom:6px; }
+.sc-lock-desc { font-size:13px; color:var(--t2); margin-bottom:20px; line-height:1.6; }
+.sc-lock-progress {
+  background:var(--bg4); border:1px solid var(--line);
+  border-radius:var(--r8); padding:14px 16px; margin-bottom:16px; text-align:left;
+}
+.sc-prog-label { font-size:10px; color:var(--t3); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+.sc-prog-nums { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+.sc-prog-bar { height:6px; background:var(--line); border-radius:3px; }
+.sc-prog-fill { height:100%; border-radius:3px; background:var(--teal); transition:width .6s ease; }
+.sc-prog-sub { font-size:11px; color:var(--t3); margin-top:6px; }
+.sc-cta {
+  background:var(--purple); color:white;
+  padding:11px 24px; border-radius:var(--r8);
+  font-size:13px; font-weight:700; display:inline-block; cursor:pointer;
+}
+.sc-what {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r12); padding:16px;
+}
+.sc-what-title { font-size:11px; color:var(--t3); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.sc-metric-row { display:flex; gap:8px; align-items:center; padding:6px 0; font-size:12px; color:var(--t2); }
+
+/* Unlocked scout */
+.sc-hero {
+  background:linear-gradient(135deg,rgba(155,127,255,.07),rgba(155,127,255,.02));
+  border:1px solid rgba(155,127,255,.2);
+  border-radius:var(--r16); padding:20px; margin-bottom:14px;
+}
+.sc-hero-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+.sc-ht-left {}
+.sc-h-title { font-family:var(--display); font-size:22px; font-weight:700; margin-bottom:2px; }
+.sc-h-level { font-size:11px; color:var(--t3); font-family:var(--mono); }
+.sc-h-num   { font-family:var(--display); font-size:52px; font-weight:800; color:var(--purple); line-height:1; }
+.sc-ladder  { display:flex; gap:4px; margin-bottom:10px; }
+.sc-rung {
+  flex:1; background:var(--bg4); border-radius:6px;
+  padding:5px 3px; text-align:center;
+  font-size:8px; color:var(--t3); font-family:var(--mono); line-height:1.3;
+}
+.sc-rung.now {
+  background:var(--purple-d); border:1px solid rgba(155,127,255,.3);
+  color:var(--purple);
+}
+.sc-h-next { font-size:11px; color:var(--t2); }
+.sc-h-next strong { color:var(--t1); }
+
+.sc-metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.sc-m {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r8); padding:12px;
+}
+.sc-m-name { font-size:11px; color:var(--t3); margin-bottom:6px; }
+.sc-m-val  { font-size:18px; font-weight:700; color:var(--purple); }
+.sc-m-bar  { height:3px; background:var(--line); border-radius:2px; margin-top:6px; }
+.sc-m-fill { height:100%; border-radius:2px; background:var(--purple); }
+
+/* --- COACH SCREEN --- */
+.co-body { padding:16px 20px; }
+.co-ctx {
+  background:var(--blue-d); border:1px solid rgba(78,158,255,.2);
+  border-radius:var(--r12); padding:12px 14px; margin-bottom:12px;
+}
+.co-ctx-lbl { font-size:9px; color:var(--blue); font-family:var(--mono); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+.co-ctx-row { display:flex; gap:16px; flex-wrap:wrap; }
+.co-ctx-item { font-size:11px; }
+.co-ctx-key  { color:var(--t3); }
+.co-ctx-val  { font-weight:600; }
+
+.chat-msgs { min-height:140px; margin-bottom:12px; display:flex; flex-direction:column; gap:8px; }
+.chat-ai {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:10px 10px 10px 2px; padding:10px 14px;
+  font-size:12px; line-height:1.6; max-width:92%;
+}
+.chat-user {
+  background:var(--teal-d); border:1px solid rgba(0,229,184,.15);
+  border-radius:10px 10px 2px 10px; padding:10px 14px;
+  font-size:12px; line-height:1.6; margin-left:auto; max-width:85%;
+  align-self:flex-end;
+}
+.co-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.co-chip {
+  background:var(--bg3); border:1px solid var(--line2);
+  border-radius:20px; padding:5px 10px;
+  font-size:11px; color:var(--t2); cursor:pointer;
+}
+.co-input-row { display:flex; gap:8px; }
+.co-input {
+  flex:1; background:var(--bg3); border:1px solid var(--line2);
+  border-radius:var(--r8); padding:9px 12px;
+  font-size:12px; color:var(--t1); font-family:var(--body);
+}
+.co-send {
+  width:36px; height:36px; background:var(--teal);
+  border-radius:var(--r8); display:flex; align-items:center;
+  justify-content:center; font-size:14px; color:var(--bg); cursor:pointer;
+}
+
+/* --- READINESS AMBER STATE --- */
+.rd-amber-hero {
+  background:linear-gradient(135deg,rgba(255,176,32,.07),rgba(255,176,32,.02));
+  border:1px solid rgba(255,176,32,.15);
+  border-radius:var(--r16); padding:20px;
+  display:flex; gap:18px; align-items:center; margin-bottom:14px;
+}
+
+/* ════════════════════════════════════════════
+   NOTIFICATION PREVIEWS
+════════════════════════════════════════════ */
+.notif-card {
+  background:var(--bg2); border:1px solid var(--line2);
+  border-radius:var(--r12); padding:14px 16px;
+  display:flex; gap:12px; align-items:flex-start; margin-bottom:8px;
+}
+.notif-icon {
+  width:36px; height:36px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex-shrink:0;
+}
+.notif-icon.teal { background:var(--teal-d); }
+.notif-icon.amber { background:var(--amber-d); }
+.notif-icon.green { background:var(--green-d); }
+.notif-app { font-size:10px; color:var(--t3); font-family:var(--mono); margin-bottom:2px; }
+.notif-title { font-size:13px; font-weight:600; margin-bottom:2px; }
+.notif-body  { font-size:12px; color:var(--t2); }
+.notif-time  { font-size:10px; color:var(--t3); margin-left:auto; flex-shrink:0; }
+
+/* ════════════════════════════════════════════
+   COLOR SYSTEM DISPLAY
+════════════════════════════════════════════ */
+.color-grid { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+.color-swatch {
+  width:52px; text-align:center;
+}
+.color-block { height:36px; border-radius:var(--r8); margin-bottom:4px; border:1px solid rgba(255,255,255,.08); }
+.color-name  { font-size:9px; font-family:var(--mono); color:var(--t3); }
+.color-val   { font-size:8px; font-family:var(--mono); color:var(--t3); }
+
+/* ════════════════════════════════════════════
+   TAB SWITCHER (interactive demo)
+════════════════════════════════════════════ */
+.tab-demo { display:none; }
+.tab-demo.active { display:block; }
+
+/* ════════════════════════════════════════════
+   SPACERS
+════════════════════════════════════════════ */
+.sp16 { height:16px; }
+.sp24 { height:24px; }
+.sp32 { height:32px; }
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══════════════════ SIDEBAR ══════════════════ -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">F</div>
+    <div>
+      <div class="sb-name">Formm</div>
+      <div class="sb-ver">DEEP DIVE v2.0</div>
+    </div>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Foundation</div>
+    <a class="sb-item on" href="#design-system"><div class="sb-item-dot"></div> Design System</a>
+    <a class="sb-item" href="#copy-system"><div class="sb-item-dot"></div> Copy System</a>
+    <a class="sb-item" href="#motion"><div class="sb-item-dot"></div> Motion & Micro-UX</a>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Screen Designs</div>
+    <a class="sb-item" href="#s-dashboard"><div class="sb-item-dot"></div> Dashboard <span class="sb-new">KEY</span></a>
+    <a class="sb-item" href="#s-form"><div class="sb-item-dot"></div> Form Analysis</a>
+    <a class="sb-item" href="#s-result"><div class="sb-item-dot"></div> Analysis Result <span class="sb-new">NEW</span></a>
+    <a class="sb-item" href="#s-readiness"><div class="sb-item-dot"></div> Readiness</a>
+    <a class="sb-item" href="#s-readiness-amber"><div class="sb-item-dot"></div> Readiness · Amber</a>
+    <a class="sb-item" href="#s-scout"><div class="sb-item-dot"></div> Scout Score</a>
+    <a class="sb-item" href="#s-coach"><div class="sb-item-dot"></div> Bespoke Coach</a>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Systems</div>
+    <a class="sb-item" href="#notifications"><div class="sb-item-dot"></div> Notification System</a>
+    <a class="sb-item" href="#empty-states"><div class="sb-item-dot"></div> Empty State Library</a>
+    <a class="sb-item" href="#copy-bank"><div class="sb-item-dot"></div> Copy Bank</a>
+    <a class="sb-item" href="#developer-notes"><div class="sb-item-dot"></div> Dev Handoff Notes</a>
+  </div>
+</nav>
+
+<!-- ══════════════════ CONTENT ══════════════════ -->
+<div class="main">
+
+<!-- ─── DESIGN SYSTEM ─────────────────────────── -->
+<section class="section" id="design-system">
+  <div class="section-tag">01 — Foundation</div>
+  <h2 class="section-title">Design System</h2>
+  <p class="section-sub">Every visual decision in Formm flows from these tokens. Use them consistently and the product looks and feels like a single, coherent thing.</p>
+
+  <div class="section-tag" style="margin-top:24px;">Colour palette</div>
+  <div class="color-grid">
+    <div class="color-swatch"><div class="color-block" style="background:#00E5B8;"></div><div class="color-name">Teal</div><div class="color-val">#00E5B8</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#3DDB96;"></div><div class="color-name">Green</div><div class="color-val">#3DDB96</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#FFB020;"></div><div class="color-name">Amber</div><div class="color-val">#FFB020</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#FF4D6A;"></div><div class="color-name">Coral</div><div class="color-val">#FF4D6A</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#4E9EFF;"></div><div class="color-name">Blue</div><div class="color-val">#4E9EFF</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#9B7FFF;"></div><div class="color-name">Purple</div><div class="color-val">#9B7FFF</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#EEEEF5;"></div><div class="color-name">Text 1</div><div class="color-val">#EEEEF5</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#9898B8;"></div><div class="color-name">Text 2</div><div class="color-val">#9898B8</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#1A1A28;"></div><div class="color-name">BG3</div><div class="color-val">#1A1A28</div></div>
+    <div class="color-swatch"><div class="color-block" style="background:#0D0D14;"></div><div class="color-name">BG1</div><div class="color-val">#0D0D14</div></div>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">🎨</div>
+    <div class="callout-text"><strong>Semantic colour rule:</strong> Green = safe / optimal. Amber = caution / elevated. Coral/Red = danger / rest required. Teal = brand / interactive. Purple = Scout Score only. Blue = Coach / data context. Never use colours decoratively — they carry meaning.</div>
+  </div>
+
+  <div class="div" style="margin:28px 0;"></div>
+  <div class="section-tag">Typography</div>
+  <div class="g2" style="gap:16px;margin-top:12px;">
+    <div class="card" style="padding:20px;">
+      <div style="font-family:var(--display);font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;font-family:var(--mono);">Syne — Display font</div>
+      <div style="font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:8px;">Train Better.<br>Move Smarter.</div>
+      <div style="font-family:var(--display);font-size:22px;font-weight:700;margin-bottom:6px;">Section headings</div>
+      <div style="font-family:var(--display);font-size:18px;font-weight:600;">Card titles</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--t3);font-family:var(--mono);">Use for: hero text, screen titles, large numbers, brand moments</div>
+    </div>
+    <div class="card" style="padding:20px;">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Instrument Sans — Body</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px;">Primary body text 15px/600</div>
+      <div style="font-size:14px;margin-bottom:6px;color:var(--t1);">Regular body copy 14px/400</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:6px;">Secondary text 13px/400</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:6px;">Small supporting text 12px</div>
+      <div style="font-size:11px;color:var(--t3);">Captions and labels 11px</div>
+      <div style="margin-top:12px;font-size:11px;color:var(--t3);font-family:var(--mono);">Use for: all body copy, labels, descriptions, CTAs</div>
+    </div>
+  </div>
+
+  <div class="div" style="margin:28px 0;"></div>
+  <div class="section-tag">Spacing & Radius scale</div>
+  <table class="tbl" style="margin-top:12px;">
+    <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">--r4</code></td><td>4px</td><td>Micro elements: tags, small badges, progress bars</td></tr>
+      <tr><td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">--r8</code></td><td>8px</td><td>Inputs, chips, inline actions, small cards</td></tr>
+      <tr><td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">--r12</code></td><td>12px</td><td>Cards, callouts, modals</td></tr>
+      <tr><td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">--r16</code></td><td>16px</td><td>Primary content cards, panels</td></tr>
+      <tr><td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">--r20</code></td><td>20px</td><td>Hero cards, section containers</td></tr>
+      <tr><td><code style="font-family:var(--mono);font-size:11px;color:var(--teal);">--r24</code></td><td>24px</td><td>Bottom sheets, overlays, full-width banners</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── COPY SYSTEM ────────────────────────────── -->
+<section class="section" id="copy-system">
+  <div class="section-tag">02 — Foundation</div>
+  <h2 class="section-title">Copy System</h2>
+  <p class="section-sub">Every word in Formm carries the sports science brand. The copy rules are as important as the visual rules — they're what make the platform feel intelligent rather than generic.</p>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">✍️</div>
+    <div class="callout-text"><strong>The Formm voice:</strong> Smart without being academic. Direct without being harsh. Encouraging without being hollow. Writes like a knowledgeable coach who respects the athlete's intelligence — not a wellness app that calls everything "amazing."</div>
+  </div>
+
+  <div class="section-tag" style="margin-top:28px;">Core copy rules with examples</div>
+
+  <div class="copy-row">
+    <div class="copy-bad"><div class="copy-label">❌ Never</div><div class="copy-text">Rate your perceived exertion on the Borg CR-10 scale</div></div>
+    <div class="copy-good"><div class="copy-label">✓ Always</div><div class="copy-text">How hard was that session overall?</div></div>
+  </div>
+  <div class="copy-row">
+    <div class="copy-bad"><div class="copy-label">❌ Never</div><div class="copy-text">Your ACWR is 1.47 which is approaching the danger threshold</div></div>
+    <div class="copy-good"><div class="copy-label">✓ Always</div><div class="copy-text">You're training 47% harder than your body is used to. Consider a lighter session tomorrow.</div></div>
+  </div>
+  <div class="copy-row">
+    <div class="copy-bad"><div class="copy-label">❌ Never</div><div class="copy-text">No Analysis Yet. Complete your first form check to start building your analysis history.</div></div>
+    <div class="copy-good"><div class="copy-label">✓ Always</div><div class="copy-text">Your movement history starts here. Each analysis builds a picture of how you improve over time.</div></div>
+  </div>
+  <div class="copy-row">
+    <div class="copy-bad"><div class="copy-label">❌ Never</div><div class="copy-text">You should not train today due to elevated risk levels</div></div>
+    <div class="copy-good"><div class="copy-label">✓ Always</div><div class="copy-text">Rest today protects the next 10 sessions. Your body is building — give it the time it needs.</div></div>
+  </div>
+  <div class="copy-row">
+    <div class="copy-bad"><div class="copy-label">❌ Never</div><div class="copy-text">Complete Your Profile for Personalized Plans</div></div>
+    <div class="copy-good"><div class="copy-label">✓ Always</div><div class="copy-text">Formm gets smarter as it learns about you. [Link, not a banner]</div></div>
+  </div>
+  <div class="copy-row">
+    <div class="copy-bad"><div class="copy-label">❌ Never</div><div class="copy-text">Great work! You're doing amazing! Keep it up! 🎉</div></div>
+    <div class="copy-good"><div class="copy-label">✓ Always</div><div class="copy-text">Your squat depth improved 12% this month. The hip work is paying off.</div></div>
+  </div>
+
+  <div class="section-tag" style="margin-top:28px;">Readiness zone copy — exact strings</div>
+  <table class="tbl" style="margin-top:12px;">
+    <thead><tr><th>Zone</th><th>Zone label</th><th>Body copy</th><th>Target copy</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="pill pill-g">🟢 Green</span></td>
+        <td>Train hard today</td>
+        <td>Recovery signals are strong. Your body is ready for intensity.</td>
+        <td>Session target: <strong>[X]–[Y] AU</strong> · ~[Z] min at [N]/10 RPE</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-a">🟡 Amber</span></td>
+        <td>Train, but modulate</td>
+        <td>Your load is elevated. Train today, but keep it controlled.</td>
+        <td>Session target: <strong>[X]–[Y] AU</strong> · Drop your heaviest sets by 20%</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-r">🟠 Orange</span></td>
+        <td>Active recovery today</td>
+        <td>Your body needs lighter work. A recovery session today speeds up tomorrow.</td>
+        <td>Session target: <strong>[X]–[Y] AU</strong> · Mobility, walking, or light cardio only</td>
+      </tr>
+      <tr>
+        <td><span class="pill pill-r">🔴 Red</span></td>
+        <td>Rest today</td>
+        <td>Rest today protects the next 10 sessions. Your body is rebuilding.</td>
+        <td>No training target · Prioritise sleep and nutrition</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── MOTION ─────────────────────────────────── -->
+<section class="section" id="motion">
+  <div class="section-tag">03 — Foundation</div>
+  <h2 class="section-title">Motion & Micro-UX</h2>
+  <p class="section-sub">Animation should feel earned, not decorative. Every motion must communicate state, guide attention, or provide feedback. Nothing moves for aesthetics alone.</p>
+
+  <div class="motion-spec">
+    <div class="motion-name">Readiness ring fill — on screen load</div>
+    <div class="motion-row">
+      <div class="motion-prop"><div class="motion-key">Duration</div><div class="motion-val">900ms</div></div>
+      <div class="motion-prop"><div class="motion-key">Easing</div><div class="motion-val">cubic-bezier(.2,0,.2,1)</div></div>
+      <div class="motion-prop"><div class="motion-key">Delay</div><div class="motion-val">200ms (after data loads)</div></div>
+      <div class="motion-prop"><div class="motion-key">Property</div><div class="motion-val">stroke-dashoffset</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Why: the ring fill is the hero moment of the Readiness screen. It must feel significant and confident — not instant, not sluggish.</div>
+  </div>
+
+  <div class="motion-spec">
+    <div class="motion-name">Score counter — number counts up to value</div>
+    <div class="motion-row">
+      <div class="motion-prop"><div class="motion-key">Duration</div><div class="motion-val">600ms</div></div>
+      <div class="motion-prop"><div class="motion-key">Easing</div><div class="motion-val">ease-out</div></div>
+      <div class="motion-prop"><div class="motion-key">Applies to</div><div class="motion-val">Readiness score, Scout Score, Form score</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Why: counting up to a number creates anticipation and makes the score feel earned. Works for both high and low scores.</div>
+  </div>
+
+  <div class="motion-spec">
+    <div class="motion-name">Card entrance — staggered fade-up</div>
+    <div class="motion-row">
+      <div class="motion-prop"><div class="motion-key">Duration</div><div class="motion-val">350ms per card</div></div>
+      <div class="motion-prop"><div class="motion-key">Delay</div><div class="motion-val">60ms stagger between cards</div></div>
+      <div class="motion-prop"><div class="motion-key">Transform</div><div class="motion-val">translateY(10px) → 0</div></div>
+      <div class="motion-prop"><div class="motion-key">Opacity</div><div class="motion-val">0 → 1</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Why: staggered entrance prevents the "wall of content" feeling on dashboard load. Apply to stat cards, quick action cards, insight card.</div>
+  </div>
+
+  <div class="motion-spec">
+    <div class="motion-name">Slider — thumb position updates readiness score in real-time</div>
+    <div class="motion-row">
+      <div class="motion-prop"><div class="motion-key">Debounce</div><div class="motion-val">150ms</div></div>
+      <div class="motion-prop"><div class="motion-key">Score update</div><div class="motion-val">Instant, no animation</div></div>
+      <div class="motion-prop"><div class="motion-key">Zone colour</div><div class="motion-val">200ms crossfade on zone change</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Why: real-time feedback on the wellness sliders teaches users how each input affects their score. The immediate response is the education mechanism.</div>
+  </div>
+
+  <div class="motion-spec">
+    <div class="motion-name">Video upload — processing state</div>
+    <div class="motion-row">
+      <div class="motion-prop"><div class="motion-key">Progress bar</div><div class="motion-val">Genuine % from API (not fake)</div></div>
+      <div class="motion-prop"><div class="motion-key">Step labels</div><div class="motion-val">"Uploading → Detecting movement → Analysing form → Building your report"</div></div>
+      <div class="motion-prop"><div class="motion-key">Time estimate</div><div class="motion-val">Show: "~20 seconds remaining"</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Why: the processing wait is the highest anxiety moment in the form check flow. Step labels manage expectation and prevent abandonment. Never show a spinning wheel with no context.</div>
+  </div>
+
+  <div class="motion-spec">
+    <div class="motion-name">ACWR zone crossing — alert entrance</div>
+    <div class="motion-row">
+      <div class="motion-prop"><div class="motion-key">Banner slide</div><div class="motion-val">Slides down from top, 300ms ease-out</div></div>
+      <div class="motion-prop"><div class="motion-key">Haptic</div><div class="motion-val">Medium impact (amber) / Heavy (red)</div></div>
+      <div class="motion-prop"><div class="motion-key">Auto-dismiss</div><div class="motion-val">Never — must be explicitly acknowledged</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-top:8px;">Why: the ACWR red alert is a safety-critical notification. It must feel significant — haptic feedback + slide animation + no auto-dismiss ensures it is never silently missed.</div>
+  </div>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚠</div>
+    <div class="callout-text"><strong>Respect prefers-reduced-motion.</strong> All animations must be wrapped in @media (prefers-reduced-motion: no-preference). Users who have this set should receive instant transitions. This is an accessibility requirement, not optional.</div>
+  </div>
+</section>
+
+<!-- ─── DASHBOARD ──────────────────────────────── -->
+<section class="section" id="s-dashboard">
+  <div class="section-tag">04 — Screen Design</div>
+  <h2 class="section-title">Dashboard</h2>
+  <p class="section-sub">The daily briefing. Opens to a single clear answer: what should I do today and why. The feature grid is gone. The readiness card is the hero.</p>
+
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div class="preview-label">
+        <span class="preview-label-tag">RETURNING USER · MORNING</span>
+        <div>
+          <div class="preview-label-name">Dashboard — Green readiness</div>
+          <div class="preview-label-sub">All data present. Optimal training day.</div>
+        </div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div>
+          <div class="browser-url">formm.app/dashboard</div>
+        </div>
+        <div class="screen">
+          <div class="ds-topbar">
+            <div class="ds-logo">Formm</div>
+            <div class="ds-tabs">
+              <div class="ds-tab on">Train</div>
+              <div class="ds-tab">Recover</div>
+              <div class="ds-tab">Progress</div>
+            </div>
+            <div class="ds-ava">S</div>
+          </div>
+          <div class="ds-body">
+            <div class="today-strip">
+              <div class="ts-left">
+                <div class="ts-date">Wednesday · April 22</div>
+                <div class="ts-greet">Good morning, Samrat.</div>
+                <div class="ts-badge">
+                  <span>🟢</span>
+                  <span class="ts-zone">Train hard today</span>
+                </div>
+                <div class="ts-desc">HRV is elevated, wellness looks good, load is in the optimal zone.</div>
+                <div class="ts-target">Target: <strong>380–450 AU</strong> · ~65 min at 7/10 RPE</div>
+              </div>
+              <div class="ts-ring">
+                <svg width="72" height="72" viewBox="0 0 72 72">
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="#3DDB96" stroke-width="6" stroke-dasharray="188.5" stroke-dashoffset="38" stroke-linecap="round"/>
+                </svg>
+                <div class="ts-center">
+                  <div class="ts-score">7.8</div>
+                  <div class="ts-rlabel">READY</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ds-stats">
+              <div class="ds-stat">
+                <div class="ds-stat-icon">🔥</div>
+                <div class="ds-stat-val">12</div>
+                <div class="ds-stat-lbl">Day streak</div>
+              </div>
+              <div class="ds-stat">
+                <div class="ds-stat-icon">⚡</div>
+                <div class="ds-stat-val" style="color:var(--green);">1.1</div>
+                <div class="ds-stat-lbl">ACWR · optimal</div>
+              </div>
+              <div class="ds-stat">
+                <div class="ds-stat-icon">🏆</div>
+                <div class="ds-stat-val" style="color:var(--purple);">72</div>
+                <div class="ds-stat-lbl">Scout score</div>
+              </div>
+              <div class="ds-stat">
+                <div class="ds-stat-icon">📈</div>
+                <div class="ds-stat-val" style="color:var(--teal);">+14%</div>
+                <div class="ds-stat-lbl">Form · this month</div>
+              </div>
+            </div>
+
+            <div class="ds-ctas">
+              <div class="ds-cta-primary">
+                <div class="cta-icon">📹</div>
+                <div>
+                  <div class="cta-name">Analyse my form</div>
+                  <div class="cta-sub">Upload video · &lt;30s results</div>
+                </div>
+              </div>
+              <div class="ds-cta-secondary">
+                <div class="cta-icon">💬</div>
+                <div>
+                  <div class="cta-name">Ask my coach</div>
+                  <div class="cta-sub" style="color:var(--t2);">Based on today's data</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ds-insight">
+              <div class="di-icon">🦵</div>
+              <div style="flex:1;margin-left:12px;">
+                <div class="di-title">Squat improved 14% this month</div>
+                <div class="di-sub">Knee tracking ✓ · Depth slightly low · 3 analyses</div>
+              </div>
+              <div class="di-arrow">›</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:8px;">Step-by-step: what changed and why</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-title">Today Card replaces the greeting</div>
+            <div class="step-desc">The "Welcome back — Pick a feature below" is gone. The Today Card shows: date, personalised greeting, readiness zone (colour-coded), one-line explanation, and a concrete session target in AU + time + RPE. This answers the primary question every returning user has.</div>
+            <div class="step-code">GET /api/readiness/today → {zone, score, recommendation, target_au_min, target_au_max, est_duration_min, est_rpe}</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-title">Stat tiles show status, not counts</div>
+            <div class="step-desc">Replaced: Day Streak / Workouts / This Week / Progress — all zeros for new users. New tiles: Streak (count is fine), ACWR with colour (green/amber/red), Scout Score with colour, Form trend % vs last month. These show state, not activity counts. A new user with 0 sessions still has an ACWR state to display.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-title">Two primary CTAs only</div>
+            <div class="step-desc">Analyse My Form (teal — primary) and Ask My Coach (neutral — secondary). These are the two actions that deliver the most value. Everything else is one tab away. The 7-card feature grid is removed from the dashboard — it belongs in the nav, not the home screen.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-title">Form insight card appears after 2+ analyses</div>
+            <div class="step-desc">Shows the user's most-analysed movement, its trend percentage, and key findings. This rewards consistent use, communicates longitudinal value, and gives users a reason to check the dashboard daily even if they're not training.</div>
+            <div class="step-note">Condition: hide entirely until user has ≥2 form analyses. Do not show a "0 analyses" placeholder here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FORM ANALYSIS ──────────────────────────── -->
+<section class="section" id="s-form">
+  <div class="section-tag">05 — Screen Design</div>
+  <h2 class="section-title">Form Analysis — Upload</h2>
+  <p class="section-sub">The upload flow is already structurally sound. The changes are copy, context, and the shooting guide that prevents the #1 cause of poor AI results.</p>
+
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div class="preview-label">
+        <span class="preview-label-tag">FORM CHECK TAB</span>
+        <div><div class="preview-label-name">Form Analysis — Upload screen</div></div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div>
+          <div class="browser-url">formm.app/train/form</div>
+        </div>
+        <div class="screen">
+          <div class="fa-tabs">
+            <div class="fa-tab on">Form Check</div>
+            <div class="fa-tab">Journey</div>
+            <div class="fa-tab">History</div>
+            <div class="fa-tab">Scout Score</div>
+          </div>
+          <div class="fa-body">
+            <div class="fa-dropdowns">
+              <div class="fa-drop">
+                <div>
+                  <div style="font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">Sport</div>
+                  <div>Gym / Lifting</div>
+                </div>
+                <div>▾</div>
+              </div>
+              <div class="fa-drop">
+                <div>
+                  <div style="font-size:10px;color:var(--t3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">Movement</div>
+                  <div>Squat</div>
+                </div>
+                <div>▾</div>
+              </div>
+            </div>
+            <div class="fa-upload">
+              <div class="fa-upload-icon">📹</div>
+              <div class="fa-upload-title">Upload your movement video</div>
+              <div class="fa-upload-sub">10–30 seconds · from your camera roll</div>
+              <div style="margin-top:10px;background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:6px 12px;display:inline-block;font-size:11px;color:var(--t3);font-family:var(--mono);">MP4 · MOV · up to 200MB</div>
+            </div>
+            <div class="fa-tips">
+              <div class="fa-tips-hdr">
+                <div class="fa-tips-lbl">📐 Best results</div>
+                <div style="font-size:11px;color:var(--amber);cursor:pointer;">Hide</div>
+              </div>
+              <div class="fa-tip">Film from the side — full body in frame</div>
+              <div class="fa-tip">Complete 2–4 reps (not just one)</div>
+              <div class="fa-tip">Good lighting, stable phone position</div>
+              <div class="fa-tip">Wear fitted clothing — loose clothes hide joint angles</div>
+            </div>
+            <div style="margin-top:14px;background:var(--teal);color:var(--bg);padding:12px;text-align:center;border-radius:var(--r8);font-size:14px;font-weight:700;cursor:pointer;">Analyse My Form →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:8px;">Key changes</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-title">Primary label changed to "Upload your movement video"</div>
+            <div class="step-desc">Previously: "Tap to upload — MP4, MOV, JPG, PNG." The format list is not user-facing information. Photos are a secondary function, not the primary promise. The label should state what the user is doing, not what formats are accepted.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-title">Sport + Movement dropdowns get context labels</div>
+            <div class="step-desc">Add "SPORT" and "MOVEMENT" labels above each dropdown (font-mono, uppercase, tiny). This helps users who are new to the flow understand what they're selecting and in what order. The dropdowns themselves are good — the labelling just needs clarity.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-title">Shooting guide shown on first 3 uses, collapsible after</div>
+            <div class="step-desc">The amber tip card shows automatically for new users. After 3 form checks it collapses by default (user can expand). The 4th tip — "wear fitted clothing" — is added because it's the second most common cause of poor AI analysis after bad camera angle.</div>
+            <div class="step-code">localStorage: form_checks_completed_count. Show expanded if &lt;3, collapsed (with expand option) if ≥3.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-title">Primary CTA moves to bottom of screen, always visible</div>
+            <div class="step-desc">"Analyse My Form →" button is sticky at the bottom on mobile. On web, it appears after the upload zone. It's disabled until a file is selected, not absent — showing a disabled state is better than no state.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ANALYSIS RESULT ────────────────────────── -->
+<section class="section" id="s-result">
+  <div class="section-tag">06 — Screen Design · NEW</div>
+  <h2 class="section-title">Analysis Result Screen</h2>
+  <p class="section-sub">This screen doesn't exist as a distinct design in the current product. It's the most important screen in the entire app — it's the payoff for everything. It needs to earn its moment.</p>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚡</div>
+    <div class="callout-text"><strong>The result screen is the product's first impression.</strong> Most new users will see this before they see the dashboard with real data. If this screen is confusing, underwhelming, or gives feedback they don't understand, they will never return. This screen deserves more design investment than any other in the product.</div>
+  </div>
+
+  <div class="g2" style="align-items:start;margin-top:24px;">
+    <div>
+      <div class="preview-label">
+        <span class="preview-label-tag">FORM ANALYSIS RESULT</span>
+        <div><div class="preview-label-name">Post-analysis — Squat · 84/100</div></div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div>
+          <div class="browser-url">formm.app/train/form/result</div>
+        </div>
+        <div class="fa-result">
+          <div class="far-score-bar">
+            <div class="far-movement">Gym · Squat · Apr 22</div>
+            <div class="far-title">Your form analysis is ready</div>
+            <div class="far-gauge-row">
+              <div class="far-gauge">
+                <svg width="72" height="72" viewBox="0 0 72 72">
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/>
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="#3DDB96" stroke-width="6" stroke-dasharray="188.5" stroke-dashoffset="33" stroke-linecap="round"/>
+                </svg>
+                <div class="far-gauge-inner">
+                  <div class="far-score">84</div>
+                  <div class="far-max">/100</div>
+                </div>
+              </div>
+              <div>
+                <div class="far-verdict">Strong — a few things to improve</div>
+                <div class="far-desc">Your squat is technically sound with good knee tracking. The main opportunity is depth — you're stopping slightly above parallel.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="far-metrics">
+            <div class="far-metric">
+              <div class="far-m-name">Form accuracy</div>
+              <div class="far-m-val" style="color:var(--green);">88</div>
+              <div class="far-m-bar"><div class="far-m-fill" style="width:88%;background:var(--green);"></div></div>
+            </div>
+            <div class="far-metric">
+              <div class="far-m-name">Range of motion</div>
+              <div class="far-m-val" style="color:var(--amber);">71</div>
+              <div class="far-m-bar"><div class="far-m-fill" style="width:71%;background:var(--amber);"></div></div>
+            </div>
+            <div class="far-metric">
+              <div class="far-m-name">Stability</div>
+              <div class="far-m-val" style="color:var(--green);">90</div>
+              <div class="far-m-bar"><div class="far-m-fill" style="width:90%;background:var(--green);"></div></div>
+            </div>
+            <div class="far-metric">
+              <div class="far-m-name">Left-right symmetry</div>
+              <div class="far-m-val" style="color:var(--green);">86</div>
+              <div class="far-m-bar"><div class="far-m-fill" style="width:86%;background:var(--green);"></div></div>
+            </div>
+          </div>
+
+          <div class="far-faults">
+            <div class="far-faults-hdr">What to work on</div>
+            <div class="fault-row">
+              <div class="fault-icon">⬇️</div>
+              <div>
+                <div class="fault-name">Depth — slightly above parallel</div>
+                <div class="fault-fix">Fix: ankle mobility work before squatting. Try 10 ankle circles per side, then re-attempt depth.</div>
+              </div>
+            </div>
+            <div class="fault-row">
+              <div class="fault-icon">🔼</div>
+              <div>
+                <div class="fault-name">Hip hinge — torso angle slightly forward</div>
+                <div class="fault-fix">Fix: focus on sitting back rather than sitting down. Think "push your hips back first."</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+            <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--r8);padding:11px;text-align:center;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;">Save to history</div>
+            <div style="background:var(--teal);color:var(--bg);border-radius:var(--r8);padding:11px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;">Ask coach about this →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:8px;">Design decisions for this screen</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-title">Score with a verdict sentence, not just a number</div>
+            <div class="step-desc">84/100 alone means nothing. "Strong — a few things to improve" tells the user immediately how to feel about 84. The verdict sentence has a fixed vocabulary: Excellent / Strong / Developing / Needs work. Never just a number.</div>
+            <div class="step-code">Score buckets: 90–100 = Excellent. 75–89 = Strong. 60–74 = Developing. &lt;60 = Needs work.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-title">Each metric score has a colour-coded bar</div>
+            <div class="step-desc">Form Accuracy: 88 (green bar). Range of Motion: 71 (amber bar). Users can visually identify their weakest metric instantly without reading numbers. Green = above 80. Amber = 60–79. Red = below 60. The bars communicate more than the numbers.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-title">"What to work on" replaces generic fault labels</div>
+            <div class="step-desc">The current product likely shows fault detection labels. This redesign pairs every fault with a specific, actionable fix in plain language. "Depth — slightly above parallel" + "Try ankle circles before squatting." Not just "depth issue detected." The fix must be doable in the next session.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-title">"Ask coach about this →" CTA at the bottom</div>
+            <div class="step-desc">The result screen hands off directly to the coaching chat, pre-loaded with this specific analysis as context. This is the most natural moment for a coaching interaction. "I just analysed your squat (84/100). The depth issue is likely an ankle mobility limitation — here's how to address it in your next session."</div>
+            <div class="step-code">On tap: open Coach with system context = {analysis_id, movement, score, faults[]}. Coach opening message references this data automatically.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">5</div>
+          <div class="step-body">
+            <div class="step-title">Show comparison to personal baseline after 3+ analyses</div>
+            <div class="step-desc">After 3 analyses of the same movement, add a comparison line: "↑ 12% vs your first squat analysis." This is the longitudinal payoff that makes recurring use feel rewarding. It's the most powerful retention mechanism in the form check flow.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── READINESS ──────────────────────────────── -->
+<section class="section" id="s-readiness">
+  <div class="section-tag">07 — Screen Design</div>
+  <h2 class="section-title">Readiness — Green Zone</h2>
+  <p class="section-sub">The most important screen for daily retention. It must answer "how should I train today?" in under 3 seconds, while teaching the user sports science as a side effect.</p>
+
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div class="preview-label">
+        <span class="preview-label-tag">RECOVER TAB · READINESS</span>
+        <div><div class="preview-label-name">Readiness — optimal recovery</div></div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div>
+          <div class="browser-url">formm.app/recover/readiness</div>
+        </div>
+        <div class="rd-body">
+          <div class="rd-hero">
+            <div class="rd-gauge-wrap">
+              <svg width="88" height="88" viewBox="0 0 88 88">
+                <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="7"/>
+                <circle cx="44" cy="44" r="36" fill="none" stroke="#3DDB96" stroke-width="7" stroke-dasharray="226.2" stroke-dashoffset="45" stroke-linecap="round"/>
+              </svg>
+              <div class="rd-gauge-inner">
+                <div class="rd-score">7.8</div>
+                <div class="rd-of10">/ 10</div>
+              </div>
+            </div>
+            <div class="rd-right">
+              <div class="rd-zone">🟢 Train hard today</div>
+              <div class="rd-rec">Recovery signals are strong. Your body is ready for intensity.</div>
+              <div class="rd-target-badge">Session target: <strong>380–450 AU</strong><br><span style="font-size:11px;color:var(--t2);">~65 min · 7/10 RPE · strength focus</span></div>
+            </div>
+          </div>
+
+          <div class="rd-factors">
+            <div class="rd-factor">
+              <div class="rd-f-label">HRV</div>
+              <div class="rd-f-val" style="color:var(--green);">↑ 8.2</div>
+              <div class="rd-f-desc">Above your 7-day baseline</div>
+              <div class="rd-f-bar"><div class="rd-f-fill" style="width:82%;background:var(--green);"></div></div>
+            </div>
+            <div class="rd-factor">
+              <div class="rd-f-label">Wellness</div>
+              <div class="rd-f-val" style="color:var(--green);">7.6</div>
+              <div class="rd-f-desc">Sleep · mood · soreness</div>
+              <div class="rd-f-bar"><div class="rd-f-fill" style="width:76%;background:var(--green);"></div></div>
+            </div>
+            <div class="rd-factor">
+              <div class="rd-f-label">Load factor</div>
+              <div class="rd-f-val" style="color:var(--green);">9.0</div>
+              <div class="rd-f-desc">ACWR 1.1 · sweet spot</div>
+              <div class="rd-f-bar"><div class="rd-f-fill" style="width:90%;background:var(--green);"></div></div>
+            </div>
+          </div>
+
+          <div class="rd-accuracy">
+            <div class="rd-acc-dot"></div>
+            Accuracy: <strong style="color:var(--t1);margin:0 4px;">Good</strong> · 6 weeks of data · <span style="color:var(--teal);cursor:pointer;margin-left:4px;">How this improves ›</span>
+          </div>
+
+          <div class="rd-checkin">
+            <div class="rd-ci-title">This morning's check-in</div>
+            <div class="rd-slider">
+              <div class="rd-sl-lbl">Sleep</div>
+              <div class="rd-sl-track">
+                <div class="rd-sl-fill" style="width:75%;"></div>
+                <div class="rd-sl-thumb" style="left:calc(75% - 6px);"></div>
+              </div>
+              <div class="rd-sl-val">7.5</div>
+            </div>
+            <div class="rd-slider">
+              <div class="rd-sl-lbl">Soreness</div>
+              <div class="rd-sl-track">
+                <div class="rd-sl-fill" style="width:60%;"></div>
+                <div class="rd-sl-thumb" style="left:calc(60% - 6px);"></div>
+              </div>
+              <div class="rd-sl-val">6</div>
+            </div>
+            <div class="rd-slider">
+              <div class="rd-sl-lbl">Mood</div>
+              <div class="rd-sl-track">
+                <div class="rd-sl-fill" style="width:80%;"></div>
+                <div class="rd-sl-thumb" style="left:calc(80% - 6px);"></div>
+              </div>
+              <div class="rd-sl-val">8</div>
+            </div>
+            <div class="rd-ci-submit">✓ Confirmed · 7:24am</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:8px;">Key design decisions</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-title">Merge Face Scan into this screen — not a separate page</div>
+            <div class="step-desc">The current Face Scan is a standalone page that users navigate to separately. It should be the top CTA on the Readiness screen: "Tap to scan — updates your readiness score." After scanning, the score updates on the same screen. No navigation required.</div>
+            <div class="step-code">If hrv_today == null: show "Scan now" button as primary CTA above the gauge. If hrv_today has data: show gauge with today's reading + "Re-scan" option.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-title">Three contributing factors as explicit cards</div>
+            <div class="step-desc">HRV, Wellness, and Load Factor each have their own card with a score, a plain-language description of what it means today, and a progress bar. Tapping any card expands to an explanation. This is how users learn sports science — by seeing how each variable affects their recommendation.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-title">Session prescription shows AU + time + RPE together</div>
+            <div class="step-desc">"380–450 AU · ~65 min · 7/10 RPE · strength focus." These three numbers together give an athlete everything they need to plan their session. AU alone is meaningless without time and effort context. This is what elite coaches communicate — make it standard for every Formm user.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-title">Wellness sliders update the score in real-time</div>
+            <div class="step-desc">As the user moves any slider, the composite score and zone update immediately (debounced 150ms). This is the most important interaction on this screen — it teaches users that their subjective inputs matter and builds the habit of taking the check-in seriously.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── READINESS AMBER ────────────────────────── -->
+<section class="section" id="s-readiness-amber">
+  <div class="section-tag">08 — Screen Design</div>
+  <h2 class="section-title">Readiness — Amber Zone</h2>
+  <p class="section-sub">The amber state is the most common real-world readiness state for a serious recreational athlete. It needs to feel supportive, not restrictive.</p>
+
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div class="preview-label">
+        <span class="preview-label-tag">AMBER READINESS STATE</span>
+        <div><div class="preview-label-name">Readiness — train but modulate</div></div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div>
+          <div class="browser-url">formm.app/recover/readiness</div>
+        </div>
+        <div class="rd-body">
+          <div class="rd-amber-hero" style="display:flex;gap:18px;align-items:center;margin-bottom:14px;">
+            <div class="rd-gauge-wrap">
+              <svg width="88" height="88" viewBox="0 0 88 88">
+                <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="7"/>
+                <circle cx="44" cy="44" r="36" fill="none" stroke="#FFB020" stroke-width="7" stroke-dasharray="226.2" stroke-dashoffset="90" stroke-linecap="round"/>
+              </svg>
+              <div class="rd-gauge-inner">
+                <div class="rd-score" style="color:var(--amber);">6.0</div>
+                <div class="rd-of10">/ 10</div>
+              </div>
+            </div>
+            <div class="rd-right">
+              <div class="rd-zone" style="color:var(--amber);">🟡 Train, but modulate</div>
+              <div class="rd-rec">Your load is elevated. Train today — but keep it controlled.</div>
+              <div class="rd-target-badge" style="background:var(--amber-d);border-color:rgba(255,176,32,.2);">Session target: <strong style="color:var(--amber);">250–320 AU</strong><br><span style="font-size:11px;color:var(--t2);">Drop heaviest sets 20% · Skip AMRAP</span></div>
+            </div>
+          </div>
+
+          <div class="rd-factors">
+            <div class="rd-factor" style="border-color:rgba(255,176,32,.2);">
+              <div class="rd-f-label">HRV</div>
+              <div class="rd-f-val" style="color:var(--amber);">↓ 5.8</div>
+              <div class="rd-f-desc">Slightly below baseline</div>
+              <div class="rd-f-bar"><div class="rd-f-fill" style="width:58%;background:var(--amber);"></div></div>
+            </div>
+            <div class="rd-factor">
+              <div class="rd-f-label">Wellness</div>
+              <div class="rd-f-val" style="color:var(--green);">7.2</div>
+              <div class="rd-f-desc">Sleep · mood · soreness</div>
+              <div class="rd-f-bar"><div class="rd-f-fill" style="width:72%;background:var(--green);"></div></div>
+            </div>
+            <div class="rd-factor" style="border-color:rgba(255,176,32,.2);">
+              <div class="rd-f-label">Load factor</div>
+              <div class="rd-f-val" style="color:var(--amber);">5.0</div>
+              <div class="rd-f-desc">ACWR 1.38 · caution zone</div>
+              <div class="rd-f-bar"><div class="rd-f-fill" style="width:50%;background:var(--amber);"></div></div>
+            </div>
+          </div>
+
+          <div style="background:var(--amber-d);border:1px solid rgba(255,176,32,.2);border-radius:var(--r12);padding:14px 16px;margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--amber);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">What to modify today</div>
+            <div style="font-size:12px;color:rgba(255,176,32,.85);display:flex;flex-direction:column;gap:6px;">
+              <div>→ Reduce top set weight by 15–20%</div>
+              <div>→ Skip AMRAP finishers or high-intensity intervals</div>
+              <div>→ Add 5 minutes of mobility at the end</div>
+              <div>→ Aim for 7+ hours sleep tonight</div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--r8);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--t2);cursor:pointer;">
+            <span>I want to train harder anyway</span>
+            <span style="color:var(--t3);">Override ›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:8px;">Amber state specifics</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-title">"What to modify today" replaces generic caution text</div>
+            <div class="step-desc">Don't just say "train carefully." Tell the athlete exactly what to change: reduce top set weight 15–20%, skip AMRAP finishers, add mobility. These are specific, actionable modifications that a recreational athlete can apply immediately without needing to think too hard.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-title">Override mechanism is visible but secondary</div>
+            <div class="step-desc">The override option is at the bottom, in a subdued style. It exists because athletes must be able to train on amber days — the recommendation is guidance, not a gate. But it requires an explicit choice rather than being the default path. The override tap should log the event for the learning loop.</div>
+            <div class="step-code">On override tap: POST /api/readiness/override {date, recommended_zone, user_choice}. Used in weekly learning analysis.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-title">Identify which factor caused the amber — highlight it</div>
+            <div class="step-desc">In this case the HRV and Load Factor cards have an amber border, while Wellness is green. The user can see immediately that it's their training load + a slightly suppressed HRV causing the caution — not their wellness. This teaches them what to address.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SCOUT SCORE ────────────────────────────── -->
+<section class="section" id="s-scout">
+  <div class="section-tag">09 — Screen Design</div>
+  <h2 class="section-title">Scout Score</h2>
+  <p class="section-sub">Locked until 5 analyses. When unlocked, the most motivating screen in the product. The ladder from Recreational to Elite/Pro gives every user a clear direction of travel.</p>
+
+  <div class="g2" style="align-items:start;gap:20px;">
+    <div>
+      <div class="preview-label"><span class="preview-label-tag">LOCKED — 1/5 ANALYSES</span><div><div class="preview-label-name">Scout Score — lock screen</div></div></div>
+      <div class="browser">
+        <div class="browser-bar"><div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div></div>
+        <div class="sc-body">
+          <div class="sc-locked">
+            <div class="sc-lock-icon">🏆</div>
+            <div class="sc-lock-title">Scout Score unlocks at 5 analyses</div>
+            <div class="sc-lock-desc">Each form analysis contributes to your Scout Score — your athletic performance rating compared to the Formm community, from Recreational through to Elite/Pro.</div>
+            <div class="sc-lock-progress">
+              <div class="sc-prog-label">Progress to unlock</div>
+              <div class="sc-prog-nums"><span style="font-weight:600;">1 of 5 analyses</span><span style="color:var(--teal);">20%</span></div>
+              <div class="sc-prog-bar"><div class="sc-prog-fill" style="width:20%;"></div></div>
+              <div class="sc-prog-sub">4 more analyses needed · any movement counts</div>
+            </div>
+            <div class="sc-cta">Analyse a movement now →</div>
+          </div>
+          <div class="sc-what">
+            <div class="sc-what-title">What Scout Score measures</div>
+            <div class="sc-metric-row"><span style="font-size:14px;">📐</span> Form accuracy across all your movements</div>
+            <div class="sc-metric-row"><span style="font-size:14px;">🔄</span> Range of motion consistency</div>
+            <div class="sc-metric-row"><span style="font-size:14px;">⚖️</span> Left-right symmetry under load</div>
+            <div class="sc-metric-row"><span style="font-size:14px;">🎯</span> Movement stability and control</div>
+            <div class="sc-metric-row"><span style="font-size:14px;">📈</span> Improvement rate over time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="preview-label"><span class="preview-label-tag">UNLOCKED — 72/100</span><div><div class="preview-label-name">Scout Score — with data</div></div></div>
+      <div class="browser">
+        <div class="browser-bar"><div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div></div>
+        <div class="sc-body">
+          <div class="sc-hero">
+            <div class="sc-hero-top">
+              <div class="sc-ht-left">
+                <div class="sc-h-title">Scout Score</div>
+                <div class="sc-h-level">Advanced · Updated Apr 22</div>
+              </div>
+              <div class="sc-h-num">72</div>
+            </div>
+            <div class="sc-ladder">
+              <div class="sc-rung">Recreational<br>0–40</div>
+              <div class="sc-rung">Intermediate<br>40–60</div>
+              <div class="sc-rung now">Advanced<br>60–75</div>
+              <div class="sc-rung">Collegiate<br>75–85</div>
+              <div class="sc-rung">Elite/Pro<br>85–100</div>
+            </div>
+            <div class="sc-h-next">3 pts to Collegiate · Best metric: Stability (<strong>90</strong>)</div>
+          </div>
+          <div class="sc-metrics">
+            <div class="sc-m"><div class="sc-m-name">Form accuracy</div><div class="sc-m-val">88</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:88%;"></div></div></div>
+            <div class="sc-m"><div class="sc-m-name">Range of motion</div><div class="sc-m-val" style="color:var(--amber);">71</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:71%;background:var(--amber);"></div></div></div>
+            <div class="sc-m"><div class="sc-m-name">Stability</div><div class="sc-m-val">90</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:90%;"></div></div></div>
+            <div class="sc-m"><div class="sc-m-name">Symmetry</div><div class="sc-m-val">86</div><div class="sc-m-bar"><div class="sc-m-fill" style="width:86%;"></div></div></div>
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--line);border-radius:var(--r8);padding:12px 14px;margin-top:10px;font-size:12px;color:var(--t2);">
+            <strong style="color:var(--t1);">To reach Collegiate (75):</strong> Focus on Range of Motion — it's your weakest metric at 71. Add ankle mobility work and hip flexor stretching before each session.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COACH ──────────────────────────────────── -->
+<section class="section" id="s-coach">
+  <div class="section-tag">10 — Screen Design</div>
+  <h2 class="section-title">Bespoke Coach</h2>
+  <p class="section-sub">The coaching chat opens with the user's data — not a blank prompt box. This is what makes it bespoke. The coach knows you before you say a word.</p>
+
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div class="preview-label">
+        <span class="preview-label-tag">COACH CHAT — WITH CONTEXT</span>
+        <div><div class="preview-label-name">Bespoke Coach — personalised opening</div></div>
+      </div>
+      <div class="browser">
+        <div class="browser-bar"><div class="bw bw-r"></div><div class="bw bw-y"></div><div class="bw bw-g"></div></div>
+        <div class="co-body">
+          <div class="co-ctx">
+            <div class="co-ctx-lbl">Your data — coach has full context</div>
+            <div class="co-ctx-row">
+              <div class="co-ctx-item"><div class="co-ctx-key">Readiness</div><div class="co-ctx-val" style="color:var(--green);">7.8 · Green</div></div>
+              <div class="co-ctx-item"><div class="co-ctx-key">ACWR</div><div class="co-ctx-val" style="color:var(--green);">1.1 · optimal</div></div>
+              <div class="co-ctx-item"><div class="co-ctx-key">Last form check</div><div class="co-ctx-val">Squat 84/100</div></div>
+              <div class="co-ctx-item"><div class="co-ctx-key">Scout Score</div><div class="co-ctx-val">72 · Advanced</div></div>
+            </div>
+          </div>
+
+          <div class="chat-msgs">
+            <div class="chat-ai">Based on your data today, your recovery looks strong and your training load is in the optimal zone — a good day to push.<br><br>Your squat scored 84/100 in Monday's analysis. The depth is the main opportunity — your Range of Motion metric is your lowest Scout Score dimension at 71. Want to work on that today, or is there something else on your mind?</div>
+            <div class="chat-user">Yes, what's the best way to improve depth quickly?</div>
+            <div class="chat-ai">Squat depth is almost always an ankle mobility issue, not a strength issue. Try this before your next session:<br><br>1. 10 ankle circles each direction, each side<br>2. Wall ankle stretch — toe 5cm from wall, touch knee to wall without heel lifting. 3×10 reps per side<br>3. Goblet squat with a 5-second pause at the bottom at light weight<br><br>Do this for 2 weeks before squatting and you'll likely add 3–5cm of depth.</div>
+          </div>
+
+          <div class="co-chips">
+            <div class="co-chip">Today's session plan</div>
+            <div class="co-chip">How's my load trend?</div>
+            <div class="co-chip">Recovery tips for tonight</div>
+            <div class="co-chip">Explain my Scout Score</div>
+          </div>
+
+          <div class="co-input-row">
+            <input class="co-input" placeholder="Ask your coach..." value="">
+            <div class="co-send">↑</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:8px;">Coach implementation details</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div class="step-body">
+            <div class="step-title">System prompt includes all user context</div>
+            <div class="step-desc">Before any user message, the AI receives a structured system prompt containing: readiness score + zone, ACWR + zone, last 3 form analyses (movement, score, top faults), Scout Score + level, current training streak, and any active RTP protocol. The coach should never ask for information Formm already has.</div>
+            <div class="step-code">System prompt template: "You are the Formm sports science coach. User: {name}. Today: readiness {score}/{zone}, ACWR {val}/{zone}, last form check: {movement} {score}/100, faults: [{list}], Scout Score: {val}/{level}. Respond as a knowledgeable sports science coach. Be direct, specific, and evidence-based."</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div class="step-body">
+            <div class="step-title">Opening message is generated from data, not static copy</div>
+            <div class="step-desc">The first message the user sees is not a welcome screen — it's the coach's first contextual observation based on the data. It should reference something specific: their readiness state, their last form check, or their ACWR. If they just completed a form analysis, it opens referencing that result.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div class="step-body">
+            <div class="step-title">Dynamic prompt chips based on current state</div>
+            <div class="step-desc">The 4 suggestion chips are generated server-side from the user's current data state. Logic: if ACWR amber → "How do I manage my load this week?" If last form check > 7 days ago → "When should I do my next analysis?" If readiness red → "What should I do instead of training today?" If Scout Score just changed level → "What does my new level mean?"</div>
+            <div class="step-code">GET /api/coach/suggestions → [{id, label, prompt_text}] · 4 items maximum · generated daily</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div class="step-body">
+            <div class="step-title">Conversation persists across sessions</div>
+            <div class="step-desc">Conversation history is stored so returning to the coach feels continuous, not a fresh start. The coach can reference past conversations: "Last week you asked about squat depth — how did the ankle mobility drills go?" This is what bespoke means. Store a rolling 30-day conversation window.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NOTIFICATIONS ──────────────────────────── -->
+<section class="section" id="notifications">
+  <div class="section-tag">11 — Systems</div>
+  <h2 class="section-title">Notification System</h2>
+  <p class="section-sub">Three notification types. That's it. More than three and users turn everything off, including the critical ACWR alerts that matter for safety.</p>
+
+  <div class="section-tag" style="margin-top:20px;">The three permitted notification types</div>
+
+  <div class="notif-card">
+    <div class="notif-icon teal">🫀</div>
+    <div style="flex:1;">
+      <div class="notif-app">FORMM · 7:00 AM</div>
+      <div class="notif-title">Good morning, Samrat.</div>
+      <div class="notif-body">Tap to check your readiness and see today's training recommendation.</div>
+    </div>
+    <div class="notif-time">Now</div>
+  </div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:16px;padding:0 4px;">Fires: 7:00am daily (user-configurable). Opens directly to Readiness screen. Never fires if user already completed morning check-in.</div>
+
+  <div class="notif-card">
+    <div class="notif-icon teal">⚡</div>
+    <div style="flex:1;">
+      <div class="notif-app">FORMM · 8:32 PM</div>
+      <div class="notif-title">How was that session?</div>
+      <div class="notif-body">Rate it now — takes 10 seconds. Keeps your load tracking accurate.</div>
+    </div>
+    <div class="notif-time">Just now</div>
+  </div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:16px;padding:0 4px;">Fires: T+30 min after session_end_timestamp. Opens directly to RPE slider. Tapping the notification deep links to a 2-tap RPE submission — no navigation required.</div>
+
+  <div class="notif-card">
+    <div class="notif-icon amber">⚠️</div>
+    <div style="flex:1;">
+      <div class="notif-app">FORMM · TRAINING LOAD ALERT</div>
+      <div class="notif-title">Your training load is high this week</div>
+      <div class="notif-body">You're training 38% harder than your body is used to. Consider a lighter session tomorrow.</div>
+    </div>
+    <div class="notif-time">2h ago</div>
+  </div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:16px;padding:0 4px;">Fires: triggered on ACWR crossing 1.3 (amber) or 1.5 (red — uses heavier haptic). Maximum once per zone crossing, not per session. Opens directly to Readiness screen with ACWR breakdown visible.</div>
+
+  <div class="callout callout-error">
+    <div class="callout-icon">🚫</div>
+    <div class="callout-text"><strong>Remove immediately — these destroy notification trust:</strong> XP / level-up notifications · Streak reminder notifications ("Don't lose your streak!") · Feature discovery notifications ("Have you tried Workshops?") · Marketing notifications ("New meal plans available") · Any notification that fires more than once per day. Each unnecessary notification trains users to ignore all notifications, including the ACWR safety alerts that matter.</div>
+  </div>
+</section>
+
+<!-- ─── EMPTY STATES ───────────────────────────── -->
+<section class="section" id="empty-states">
+  <div class="section-tag">12 — Systems</div>
+  <h2 class="section-title">Empty State Library</h2>
+  <p class="section-sub">Every zero is an invitation. Every empty chart is a preview. No screen should ever communicate failure or incompleteness to a new user.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Screen / Component</th><th>Current state</th><th>Redesigned empty state</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Dashboard — stats</strong></td>
+        <td style="color:var(--coral);">0 streak / 0 workouts / 0h / 0%</td>
+        <td style="color:var(--green);">Ghost tiles. "Starts after first session" below each. Readiness score shown even with 0 sessions (shows "Complete check-in to see score").</td>
+        <td><span class="pill pill-g">Always visible</span></td>
+      </tr>
+      <tr>
+        <td><strong>Form history</strong></td>
+        <td style="color:var(--coral);">"No Analysis Yet" + CTA</td>
+        <td style="color:var(--green);">Ghost analysis cards (greyed, non-interactive). "Your movement history starts here" + CTA button.</td>
+        <td><span class="pill pill-g">0 analyses</span></td>
+      </tr>
+      <tr>
+        <td><strong>Scout Score</strong></td>
+        <td style="color:var(--coral);">0/100 + "Top 99%" + broken metrics</td>
+        <td style="color:var(--green);">Lock screen with progress bar. "1/5 analyses · 4 more needed." What the score measures, as bullet points.</td>
+        <td><span class="pill pill-a">&lt;5 analyses</span></td>
+      </tr>
+      <tr>
+        <td><strong>Progress — weekly chart</strong></td>
+        <td style="color:var(--coral);">Empty chart grid (no data)</td>
+        <td style="color:var(--green);">Ghost chart with soft gridlines. "Log 3 sessions to see your activity chart." No empty grid — just a suggestion of what's coming.</td>
+        <td><span class="pill pill-g">&lt;3 sessions</span></td>
+      </tr>
+      <tr>
+        <td><strong>Strength Progress chart</strong></td>
+        <td style="color:var(--coral);">Flat 0kg line across 6 weeks</td>
+        <td style="color:var(--green);">Remove entirely until 3+ sessions logged. Replace with: "Your strength trends will appear after you log a few workouts."</td>
+        <td><span class="pill pill-g">&lt;3 sessions</span></td>
+      </tr>
+      <tr>
+        <td><strong>Community rank</strong></td>
+        <td style="color:var(--coral);">"-" (dash)</td>
+        <td style="color:var(--green);">"Your rank unlocks after 5 sessions"</td>
+        <td><span class="pill pill-a">&lt;5 sessions</span></td>
+      </tr>
+      <tr>
+        <td><strong>Coach chat</strong></td>
+        <td style="color:var(--coral);">Blank prompt box with generic text</td>
+        <td style="color:var(--green);">Coach opening message generated from user data. If no data: "I'm your Formm sports science coach. Tell me about your training goals and I'll help you get started."</td>
+        <td><span class="pill pill-g">Always visible</span></td>
+      </tr>
+      <tr>
+        <td><strong>Readiness score</strong></td>
+        <td style="color:var(--coral);">N/A — not shown</td>
+        <td style="color:var(--green);">Greyed score circle. "Complete your morning check-in to see today's readiness." Check-in sliders visible and interactive immediately.</td>
+        <td><span class="pill pill-g">Before check-in</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── COPY BANK ──────────────────────────────── -->
+<section class="section" id="copy-bank">
+  <div class="section-tag">13 — Systems</div>
+  <h2 class="section-title">Copy Bank</h2>
+  <p class="section-sub">Ready-to-use copy strings for every recurring UI moment. Paste directly into the product. These follow the Formm voice: direct, sports-science-grounded, never hollow.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Moment</th><th>Copy string</th></tr></thead>
+    <tbody>
+      <tr><td>Readiness · Green</td><td>"🟢 Train hard today — Recovery signals are strong. Your body is ready for intensity."</td></tr>
+      <tr><td>Readiness · Amber</td><td>"🟡 Train, but modulate — Your load is elevated. Keep today's session controlled."</td></tr>
+      <tr><td>Readiness · Orange</td><td>"🟠 Active recovery today — A lighter session now means a stronger session tomorrow."</td></tr>
+      <tr><td>Readiness · Red</td><td>"🔴 Rest today — Rest today protects the next 10 sessions. Your body is rebuilding."</td></tr>
+      <tr><td>ACWR amber alert</td><td>"Your training load is elevated — you're training [X]% harder than your body is used to. Consider a lighter session tomorrow."</td></tr>
+      <tr><td>ACWR red alert</td><td>"Your training load needs attention. Pushing hard right now increases injury risk. Tap to see your options."</td></tr>
+      <tr><td>Morning notification</td><td>"Good morning, [name]. Tap to check your readiness and see today's training recommendation."</td></tr>
+      <tr><td>RPE notification</td><td>"How was that session? Rate it now — takes 10 seconds."</td></tr>
+      <tr><td>Scout Score unlock</td><td>"You've unlocked your Scout Score — here's how you move compared to the Formm community."</td></tr>
+      <tr><td>Form score · Excellent</td><td>"Excellent — your technique is strong across all dimensions."</td></tr>
+      <tr><td>Form score · Strong</td><td>"Strong — a few things to sharpen. Here's what the data shows."</td></tr>
+      <tr><td>Form score · Developing</td><td>"Developing — you're building good habits. Here's what to focus on."</td></tr>
+      <tr><td>Form score · Needs work</td><td>"Room to improve — the AI found some patterns worth addressing. Here's where to start."</td></tr>
+      <tr><td>Accuracy building</td><td>"Accuracy: building · [X] weeks of data · Your recommendations improve each week"</td></tr>
+      <tr><td>Accuracy good</td><td>"Accuracy: good · [X] weeks of data · Based on your personal baselines"</td></tr>
+      <tr><td>Accuracy excellent</td><td>"Accuracy: excellent · [X] months of data · Fully personalised to you"</td></tr>
+      <tr><td>Form trend improving</td><td>"↑ [X]% improvement — your [movement] form has improved [X]% over [N] analyses."</td></tr>
+      <tr><td>Override confirmation</td><td>"Noted — your data will track how this session affects your recovery over the next 48 hours."</td></tr>
+      <tr><td>RTP regression</td><td>"Your body is telling you it needs more time. This isn't a setback — it's a signal. Returning to Stage 1."</td></tr>
+      <tr><td>Level up · Scout Score</td><td>"You've reached [level] — your movement quality has crossed into [X]–[Y] score range. Here's what that means."</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── DEV HANDOFF ────────────────────────────── -->
+<section class="section" id="developer-notes">
+  <div class="section-tag">14 — Dev Handoff</div>
+  <h2 class="section-title">Developer Handoff Notes</h2>
+  <p class="section-sub">The specific technical decisions that affect what the design looks and feels like in production. These are the things that get lost between design and development.</p>
+
+  <div class="g2" style="gap:20px;align-items:start;">
+    <div>
+      <div class="section-tag" style="margin-bottom:12px;">Critical implementation rules</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">R1</div>
+          <div class="step-body">
+            <div class="step-title">Readiness score must count up on render</div>
+            <div class="step-desc">The score number should animate from 0 to its value over 600ms using an ease-out counter. The ring should fill simultaneously over 900ms. Both must wait for data to load before starting — do not animate placeholder/zero states.</div>
+            <div class="step-code">const countUp = (target, duration) => { ... easeOut interpolation ... }<br>Call after API response, not on component mount.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">R2</div>
+          <div class="step-body">
+            <div class="step-title">Wellness sliders must update readiness score in real-time</div>
+            <div class="step-desc">As sliders move, recalculate the readiness composite client-side (using cached HRV and ACWR values) and update the score display. Debounce at 150ms. Zone colour crossfades at 200ms when zone changes. POST to server only on "Confirm check-in" tap.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">R3</div>
+          <div class="step-body">
+            <div class="step-title">Scout Score lock screen shows real progress, not mocked data</div>
+            <div class="step-desc">The progress bar fill % = (form_analyses_count / 5) × 100. The "X of 5 analyses" text is dynamic. If the user completes their 5th analysis while on this screen, the screen should transition to the unlocked state with an animation — do not require a page refresh.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">R4</div>
+          <div class="step-body">
+            <div class="step-title">Coach chat context card is server-generated, not client-assembled</div>
+            <div class="step-desc">Do not build the coach context card in the frontend from individual API calls. GET /api/coach/context should return a single pre-assembled object with all four data points. This prevents the card from partially rendering with stale data if individual calls return at different times.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">R5</div>
+          <div class="step-body">
+            <div class="step-title">All animations wrapped in prefers-reduced-motion</div>
+            <div class="step-desc">Every CSS animation and JS-driven transition must be wrapped: @media (prefers-reduced-motion: no-preference) { ... animation code ... }. Users with this preference set get instant state changes. This is an accessibility requirement — test it explicitly before shipping.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">R6</div>
+          <div class="step-body">
+            <div class="step-title">WorkManager jobs fire at correct local time, not UTC</div>
+            <div class="step-desc">Morning check-in notification fires at 7:00am user local time. RPE notification fires T+30 min after session_end_timestamp in user local time. Store user timezone on registration. On Indian devices: IST = UTC+5:30. Test on devices set to IST specifically — this is where the NCR target market sits.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-tag" style="margin-bottom:12px;">API endpoint summary</div>
+      <table class="tbl">
+        <thead><tr><th>Endpoint</th><th>Returns</th><th>Used by</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/readiness/today</td><td style="font-size:12px;">score, zone, recommendation, target_au_min/max, est_duration, est_rpe, factors{hrv, wellness, acwr}</td><td style="font-size:12px;">Dashboard today card · Readiness screen · Coach context</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/coach/context</td><td style="font-size:12px;">readiness, acwr, last_form_check{movement, score, faults}, scout_score, active_rtp</td><td style="font-size:12px;">Coach chat opening card + system prompt</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/coach/suggestions</td><td style="font-size:12px;">[{id, label, prompt_text}] · 4 items max</td><td style="font-size:12px;">Coach chat prompt chips</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/form/trends</td><td style="font-size:12px;">[{movement, trend_pct, sessions_count, latest_score, latest_fault}]</td><td style="font-size:12px;">Dashboard insight card · Progress screen</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">GET /api/scout/status</td><td style="font-size:12px;">is_unlocked, analyses_count, score, level, metrics{}, path_to_next</td><td style="font-size:12px;">Scout Score screen (both locked and unlocked states)</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">POST /api/wellness</td><td style="font-size:12px;">composite_score, zone (recalculated)</td><td style="font-size:12px;">Readiness check-in confirm button</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">POST /api/sessions/{id}/rpe</td><td style="font-size:12px;">session_load_au, acwr_updated, zone_updated</td><td style="font-size:12px;">Post-session RPE prompt</td></tr>
+          <tr><td style="font-family:var(--mono);font-size:11px;color:var(--teal);">POST /api/readiness/override</td><td style="font-size:12px;">{logged: true}</td><td style="font-size:12px;">Override mechanism on amber/red screen</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn" style="margin-top:20px;">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-text"><strong>Performance budget:</strong> Dashboard must render with real data in under 1.2 seconds on a standard 4G connection. The today card is above the fold and must never show a loading skeleton for more than 800ms. Pre-cache readiness data on background app resume — never load it fresh on foreground.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// Sidebar active state tracking
+const sections = [...document.querySelectorAll('section[id]')];
+const navItems = [...document.querySelectorAll('.sb-item')];
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => {
+        n.classList.toggle('on', n.getAttribute('href') === '#' + e.target.id);
+      });
+    }
+  });
+}, { threshold: 0.2, rootMargin: '0px 0px -60% 0px' });
+
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

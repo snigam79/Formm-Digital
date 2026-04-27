@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm × WHOOP — Inference Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #06060B;
+  --bg1:   #0C0C16;
+  --bg2:   #131320;
+  --bg3:   #1A1A2A;
+  --bg4:   #222236;
+  --ln1:   rgba(255,255,255,.05);
+  --ln2:   rgba(255,255,255,.09);
+  --ln3:   rgba(255,255,255,.14);
+  --t1:    #EEEEF6;
+  --t2:    #8888AA;
+  --t3:    #4A4A68;
+  --teal:  #00DDB4;
+  --teal2: #00BB99;
+  --td:    rgba(0,221,180,.10);
+  --td2:   rgba(0,221,180,.05);
+  --green: #36D994;
+  --gd:    rgba(54,217,148,.10);
+  --amber: #F5A723;
+  --ad:    rgba(245,167,35,.10);
+  --coral: #FF4B66;
+  --cd:    rgba(255,75,102,.10);
+  --blue:  #4EA4FF;
+  --bd:    rgba(78,164,255,.10);
+  --purp:  #9B80FF;
+  --pd:    rgba(155,128,255,.10);
+  --whoop: #FF4444;
+  --wd:    rgba(255,68,68,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t1);font-family:'DM Sans',sans-serif;font-size:14px;overflow-x:hidden;}
+
+/* ── OUTER LAYOUT ─────────────────────────────── */
+.wrap{display:flex;min-height:100vh;}
+
+/* ── LEFT NAV ─────────────────────────────────── */
+.nav{width:220px;flex-shrink:0;background:var(--bg1);border-right:1px solid var(--ln1);
+     position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.nav::-webkit-scrollbar{width:2px;}
+.nav::-webkit-scrollbar-thumb{background:var(--bg4);}
+.nav-top{padding:20px 16px 16px;border-bottom:1px solid var(--ln1);}
+.logo{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.logo-mark{width:26px;height:26px;background:var(--teal);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--bg);}
+.logo-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.logo-tag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--whoop);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-desc{font-size:10px;color:var(--t2);line-height:1.5;}
+.nav-body{flex:1;padding:8px 0;}
+.nav-group{padding:9px 14px 3px;font-family:'JetBrains Mono',monospace;font-size:8px;
+  color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-btn{display:flex;align-items:center;gap:7px;padding:6px 14px;font-size:11px;
+  color:var(--t2);cursor:pointer;border:none;background:none;width:100%;text-align:left;
+  transition:.15s;border-left:2px solid transparent;}
+.nav-btn:hover{color:var(--t1);background:var(--ln1);}
+.nav-btn.on{color:var(--teal);border-left-color:var(--teal);background:var(--td2);}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--bg4);transition:.15s;}
+.nav-btn.on .nav-dot{background:var(--teal);}
+.infer-tag{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:7px;
+  font-weight:700;padding:1px 5px;border-radius:9px;}
+.it-new{background:var(--teal);color:var(--bg);}
+.it-alert{background:var(--coral);color:white;}
+
+/* ── MAIN AREA ─────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;align-items:center;padding:40px 40px 80px;gap:56px;
+  background:radial-gradient(ellipse 800px 500px at 80% 0%,rgba(0,221,180,.03),transparent 55%),
+             radial-gradient(ellipse 600px 400px at 5% 90%,rgba(155,128,255,.025),transparent 55%),var(--bg);}
+
+/* ── SECTIONS ─────────────────────────────────── */
+.sec{width:100%;max-width:1020px;display:none;animation:si .3s ease both;}
+.sec.on{display:block;}
+@keyframes si{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sec-hdr{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--ln1);}
+.sec-eyebrow{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.whoop-badge{background:var(--wd);color:var(--whoop);border:1px solid rgba(255,68,68,.2);
+  font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 6px;border-radius:10px;letter-spacing:1px;}
+.sec-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.4px;
+  margin-bottom:5px;line-height:1.15;}
+.sec-sub{font-size:13px;color:var(--t2);line-height:1.7;max-width:620px;}
+
+/* ── PHONE SHELL ─────────────────────────────────── */
+.phone{width:360px;background:var(--bg1);border-radius:32px;overflow:hidden;
+  box-shadow:0 40px 120px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08),
+             inset 0 0 0 1px rgba(255,255,255,.04);
+  margin:0 auto;}
+.phone-bar{background:var(--bg2);height:44px;display:flex;align-items:center;
+  padding:0 16px;border-bottom:1px solid var(--ln1);}
+.phone-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);}
+.phone-icons{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:12px;}
+.phone-content{background:var(--bg1);}
+/* inner nav bar */
+.pnav{background:var(--bg2);display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:46px;border-bottom:1px solid var(--ln1);}
+.pnav-logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.3px;}
+.pnav-tabs{display:flex;gap:2px;}
+.ptab{padding:5px 11px;border-radius:7px;font-size:11px;color:var(--t3);}
+.ptab.on{background:var(--td);color:var(--teal);font-weight:700;}
+.pnav-ava{width:26px;height:26px;border-radius:50%;background:var(--teal);
+  color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.pbody{padding:14px 16px;}
+
+/* ── ANNOTATION LAYOUT ─────────────────────────── */
+.annotated{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start;}
+.annotations{display:flex;flex-direction:column;gap:14px;padding-top:8px;}
+.ann{background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:13px 14px;
+  position:relative;}
+.ann::before{content:'';position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+  width:12px;height:1px;background:var(--ln2);}
+.ann-num{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.ann-title{font-size:12px;font-weight:600;margin-bottom:3px;}
+.ann-body{font-size:11px;color:var(--t2);line-height:1.55;}
+.ann-whoop{margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;}
+.awt{font-family:'JetBrains Mono',monospace;font-size:8px;padding:1px 6px;border-radius:4px;}
+.awt-w{background:var(--wd);color:var(--whoop);border:1px solid rgba(255,68,68,.2);}
+.awt-f{background:var(--td);color:var(--teal);border:1px solid rgba(0,221,180,.2);}
+.awt-s{background:var(--gd);color:var(--green);border:1px solid rgba(54,217,148,.2);}
+
+/* ── PHONE COMPONENTS ─────────────────────────── */
+/* Today card */
+.today-card{border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden;}
+.tc-green{background:linear-gradient(135deg,rgba(54,217,148,.08),rgba(54,217,148,.02));
+  border:1px solid rgba(54,217,148,.14);}
+.tc-amber{background:linear-gradient(135deg,rgba(245,167,35,.08),rgba(245,167,35,.02));
+  border:1px solid rgba(245,167,35,.14);}
+.tc-red{background:linear-gradient(135deg,rgba(255,75,102,.10),rgba(255,75,102,.03));
+  border:1px solid rgba(255,75,102,.20);}
+.today-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
+.tc-green::before{background:linear-gradient(90deg,transparent,rgba(54,217,148,.3),transparent);}
+.tc-amber::before{background:linear-gradient(90deg,transparent,rgba(245,167,35,.3),transparent);}
+.tc-red::before{background:linear-gradient(90deg,transparent,rgba(255,75,102,.4),transparent);}
+.tc-grid{display:grid;grid-template-columns:1fr 70px;gap:12px;align-items:center;}
+.tc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;}
+.tc-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;}
+.tc-zone{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:5px 10px;margin-bottom:5px;}
+.tz-g{background:var(--gd);border:1px solid rgba(54,217,148,.2);}
+.tz-a{background:var(--ad);border:1px solid rgba(245,167,35,.2);}
+.tz-r{background:var(--cd);border:1px solid rgba(255,75,102,.2);}
+.tc-target{font-size:10px;color:var(--t2);}
+/* Source badges */
+.src-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.src{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 6px;border-radius:4px;}
+.src-w{background:var(--wd);color:var(--whoop);border:1px solid rgba(255,68,68,.2);}
+.src-o{background:var(--pd);color:var(--purp);border:1px solid rgba(155,128,255,.2);}
+.src-f{background:var(--td);color:var(--teal);border:1px solid rgba(0,221,180,.2);}
+/* Gauge */
+.gauge-wrap{position:relative;width:64px;height:64px;}
+.gauge-wrap svg{transform:rotate(-90deg);}
+.gauge-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.gv-num{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;line-height:1;}
+.gv-lbl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);}
+/* Stat tiles */
+.stat-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+.st{background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:10px 10px 8px;text-align:center;}
+.st-icon{font-size:14px;margin-bottom:3px;}
+.st-val{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;line-height:1;margin-bottom:2px;}
+.st-lbl{font-size:9px;color:var(--t3);}
+/* Intelligence strip */
+.intel-strip{display:flex;align-items:center;gap:10px;border-radius:11px;padding:10px 13px;margin-bottom:10px;cursor:pointer;}
+.is-blue{background:var(--bd);border:1px solid rgba(78,164,255,.2);}
+.is-red{background:var(--cd);border:1px solid rgba(255,75,102,.2);}
+.is-body{flex:1;}
+.is-title{font-size:11px;font-weight:600;margin-bottom:2px;}
+.is-sub{font-size:10px;color:var(--t2);}
+/* Insight cards */
+.insight{border-radius:12px;margin-bottom:8px;overflow:hidden;}
+.ins-g{background:linear-gradient(135deg,rgba(54,217,148,.07),rgba(54,217,148,.02));border:1px solid rgba(54,217,148,.14);border-left:3px solid var(--green);}
+.ins-a{background:linear-gradient(135deg,rgba(245,167,35,.07),rgba(245,167,35,.02));border:1px solid rgba(245,167,35,.14);border-left:3px solid var(--amber);}
+.ins-r{background:linear-gradient(135deg,rgba(255,75,102,.09),rgba(255,75,102,.03));border:1px solid rgba(255,75,102,.20);border-left:3px solid var(--coral);}
+.ins-m{background:rgba(255,75,102,.12);border:1px solid rgba(255,75,102,.25);border-left:3px solid var(--coral);}
+.ins-b{background:linear-gradient(135deg,rgba(78,164,255,.07),rgba(78,164,255,.02));border:1px solid rgba(78,164,255,.14);border-left:3px solid var(--blue);}
+.ins-head{padding:11px 12px;display:flex;gap:8px;align-items:flex-start;}
+.ins-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ii-g{background:var(--gd);border:1px solid rgba(54,217,148,.15);}
+.ii-a{background:var(--ad);border:1px solid rgba(245,167,35,.15);}
+.ii-r{background:var(--cd);border:1px solid rgba(255,75,102,.15);}
+.ii-b{background:var(--bd);border:1px solid rgba(78,164,255,.15);}
+.ii-p{background:var(--pd);border:1px solid rgba(155,128,255,.15);}
+.ins-content{flex:1;}
+.ins-title{font-size:11px;font-weight:600;margin-bottom:2px;}
+.ins-body{font-size:10px;color:var(--t2);line-height:1.5;}
+.ins-dismiss{color:var(--t3);font-size:16px;flex-shrink:0;line-height:1;}
+.ins-foot{padding:6px 12px 8px;border-top:1px solid var(--ln1);display:flex;gap:4px;flex-wrap:wrap;}
+.ins-lock{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--cd);border-top:1px solid rgba(255,75,102,.2);}
+.ins-lock-txt{font-size:10px;color:var(--coral);font-weight:600;}
+/* Coach context card */
+.coach-ctx{background:var(--bd);border:1px solid rgba(78,164,255,.2);border-radius:12px;padding:11px 13px;margin-bottom:10px;}
+.cc-label{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.cc-item-lbl{font-size:9px;color:var(--t3);}
+.cc-item-val{font-size:11px;font-weight:600;}
+/* Coach messages */
+.chat-msg{border-radius:10px;padding:9px 11px;font-size:11px;line-height:1.55;margin-bottom:7px;}
+.cm-ai{background:var(--bg3);border:1px solid var(--ln1);border-radius:10px 10px 10px 2px;max-width:90%;}
+.cm-user{background:var(--td);border:1px solid rgba(0,221,180,.15);border-radius:10px 10px 2px 10px;max-width:85%;margin-left:auto;font-size:11px;padding:8px 11px;}
+/* Prompt chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+.chip{background:var(--bg3);border:1px solid var(--ln2);border-radius:20px;padding:5px 10px;font-size:10px;color:var(--t2);cursor:pointer;white-space:nowrap;}
+/* Form result components */
+.form-score-card{border-radius:16px;padding:15px;margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(0,221,180,.06),rgba(0,221,180,.02));
+  border:1px solid rgba(0,221,180,.12);}
+.fsc-grid{display:grid;grid-template-columns:1fr 62px;gap:12px;align-items:center;}
+.fsc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px;}
+.fsc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px;}
+.fsc-verdict{font-size:11px;color:var(--t2);}
+.sleep-banner{background:rgba(245,167,35,.08);border:1px solid rgba(245,167,35,.2);border-radius:11px;padding:10px 12px;margin-bottom:9px;display:flex;gap:8px;}
+.sb-icon{font-size:16px;flex-shrink:0;}
+.sb-title{font-size:11px;font-weight:700;color:var(--amber);margin-bottom:2px;}
+.sb-body{font-size:10px;color:rgba(245,167,35,.8);line-height:1.5;}
+.fatigue-note{border-radius:9px;padding:9px 11px;font-size:10px;display:flex;gap:7px;align-items:flex-start;margin-bottom:8px;}
+.fn-fatigue{background:var(--cd);border:1px solid rgba(255,75,102,.2);color:rgba(255,75,102,.9);}
+.fn-technique{background:var(--bd);border:1px solid rgba(78,164,255,.2);color:rgba(78,164,255,.9);}
+.qa-note{background:var(--td2);border:1px solid rgba(0,221,180,.12);border-radius:9px;padding:8px 11px;font-size:10px;color:rgba(0,221,180,.8);margin-bottom:8px;}
+/* Readiness */
+.readiness-card{border-radius:16px;padding:15px;margin-bottom:9px;}
+.rc-green{background:linear-gradient(135deg,rgba(54,217,148,.07),rgba(54,217,148,.02));border:1px solid rgba(54,217,148,.13);}
+.rc-row{display:grid;grid-template-columns:1fr 70px;gap:10px;align-items:center;}
+.rc-zone{font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;}
+.rc-target{font-size:10px;color:var(--t2);}
+.acc-row{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--ln1);border-radius:8px;padding:7px 10px;font-size:10px;color:var(--t2);margin-bottom:8px;}
+.acc-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+/* Wearable hub */
+.hub-devices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.hub-dev{border-radius:11px;padding:12px;}
+.hd-conn{border:1px solid rgba(155,128,255,.25);background:rgba(155,128,255,.08);}
+.hd-whoop{border:1px solid rgba(255,68,68,.22);background:rgba(255,68,68,.07);}
+.hd-disc{border:1px solid var(--ln2);background:var(--bg2);}
+.hd-icon{font-size:20px;margin-bottom:4px;}
+.hd-name{font-size:11px;font-weight:700;margin-bottom:2px;}
+.hd-note{font-size:9px;color:var(--t3);margin-bottom:7px;line-height:1.4;}
+.hd-status-conn{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green);}
+.hd-status-disc{background:var(--teal);color:var(--bg);font-size:10px;font-weight:700;border-radius:6px;padding:5px 10px;border:none;cursor:pointer;width:100%;}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.mg-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:9px;padding:8px 10px;}
+.mgc-dev{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;}
+.mgc-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;line-height:1;margin-bottom:2px;color:var(--green);}
+.mgc-lbl{font-size:9px;color:var(--t3);}
+/* Mandatory banner */
+.mandatory-banner{background:rgba(255,75,102,.12);border:1px solid rgba(255,75,102,.3);border-radius:12px;padding:13px;margin-bottom:10px;}
+.mb-header{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.mb-icon{font-size:18px;}
+.mb-title{font-size:13px;font-weight:700;color:var(--coral);}
+.mb-body{font-size:10px;color:var(--t2);line-height:1.55;margin-bottom:8px;}
+.mb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;}
+.mbs{background:rgba(255,75,102,.08);border:1px solid rgba(255,75,102,.15);border-radius:7px;padding:6px 8px;text-align:center;}
+.mbs-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--coral);}
+.mbs-lbl{font-size:8px;color:var(--t3);}
+.mb-cta{background:var(--coral);color:white;border:none;border-radius:8px;padding:9px;width:100%;font-size:12px;font-weight:700;cursor:pointer;}
+/* Callouts */
+.callout{display:flex;gap:10px;padding:11px 13px;border-radius:9px;margin:12px 0;}
+.c-i{background:var(--td);border:1px solid rgba(0,221,180,.2);} .c-i .ct{color:rgba(0,221,180,.9);}
+.c-w{background:var(--ad);border:1px solid rgba(245,167,35,.2);} .c-w .ct{color:rgba(245,167,35,.9);}
+.c-e{background:var(--cd);border:1px solid rgba(255,75,102,.2);} .c-e .ct{color:rgba(255,75,102,.9);}
+.ci{font-size:13px;flex-shrink:0;} .ct{font-size:11px;line-height:1.6;}
+/* Section headers for overview */
+.ov-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.ov-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:16px;}
+.ov-title{font-size:12px;font-weight:600;margin-bottom:8px;}
+.ov-item{display:flex;gap:8px;margin-bottom:6px;font-size:11px;color:var(--t2);}
+.ov-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+/* Pills */
+.pill{display:inline-flex;padding:2px 7px;border-radius:10px;font-size:8px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.p-g{background:var(--gd);color:var(--green);border:1px solid rgba(54,217,148,.2);}
+.p-a{background:var(--ad);color:var(--amber);border:1px solid rgba(245,167,35,.2);}
+.p-r{background:var(--cd);color:var(--coral);border:1px solid rgba(255,75,102,.2);}
+.p-t{background:var(--td);color:var(--teal);border:1px solid rgba(0,221,180,.2);}
+.p-w{background:var(--wd);color:var(--whoop);border:1px solid rgba(255,68,68,.2);}
+/* Spacer */
+.sp8{height:8px;} .sp12{height:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══ LEFT NAV ══ -->
+<div class="nav">
+  <div class="nav-top">
+    <div class="logo">
+      <div class="logo-mark">F</div>
+      <div><div class="logo-name">Formm</div><div class="logo-tag">× WHOOP</div></div>
+    </div>
+    <div class="nav-desc">Interactive showcase — 8 sports science inferences WHOOP cannot generate alone.</div>
+  </div>
+  <div class="nav-body">
+    <div class="nav-group">Overview</div>
+    <button class="nav-btn on" onclick="show('overview')"><div class="nav-dot"></div>What WHOOP provides</button>
+    <div class="nav-group">Inferences in the app</div>
+    <button class="nav-btn" onclick="show('dashboard')"><div class="nav-dot"></div>Dashboard <span class="infer-tag it-new">2</span></button>
+    <button class="nav-btn" onclick="show('readiness')"><div class="nav-dot"></div>Readiness screen <span class="infer-tag it-new">2</span></button>
+    <button class="nav-btn" onclick="show('feed')"><div class="nav-dot"></div>Intelligence Feed <span class="infer-tag it-new">4</span></button>
+    <button class="nav-btn" onclick="show('mandatory')"><div class="nav-dot"></div>Red Alert <span class="infer-tag it-alert">!</span></button>
+    <button class="nav-btn" onclick="show('form-result')"><div class="nav-dot"></div>Form Result <span class="infer-tag it-new">3</span></button>
+    <button class="nav-btn" onclick="show('coach')"><div class="nav-dot"></div>Coach screen <span class="infer-tag it-new">2</span></button>
+    <button class="nav-btn" onclick="show('hub')"><div class="nav-dot"></div>Wearable Hub</button>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+<!-- ── OVERVIEW ── -->
+<div class="sec on" id="overview">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Formm × WHOOP</span><span class="whoop-badge">WHOOP 4.0</span></div>
+    <h2 class="sec-title">What WHOOP gives you — and the gap Formm fills</h2>
+    <p class="sec-sub">WHOOP provides excellent physiological monitoring. What it cannot do is connect that physiology to your movement quality. That's the gap Formm fills — and it changes what every number means.</p>
+  </div>
+
+  <div class="ov-row">
+    <div class="ov-card" style="border-color:rgba(255,68,68,.18);background:linear-gradient(135deg,rgba(255,68,68,.06),rgba(255,68,68,.02));">
+      <div class="ov-title" style="color:var(--whoop);">⌚ What WHOOP provides (validated)</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--green)"></div>HRV (RMSSD) — nightly, CCC 0.94 vs ECG</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--green)"></div>Resting heart rate — daily average</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--green)"></div>Respiratory rate — nocturnal average</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--green)"></div>Skin temperature deviation — 90-night baseline</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--green)"></div>Sleep stages — light, deep/SWS, REM, awake</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--amber)"></div>Strain score 0–21 — proprietary, unvalidated vs lab</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--amber)"></div>Recovery score 0–100% — proprietary, unvalidated vs lab</div>
+      <div style="margin-top:8px;font-size:10px;color:var(--t3);">* Strain + Recovery showed no significant correlation with lab metabolic measures in the 2024 Lundstrom et al. peer-reviewed study</div>
+    </div>
+    <div class="ov-card" style="border-color:rgba(0,221,180,.18);background:linear-gradient(135deg,rgba(0,221,180,.06),rgba(0,221,180,.02));">
+      <div class="ov-title" style="color:var(--teal);">🧠 What WHOOP cannot infer (Formm fills this)</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Whether form degradation is fatigue or technique</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Quality-adjusted load (joint stress vs cardiovascular stress)</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Whether tonight's sleep will invalidate tomorrow's form score</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Three-signal convergence alert (HRV + ACWR + form quality)</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Strain efficiency decoupling (body working harder per unit output)</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Cross-domain asymmetry (gym mechanics + physiological suppression)</div>
+      <div class="ov-item"><div class="ov-dot" style="background:var(--teal)"></div>Chronotype-aligned peak training window</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--teal);">8</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:3px;">Unique inferences</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--coral);">4</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:3px;">Formm-exclusive</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--amber);">1</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:3px;">Mandatory alert type</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:14px;text-align:center;">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--green);">6</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:3px;">App screens affected</div>
+    </div>
+  </div>
+
+  <div class="callout c-w" style="margin-top:16px;">
+    <div class="ci">⚠</div>
+    <div class="ct"><strong>Use raw signals, not WHOOP's computed scores.</strong> WHOOP's Strain and Recovery scores showed no correlation with lab-validated stress markers in peer-reviewed research. Build Formm's inferences on HRV, RHR, sleep stages, respiratory rate, and skin temp — the validated raw signals — not on WHOOP's black-box scores.</div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div class="sec" id="dashboard">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Train tab · Home screen</span><span class="whoop-badge">WHOOP</span></div>
+    <h2 class="sec-title">Dashboard</h2>
+    <p class="sec-sub">Two WHOOP-powered additions: source attribution badges on the TodayCard, and the Intelligence Strip linking to the full inference feed.</p>
+  </div>
+  <div class="annotated">
+    <div class="phone">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab on">Train</div><div class="ptab">Recover</div><div class="ptab">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <!-- TodayCard -->
+        <div class="today-card tc-green">
+          <div class="tc-grid">
+            <div>
+              <div class="tc-eyebrow">Wednesday · April 22</div>
+              <div class="tc-name">Good morning, Samrat.</div>
+              <div class="tc-zone tz-g"><span style="font-size:12px">🟢</span><span style="font-size:12px;font-weight:700;color:var(--green)">Train hard today</span></div>
+              <div class="tc-target">Target: <strong style="color:var(--t1)">420–490 AU · ~70 min · RPE 8/10</strong></div>
+              <!-- NEW: source badge row -->
+              <div class="src-row">
+                <span class="src src-w">WHOOP 84%</span>
+                <span class="src src-o">Oura HRV 67ms</span>
+                <span class="src src-f">ACWR 1.1</span>
+              </div>
+            </div>
+            <div class="gauge-wrap">
+              <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="5"/><circle cx="32" cy="32" r="27" fill="none" stroke="#36D994" stroke-width="5" stroke-dasharray="169.6" stroke-dashoffset="27" stroke-linecap="round"/></svg>
+              <div class="gauge-val"><div class="gv-num" style="color:var(--green)">8.4</div><div class="gv-lbl">READY</div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Stat tiles with ACWR -->
+        <div class="stat-tiles">
+          <div class="st"><div class="st-icon">🔥</div><div class="st-val">7</div><div class="st-lbl">Streak</div></div>
+          <div class="st"><div class="st-icon">⚡</div><div class="st-val" style="color:var(--green)">1.1</div><div class="st-lbl">ACWR</div></div>
+          <div class="st"><div class="st-icon">🏆</div><div class="st-val" style="color:var(--purp)">72</div><div class="st-lbl">Scout</div></div>
+          <div class="st"><div class="st-icon">📈</div><div class="st-val" style="color:var(--green)">+12%</div><div class="st-lbl">Form</div></div>
+        </div>
+        <!-- Intelligence strip -->
+        <div class="intel-strip is-blue">
+          <span style="font-size:18px">💡</span>
+          <div class="is-body">
+            <div class="is-title">4 new wearable insights</div>
+            <div class="is-sub">Tap to view sports science analysis</div>
+          </div>
+          <span style="color:var(--t3);font-size:14px">›</span>
+        </div>
+      </div>
+    </div>
+    <div class="annotations">
+      <div class="ann">
+        <div class="ann-num">① Source badges</div>
+        <div class="ann-title">WHOOP + device attribution on TodayCard</div>
+        <div class="ann-body">Three small coloured pills below the zone label show which data drove the readiness recommendation. Purple = Oura HRV, Red = WHOOP recovery, Teal = Formm ACWR. Tapping any badge opens a tooltip explaining what that metric means and how it contributed.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP recovery %</span><span class="awt awt-f">Formm ACWR</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② ACWR stat tile</div>
+        <div class="ann-title">Replace "Progress 0%" with ACWR zone tile</div>
+        <div class="ann-body">The previously empty "Progress" tile now shows ACWR with zone colour: green (0.8–1.3), amber (1.3–1.5), red (>1.5). WHOOP strain auto-populates session load when no RPE is submitted, keeping ACWR accurate without manual entry.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP strain → AU estimate</span><span class="awt awt-f">Formm session history</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Intelligence strip</div>
+        <div class="ann-title">Urgency hook to the feed</div>
+        <div class="ann-body">Blue when no mandatory alerts. Red when a convergence alert exists. Tapping navigates to the Intelligence Feed. Hidden when no wearable is connected — never shows empty to non-wearable users.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP + Oura signals</span><span class="awt awt-f">Formm inferences</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── READINESS ── -->
+<div class="sec" id="readiness">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Recover tab</span><span class="whoop-badge">WHOOP</span></div>
+    <h2 class="sec-title">Readiness screen</h2>
+    <p class="sec-sub">Existing screen extended — not replaced. Device source attribution and accuracy indicator added around existing components.</p>
+  </div>
+  <div class="annotated">
+    <div class="phone">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab">Train</div><div class="ptab on">Recover</div><div class="ptab">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <div class="readiness-card rc-green">
+          <div class="rc-row">
+            <div>
+              <div class="rc-zone">🟢 Train hard today</div>
+              <div class="rc-target">Target: <strong style="color:var(--t1)">420–490 AU · RPE 8/10</strong></div>
+              <!-- Source badges -->
+              <div class="src-row" style="margin-top:8px">
+                <span class="src src-o">Oura HRV 67ms</span>
+                <span class="src src-w">WHOOP 84%</span>
+                <span class="src src-f">ACWR 1.1</span>
+              </div>
+            </div>
+            <div class="gauge-wrap">
+              <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="5"/><circle cx="32" cy="32" r="27" fill="none" stroke="#36D994" stroke-width="5" stroke-dasharray="169.6" stroke-dashoffset="27" stroke-linecap="round"/></svg>
+              <div class="gauge-val"><div class="gv-num" style="color:var(--green)">8.4</div><div class="gv-lbl">READY</div></div>
+            </div>
+          </div>
+        </div>
+        <!-- 3 factor cards with device label -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:9px;">
+          <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:11px;padding:10px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--purp);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;">OURA RING</div>
+            <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--green)">8.2</div>
+            <div style="font-size:9px;color:var(--t3)">HRV · Above baseline</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:11px;padding:10px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--teal);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;">FORMM</div>
+            <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--green)">7.6</div>
+            <div style="font-size:9px;color:var(--t3)">Wellness · Good</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:11px;padding:10px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--teal);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;">FORMM</div>
+            <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--green)">9.0</div>
+            <div style="font-size:9px;color:var(--t3)">Load · ACWR 1.1</div>
+          </div>
+        </div>
+        <!-- Accuracy indicator -->
+        <div class="acc-row">
+          <div class="acc-dot"></div>
+          <span>Clinical-grade HRV (Oura Ring)</span>
+          <a href="#" style="color:var(--teal);font-size:10px;text-decoration:none;margin-left:auto">Accuracy info ›</a>
+        </div>
+        <!-- HRV timeline note -->
+        <div style="background:var(--bg2);border:1px solid var(--ln1);border-radius:11px;padding:11px 13px;">
+          <div style="font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">HRV trend · 7 days</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:3px;color:var(--green)">↑ Improving baseline</div>
+          <div style="font-size:10px;color:var(--t2)">From 54ms → 67ms over 4 weeks. Your training is producing autonomic adaptation.</div>
+          <div class="src-row" style="margin-top:5px"><span class="src src-o">Oura Ring</span><span class="src src-f">Formm analysis</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="annotations">
+      <div class="ann">
+        <div class="ann-num">① Device attribution badges</div>
+        <div class="ann-title">Show which device drove the readiness score</div>
+        <div class="ann-body">Coloured pills below the zone label identify the source of each input. Without this, users don't know whether their HRV came from a camera scan or a connected device — critical for trust calibration when they have both Oura and WHOOP connected.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP recovery %</span><span class="awt awt-f">Oura HRV z-score (primary)</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② Device label on HRV card</div>
+        <div class="ann-title">"OURA RING" or "WHOOP" label in brand colour</div>
+        <div class="ann-body">The leftmost factor card now shows which device sourced the HRV. Oura in purple (highest accuracy). WHOOP in red. Health Connect in teal. Formm rPPG in teal. This single addition significantly increases user understanding of where their readiness score comes from.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP HRV (secondary)</span><span class="awt awt-f">Oura HRV (primary, CCC 0.99)</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Accuracy indicator</div>
+        <div class="ann-title">Pulsing dot + accuracy tier + link</div>
+        <div class="ann-body">A one-line status row under the factor cards. Text adapts by device and baseline maturity: "Clinical-grade HRV (Oura Ring)", "Performance-grade HRV (WHOOP)", or "Building baseline — 4 more days to unlock inferences" when status is 'building'.</div>
+        <div class="ann-whoop"><span class="awt awt-s">Baseline status: building / reliable / personalised</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── INTELLIGENCE FEED ── -->
+<div class="sec" id="feed">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Recover tab → Intelligence</span><span class="whoop-badge">WHOOP</span></div>
+    <h2 class="sec-title">Intelligence Feed</h2>
+    <p class="sec-sub">The core wearable product. Daily sports science insights ordered by severity. Each card sources from specific WHOOP data + Formm data with attribution badges.</p>
+  </div>
+  <div class="annotated">
+    <div class="phone">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab">Train</div><div class="ptab on">Recover</div><div class="ptab">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+          <div style="font-size:13px;font-weight:600;">Today's intelligence</div>
+          <span class="pill p-t">4 INSIGHTS</span>
+        </div>
+        <!-- Insight 1: peak HRV -->
+        <div class="insight ins-g">
+          <div class="ins-head">
+            <div class="ins-icon ii-g">🟢</div>
+            <div class="ins-content">
+              <div class="ins-title">Peak recovery — HRV at 14-day high</div>
+              <div class="ins-body">HRV is 18% above your 7-day baseline. If you've been planning a PR attempt or max effort session, today is optimal. Your autonomic nervous system is fully recovered.</div>
+            </div>
+            <div class="ins-dismiss">×</div>
+          </div>
+          <div class="ins-foot"><span class="src src-o">Oura HRV 67ms</span><span class="src src-f">Formm ACWR 1.1</span></div>
+        </div>
+        <!-- Insight 2: deep sleep -->
+        <div class="insight ins-b">
+          <div class="ins-head">
+            <div class="ins-icon ii-b">😴</div>
+            <div class="ins-content">
+              <div class="ins-title">Deep sleep strong — muscle repair complete</div>
+              <div class="ins-body">88 minutes of deep sleep last night. Growth hormone secretion peaked during this window. Posterior chain from Monday's deadlifts is fully recovered.</div>
+            </div>
+            <div class="ins-dismiss">×</div>
+          </div>
+          <div class="ins-foot"><span class="src src-w">WHOOP sleep stages</span><span class="src src-f">Formm session log</span></div>
+        </div>
+        <!-- Insight 3: strain note -->
+        <div class="insight ins-a">
+          <div class="ins-head">
+            <div class="ins-icon ii-a">⚡</div>
+            <div class="ins-content">
+              <div class="ins-title">Quality-adjusted load was higher than WHOOP showed</div>
+              <div class="ins-body">Yesterday's WHOOP strain was 14.2, but form quality was 62%. Quality-adjusted load was ~530 AU — 23% higher than strain alone suggests. Plan today accordingly.</div>
+            </div>
+            <div class="ins-dismiss">×</div>
+          </div>
+          <div class="ins-foot"><span class="src src-w">WHOOP strain 14.2</span><span class="src src-f">Formm form 62%</span></div>
+        </div>
+        <!-- Insight 4: REM + motor learning -->
+        <div class="insight ins-b">
+          <div class="ins-head">
+            <div class="ins-icon ii-p">🧠</div>
+            <div class="ins-content">
+              <div class="ins-title">REM strong — motor learning consolidated</div>
+              <div class="ins-body">REM was 22% of total sleep — above your 20% average. Yesterday's technique work has been neurally encoded. Today's form check reflects your true level.</div>
+            </div>
+            <div class="ins-dismiss">×</div>
+          </div>
+          <div class="ins-foot"><span class="src src-w">WHOOP REM 22%</span><span class="src src-f">Formm form check timing</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="annotations">
+      <div class="ann">
+        <div class="ann-num">① Severity ordering</div>
+        <div class="ann-title">Mandatory → Red → Amber → Info</div>
+        <div class="ann-body">Items are ordered by severity rank server-side, then re-sorted client-side as a safety guarantee. Max 4 items per day to prevent noise. High dismiss rate for a specific inference type = signal it's firing too frequently or isn't relevant to users.</div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② Quality-adjusted load insight</div>
+        <div class="ann-title">Formm-exclusive — WHOOP cannot generate this</div>
+        <div class="ann-body">WHOOP sees cardiovascular strain. Formm's AI sees movement quality. The combination reveals that a 62% form quality session carries 23% more joint stress than WHOOP's strain score implies. No other app can compute this.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP strain score</span><span class="awt awt-f">Formm form quality AI</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Source attribution badges</div>
+        <div class="ann-title">Every card shows exactly what data triggered it</div>
+        <div class="ann-body">Device-specific coloured badges on every card footer. Purple = Oura, Red = WHOOP, Teal = Formm. These tell the user exactly why an insight fired — critical for trust and for users who want to understand the underlying data.</div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">④ REM → motor learning</div>
+        <div class="ann-title">Sleep quality interprets the form check</div>
+        <div class="ann-body">When REM > 20%, the positive note reassures the user that today's form check will reflect true skill. When REM &lt; 20%, the amber banner on the form result screen warns the score may be artificially low. WHOOP measures REM — Formm connects it to movement.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP REM duration</span><span class="awt awt-f">Formm form check timing</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MANDATORY ALERT ── -->
+<div class="sec" id="mandatory">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Any screen — top priority interrupt</span><span class="whoop-badge" style="background:var(--cd);color:var(--coral);border-color:rgba(255,75,102,.3)">RED ALERT</span></div>
+    <h2 class="sec-title">Three-signal convergence — mandatory rest alert</h2>
+    <p class="sec-sub">The most important inference in the entire system. Fires only when all three signals converge simultaneously: HRV suppressed + ACWR spike + form quality declining. Cannot be generated by any single device.</p>
+  </div>
+  <div class="annotated">
+    <div class="phone">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab on">Train</div><div class="ptab">Recover</div><div class="ptab">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <!-- Mandatory banner - non-dismissable -->
+        <div class="mandatory-banner">
+          <div class="mb-header">
+            <div class="mb-icon">🚨</div>
+            <div class="mb-title">Three risk signals converging</div>
+          </div>
+          <div class="mb-body">Your HRV is 1.8 SD below baseline, training load ACWR is 1.62, and movement quality has dropped 13% across your last 3 sessions. Each signal alone would be a caution. Together, they indicate the highest-risk state in sports science monitoring.</div>
+          <div class="mb-stats">
+            <div class="mbs"><div class="mbs-val">−1.8 SD</div><div class="mbs-lbl">HRV vs baseline</div></div>
+            <div class="mbs"><div class="mbs-val">1.62</div><div class="mbs-lbl">ACWR (danger)</div></div>
+            <div class="mbs"><div class="mbs-val">−13%</div><div class="mbs-lbl">Form quality</div></div>
+          </div>
+          <button class="mb-cta">I understand — taking a rest day</button>
+          <div style="margin-top:6px;font-size:9px;color:rgba(255,75,102,.6);text-align:center">This alert cannot be dismissed without acknowledgement</div>
+        </div>
+        <!-- The dashboard is muted behind it -->
+        <div style="opacity:0.4">
+          <div class="today-card tc-red">
+            <div class="tc-eyebrow">Wednesday · April 22</div>
+            <div class="tc-name" style="color:var(--coral)">Rest today, Samrat.</div>
+            <div class="tc-zone tz-r"><span style="font-size:12px">🔴</span><span style="font-size:12px;font-weight:700;color:var(--coral)">Mandatory rest</span></div>
+            <div class="src-row"><span class="src src-w">WHOOP HRV −1.8 SD</span><span class="src src-f">ACWR 1.62</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotations">
+      <div class="ann" style="border-color:rgba(255,75,102,.25);background:linear-gradient(135deg,rgba(255,75,102,.06),rgba(255,75,102,.02));">
+        <div class="ann-num" style="color:var(--coral)">⚠ MANDATORY ALERT — non-dismissable</div>
+        <div class="ann-title">Three conditions must ALL fire simultaneously</div>
+        <div class="ann-body">1. WHOOP HRV z-score &lt; −1.5 SD from personal baseline<br>2. Formm ACWR &gt; 1.5 (load spike into danger zone)<br>3. Form score declined &gt; 10% over last 3 sessions<br><br>Without all three: no mandatory alert fires. Two of three = individual amber cautions at most. The convergence is the signal.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP HRV (raw signal)</span><span class="awt awt-f">Formm ACWR + form AI</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② Why WHOOP alone can't do this</div>
+        <div class="ann-title">Missing both ACWR and biomechanics</div>
+        <div class="ann-body">WHOOP's Recovery score would show "red" when HRV is suppressed — but it cannot detect ACWR spiking (requires session load history) or form quality declining (requires movement analysis). The three-signal convergence is a Formm-exclusive inference by definition.</div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Deduplication and acknowledgement</div>
+        <div class="ann-title">Max one mandatory per 48h · requires tap to clear</div>
+        <div class="ann-body">The alert must be acknowledged with an explicit tap before the user can interact with the rest of the app. Stores dismissal in DB. Does not re-fire for 48h. FCM push notification with haptic heavy impact when generated. Never surface this without all three conditions confirmed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FORM RESULT ── -->
+<div class="sec" id="form-result">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>After video analysis</span><span class="whoop-badge">WHOOP sleep data</span></div>
+    <h2 class="sec-title">Form Result screen</h2>
+    <p class="sec-sub">Three WHOOP-powered additions: sleep context banner, fatigue diagnosis note, and quality-adjusted load disclosure. Toggle between states to see both scenarios.</p>
+  </div>
+
+  <!-- Toggle -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;">
+    <button onclick="setFormState('good')" id="btn-good" style="background:var(--gd);color:var(--green);border:1px solid rgba(54,217,148,.3);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;">Good sleep · fatigue diagnosis</button>
+    <button onclick="setFormState('rem')" id="btn-rem" style="background:var(--bg2);color:var(--t2);border:1px solid var(--ln2);border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;">Low REM · technique diagnosis</button>
+  </div>
+
+  <div class="annotated">
+    <div class="phone" id="phone-form">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab on">Train</div><div class="ptab">Recover</div><div class="ptab">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <!-- Form score card -->
+        <div class="form-score-card">
+          <div class="fsc-grid">
+            <div>
+              <div class="fsc-eyebrow">Gym · Squat</div>
+              <div class="fsc-title">Your analysis is ready</div>
+              <div class="fsc-verdict" id="fsc-verdict">Strong — technique is sound. Focus on depth.</div>
+            </div>
+            <div class="gauge-wrap">
+              <svg width="62" height="62" viewBox="0 0 62 62"><circle cx="31" cy="31" r="26" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="5"/><circle id="score-ring" cx="31" cy="31" r="26" fill="none" stroke="#36D994" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="33" stroke-linecap="round"/></svg>
+              <div class="gauge-val"><div class="gv-num" id="score-num" style="color:var(--green)">84</div><div class="gv-lbl">/100</div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Sleep context banner (conditional) -->
+        <div class="sleep-banner" id="sleep-banner" style="display:none">
+          <div class="sb-icon">😴</div>
+          <div>
+            <div class="sb-title">Sleep may have affected this score</div>
+            <div class="sb-body">Your REM sleep was 14% last night — below the threshold for complete motor memory consolidation. This score may underrepresent your true technique level.</div>
+            <div class="src-row" style="margin-top:5px"><span class="src src-w">WHOOP REM 14%</span></div>
+          </div>
+        </div>
+        <!-- Fatigue context note (conditional) -->
+        <div class="fatigue-note fn-fatigue" id="fatigue-note">
+          <span style="font-size:14px">💤</span>
+          <span>Form drop looks like fatigue — rest first, not more coaching. Form typically rebounds within 48–72h.</span>
+        </div>
+        <div class="fatigue-note fn-technique" id="technique-note" style="display:none">
+          <span style="font-size:14px">📚</span>
+          <span>Recovery is fine. This is a genuine technique gap — focused practice (not rest) is the right response.</span>
+        </div>
+        <!-- Quality-adjusted load note -->
+        <div class="qa-note">
+          ⚡ Quality-adjusted load: <strong style="color:var(--teal)">510 AU</strong> vs 430 AU raw — your 80% form quality means joints absorbed 19% more stress than WHOOP strain alone suggests.
+        </div>
+      </div>
+    </div>
+    <div class="annotations" id="form-annotations">
+      <div class="ann">
+        <div class="ann-num">① Sleep context banner</div>
+        <div class="ann-title">Only shown when WHOOP REM was &lt; 20% previous night</div>
+        <div class="ann-body">When REM is insufficient, motor memory consolidation from yesterday's technique work is incomplete. A form score after poor REM systematically underrepresents true skill. Without this banner, athletes misinterpret a sleep-impaired score as a technique regression and over-practice.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP REM % and minutes</span><span class="awt awt-f">Formm form check timestamp</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② Fatigue vs technique diagnosis</div>
+        <div class="ann-title">The highest-value clinical inference Formm provides</div>
+        <div class="ann-body">When form is declining AND WHOOP HRV is declining → fatigue-driven (prescribe rest). When form is declining AND HRV is stable → technique regression (prescribe practice). Getting this wrong wastes months. Toggle above to see both states.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP HRV 7-day trend</span><span class="awt awt-f">Formm form score 5-session trend</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Quality-adjusted load disclosure</div>
+        <div class="ann-title">WHOOP strain + form quality = real training stress</div>
+        <div class="ann-body">WHOOP measures cardiovascular load. Formm's AI measures movement quality. A 430 AU session at 80% form quality carries 19% more joint stress than the number suggests. This note tells the user their actual training debt — not just the cardiovascular effort their heart experienced.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP strain score</span><span class="awt awt-f">Formm form quality AI score</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COACH ── -->
+<div class="sec" id="coach">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Train tab · Coach</span><span class="whoop-badge">WHOOP context</span></div>
+    <h2 class="sec-title">Coach screen</h2>
+    <p class="sec-sub">The coach opening message already knows your WHOOP state. The context card shows users what the AI has access to. Dynamic prompt chips are generated from current WHOOP data.</p>
+  </div>
+  <div class="annotated">
+    <div class="phone">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab on">Train</div><div class="ptab">Recover</div><div class="ptab">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <!-- Wearable context card -->
+        <div class="coach-ctx">
+          <div class="cc-label">Your data — coach has full context</div>
+          <div class="cc-grid">
+            <div><div class="cc-item-lbl">Readiness</div><div class="cc-item-val" style="color:var(--green)">8.4 · 🟢 Train hard</div></div>
+            <div><div class="cc-item-lbl">ACWR</div><div class="cc-item-val" style="color:var(--green)">1.1 · Optimal</div></div>
+            <div><div class="cc-item-lbl">Last form check</div><div class="cc-item-val">Squat 84/100 · Apr 22</div></div>
+            <div><div class="cc-item-lbl">WHOOP strain</div><div class="cc-item-val">14.2 · yesterday</div></div>
+          </div>
+        </div>
+        <!-- AI opening message -->
+        <div class="chat-msg cm-ai">Your recovery looks strong today — HRV at a 14-day high and WHOOP strain from yesterday (14.2) has been well-absorbed.<br><br>Your squat scored 84/100 on Monday — depth is the main opportunity. Quality-adjusted load was ~510 AU (higher than raw strain due to form dips). Worth factoring into today's session planning. What are you training today?</div>
+        <div class="chat-msg cm-user">Heavy squat day — thinking of going for a PR</div>
+        <div class="chat-msg cm-ai">Good timing — today is as ready as you've been in 2 weeks. A few things to optimise the PR attempt: do your ankle mobility work first (3×10 wall ankle stretches per side). Warm up to ~85% before the max attempt. After the PR, stop adding volume — your nervous system will be near its limit given yesterday's strain.</div>
+        <!-- Dynamic chips -->
+        <div class="chips">
+          <div class="chip">Why was my quality-adjusted load high?</div>
+          <div class="chip">How's my HRV trend?</div>
+          <div class="chip">Explain my recovery score</div>
+        </div>
+      </div>
+    </div>
+    <div class="annotations">
+      <div class="ann">
+        <div class="ann-num">① Wearable context card</div>
+        <div class="ann-title">Coach already knows before you say a word</div>
+        <div class="ann-body">The context card is collapsible and stores its state in localStorage. It shows users exactly what the AI knows — HRV state, ACWR, last form check, WHOOP strain — so they understand why the coach's opening message is personalised. This is what makes it genuinely bespoke rather than generic AI chat.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP strain + HRV</span><span class="awt awt-f">Formm readiness + ACWR + form</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② Coach opening message</div>
+        <div class="ann-title">WHOOP data injected into system prompt</div>
+        <div class="ann-body">The backend extends GET /api/coach/context to include wearable_context (HRV z-score, strain yesterday, sleep quality, quality-adjusted load). The AI system prompt includes this data — so the coach references WHOOP state without the user having to explain their day. The quality-adjusted load figure is unique to Formm.</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP strain + HRV trend</span><span class="awt awt-f">Formm quality-adjusted AU</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Dynamic prompt chips</div>
+        <div class="ann-title">Data-driven — not hardcoded</div>
+        <div class="ann-body">Chips are generated from GET /api/coach/suggestions based on current data state. When WHOOP strain was high: "Why was my quality-adjusted load high?" When HRV declining + form declining: "Why has my form been dropping?" When new device connected: "What does my WHOOP data tell you about my training?"</div>
+        <div class="ann-whoop"><span class="awt awt-w">WHOOP current state</span><span class="awt awt-f">Formm inference engine</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WEARABLE HUB ── -->
+<div class="sec" id="hub">
+  <div class="sec-hdr">
+    <div class="sec-eyebrow"><span>Progress tab → Wearables</span><span class="whoop-badge">WHOOP</span></div>
+    <h2 class="sec-title">Wearable Hub</h2>
+    <p class="sec-sub">Device connection management. OAuth for WHOOP via Terra. Today's WHOOP metrics grid. Privacy notice required for DPDP Act 2023 compliance.</p>
+  </div>
+  <div class="annotated">
+    <div class="phone">
+      <div class="phone-bar"><span class="phone-time">9:41</span><div class="phone-icons">📶 🔋</div></div>
+      <div class="pnav"><div class="pnav-logo">Formm</div><div class="pnav-tabs"><div class="ptab">Train</div><div class="ptab">Recover</div><div class="ptab on">Progress</div></div><div class="pnav-ava">S</div></div>
+      <div class="pbody">
+        <div style="margin-bottom:11px;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:3px;">Your wearables</div>
+          <div style="font-size:10px;color:var(--t2)">Connect to unlock sports science insights</div>
+        </div>
+        <!-- Device grid -->
+        <div class="hub-devices">
+          <div class="hub-dev hd-conn">
+            <div class="hd-icon">💍</div>
+            <div class="hd-name">Oura Ring</div>
+            <div class="hd-note">Clinical-grade HRV (CCC 0.99)</div>
+            <div class="hd-status-conn">● Connected · Synced 6:12am</div>
+          </div>
+          <div class="hub-dev hd-whoop">
+            <div class="hd-icon">⌚</div>
+            <div class="hd-name">WHOOP 4.0</div>
+            <div class="hd-note">Strain tracking + sleep stages</div>
+            <div class="hd-status-conn" style="color:var(--whoop)">● Connected · Synced 6:12am</div>
+          </div>
+          <div class="hub-dev hd-disc">
+            <div class="hd-icon">🏃</div>
+            <div class="hd-name">Garmin</div>
+            <div class="hd-note">VO2max + running dynamics</div>
+            <button class="hd-status-disc">+ Connect</button>
+          </div>
+          <div class="hub-dev hd-disc">
+            <div class="hd-icon">📱</div>
+            <div class="hd-name">Health Connect</div>
+            <div class="hd-note">Samsung · Pixel · Xiaomi</div>
+            <button class="hd-status-disc">+ Connect</button>
+          </div>
+        </div>
+        <!-- Today's data -->
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;">Today's WHOOP data</div>
+        <div class="metrics-grid" style="margin-bottom:10px;">
+          <div class="mg-card"><div class="mgc-dev" style="color:var(--whoop)">WHOOP</div><div class="mgc-val">84%</div><div class="mgc-lbl">Recovery</div></div>
+          <div class="mg-card"><div class="mgc-dev" style="color:var(--whoop)">WHOOP</div><div class="mgc-val">14.2</div><div class="mgc-lbl">Strain yest.</div></div>
+          <div class="mg-card"><div class="mgc-dev" style="color:var(--whoop)">WHOOP</div><div class="mgc-val">88m</div><div class="mgc-lbl">Deep sleep</div></div>
+          <div class="mg-card"><div class="mgc-dev" style="color:var(--whoop)">WHOOP</div><div class="mgc-val">22%</div><div class="mgc-lbl">REM sleep</div></div>
+          <div class="mg-card"><div class="mgc-dev" style="color:var(--whoop)">WHOOP</div><div class="mgc-val">+0.2°</div><div class="mgc-lbl">Skin temp</div></div>
+          <div class="mg-card"><div class="mgc-dev" style="color:var(--whoop)">WHOOP</div><div class="mgc-val">14.2</div><div class="mgc-lbl">Resp. rate</div></div>
+        </div>
+        <!-- Privacy notice -->
+        <div style="background:var(--td2);border:1px solid rgba(0,221,180,.15);border-radius:9px;padding:9px 11px;font-size:10px;color:rgba(0,221,180,.8);">
+          🔒 Your biometric data stays yours. Never sold or shared. Delete all WHOOP data anytime in Settings → Data & Privacy.
+        </div>
+      </div>
+    </div>
+    <div class="annotations">
+      <div class="ann">
+        <div class="ann-num">① WHOOP connection via Terra API</div>
+        <div class="ann-title">Apply for WHOOP developer access now</div>
+        <div class="ann-body">WHOOP requires developer portal approval before Terra OAuth can activate. Apply at developer.whoop.com immediately — approval takes 1–2 weeks. Terra handles the OAuth redirect, token refresh, and webhook delivery. Formm stores the terra_user_id and maps it to the Formm user_id.</div>
+        <div class="ann-whoop"><span class="awt awt-s">Apply: developer.whoop.com</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">② Today's WHOOP data grid</div>
+        <div class="ann-title">All 6 key signals visible at a glance</div>
+        <div class="ann-body">Shows recovery %, yesterday's strain, deep sleep, REM, skin temp deviation, and respiratory rate. These are the 6 raw signals that drive every inference. The grid is hidden entirely when WHOOP isn't connected — never shows empty tiles to non-connected users.</div>
+        <div class="ann-whoop"><span class="awt awt-w">All WHOOP raw signals</span></div>
+      </div>
+      <div class="ann">
+        <div class="ann-num">③ Privacy notice — required</div>
+        <div class="ann-title">DPDP Act 2023 compliance (India)</div>
+        <div class="ann-body">India's Digital Personal Data Protection Act classifies biometric data (HRV, sleep, heart rate) as sensitive personal data. Explicit consent required before collection. "Delete all WHOOP data" must take immediate effect — not a 30-day delay. This notice must always be visible on the hub screen.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  const sec = document.getElementById(id);
+  if (sec) { sec.classList.add('on'); }
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick') === `show('${id}')`) b.classList.add('on');
+  });
+}
+
+function setFormState(state) {
+  const sleepBanner  = document.getElementById('sleep-banner');
+  const fatigue      = document.getElementById('fatigue-note');
+  const technique    = document.getElementById('technique-note');
+  const scoreNum     = document.getElementById('score-num');
+  const scoreRing    = document.getElementById('score-ring');
+  const verdict      = document.getElementById('fsc-verdict');
+  const btnGood      = document.getElementById('btn-good');
+  const btnRem       = document.getElementById('btn-rem');
+
+  if (state === 'good') {
+    sleepBanner.style.display = 'none';
+    fatigue.style.display     = 'flex';
+    technique.style.display   = 'none';
+    scoreNum.textContent = '74';
+    scoreNum.style.color = 'var(--amber)';
+    scoreRing.setAttribute('stroke', 'var(--amber)');
+    scoreRing.setAttribute('stroke-dashoffset', '66');
+    verdict.textContent = 'Developing — form is declining. HRV also declining suggests fatigue.';
+    btnGood.style.background = 'var(--gd)';
+    btnGood.style.color      = 'var(--green)';
+    btnGood.style.border     = '1px solid rgba(54,217,148,.3)';
+    btnRem.style.background  = 'var(--bg2)';
+    btnRem.style.color       = 'var(--t2)';
+    btnRem.style.border      = '1px solid var(--ln2)';
+  } else {
+    sleepBanner.style.display = 'flex';
+    fatigue.style.display     = 'none';
+    technique.style.display   = 'flex';
+    scoreNum.textContent = '74';
+    scoreNum.style.color = 'var(--amber)';
+    scoreRing.setAttribute('stroke', 'var(--amber)');
+    scoreRing.setAttribute('stroke-dashoffset', '66');
+    verdict.textContent = 'Low REM last night + stable HRV — technique gap, not fatigue.';
+    btnRem.style.background = 'var(--ad)';
+    btnRem.style.color      = 'var(--amber)';
+    btnRem.style.border     = '1px solid rgba(245,167,35,.3)';
+    btnGood.style.background = 'var(--bg2)';
+    btnGood.style.color      = 'var(--t2)';
+    btnGood.style.border     = '1px solid var(--ln2)';
+  }
+}
+</script>
+</body>
+</html>
