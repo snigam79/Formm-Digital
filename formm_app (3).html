@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Formm — Movement Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg0:#08080C; --bg1:#0F0F17; --bg2:#15151F; --bg3:#1C1C28; --bg4:#242433; --bg5:#2D2D40;
+  --ln1:rgba(255,255,255,0.06); --ln2:rgba(255,255,255,0.10); --ln3:rgba(255,255,255,0.18);
+  --tx1:#F2F1EC; --tx2:#9896AE; --tx3:#5A5870;
+  --teal:#00E0B5; --teal2:#00C49E;
+  --teal-dim:rgba(0,224,181,0.08); --teal-bdr:rgba(0,224,181,0.20);
+  --green:#36D99A; --green-d:rgba(54,217,154,0.10);
+  --amber:#F5A524; --amber-d:rgba(245,165,36,0.10);
+  --blue:#4DA3FF; --blue-d:rgba(77,163,255,0.10);
+  --purple:#9B7FFF; --purple-d:rgba(155,127,255,0.10);
+  --red:#FF4560; --red-d:rgba(255,69,96,0.10);
+  --r6:6px; --r10:10px; --r14:14px; --r18:18px; --r24:24px;
+  --disp:'Clash Display',sans-serif;
+  --body:'Cabinet Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+html,body {
+  min-height:100vh;
+  background:var(--bg0);
+  font-family:var(--body);
+  color:var(--tx1);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+
+/* ── SHELL ── */
+.shell {
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:32px 16px 60px;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 0%, rgba(0,224,181,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 400px at 90% 100%, rgba(155,127,255,0.03) 0%, transparent 60%),
+    var(--bg0);
+}
+
+/* ── PHONE FRAME ── */
+.phone {
+  width:100%;
+  max-width:375px;
+  background:var(--bg1);
+  border-radius:var(--r24);
+  border:1px solid var(--ln2);
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.025),
+    0 48px 120px rgba(0,0,0,0.85),
+    0 0 80px rgba(0,224,181,0.04);
+  position:relative;
+}
+
+.notch {
+  width:100px; height:24px;
+  background:var(--bg0);
+  border-radius:0 0 16px 16px;
+  margin:0 auto;
+}
+
+/* ── BACK BUTTON ── */
+.back-bar {
+  display:flex; align-items:center; gap:10px;
+  padding:14px 16px 0;
+}
+.back-btn {
+  display:flex; align-items:center; gap:6px;
+  background:var(--bg2); border:1px solid var(--ln2); border-radius:var(--r10);
+  padding:6px 12px; cursor:pointer; transition:all .15s;
+  font-family:var(--body); font-size:12px; color:var(--tx2);
+}
+.back-btn:hover { border-color:var(--teal); color:var(--teal); }
+.back-btn-arrow { font-size:14px; line-height:1; }
+.back-title { font-size:15px; font-weight:700; color:var(--tx1); }
+.back-subtitle { font-family:var(--mono); font-size:9px; color:var(--tx3); letter-spacing:1px; margin-top:2px; }
+
+/* ── EXPLAINER BANNER ── */
+.explainer {
+  margin:12px 16px 0;
+  background:var(--bg2); border:1px solid var(--ln1);
+  border-left:3px solid var(--teal);
+  border-radius:0 var(--r10) var(--r10) 0;
+  padding:12px 14px;
+}
+.explainer-purple { border-left-color:var(--purple); }
+.explainer-amber  { border-left-color:var(--amber); }
+.explainer-green  { border-left-color:var(--green); }
+.explainer-title {
+  font-family:var(--mono); font-size:9px; letter-spacing:1.2px;
+  text-transform:uppercase; color:var(--teal); margin-bottom:6px;
+}
+.explainer-purple .explainer-title { color:var(--purple); }
+.explainer-amber  .explainer-title { color:var(--amber); }
+.explainer-green  .explainer-title { color:var(--green); }
+.explainer-body { font-size:12px; color:var(--tx2); line-height:1.6; }
+.explainer-body strong { color:var(--tx1); font-weight:700; }
+
+/* ── SECTION HIGHLIGHT (in Progress) ── */
+.load-section-header {
+  display:flex; align-items:center; gap:8px;
+  padding:14px 16px 8px;
+}
+.load-section-divider {
+  flex:1; height:1px; background:var(--ln1);
+}
+
+/* ── SCREEN CONTAINER ── */
+.screens { position:relative; }
+.screen { display:none; }
+.screen.active { display:block; animation:fadeUp 0.32s ease both; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── BOTTOM NAV ── */
+.nav {
+  display:flex;
+  justify-content:space-around;
+  padding:10px 8px 14px;
+  border-top:1px solid var(--ln1);
+  background:var(--bg1);
+  position:sticky;
+  bottom:0;
+}
+.nav-item {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  cursor:pointer; padding:4px 10px; border-radius:var(--r10);
+  transition:all 0.15s;
+}
+.nav-item:hover { background:var(--bg2); }
+.nav-icon {
+  width:20px; height:20px;
+  display:flex; align-items:center; justify-content:center;
+}
+.nav-dot {
+  width:5px; height:5px; border-radius:50%;
+  background:var(--tx3); transition:background 0.15s;
+}
+.nav-label {
+  font-family:var(--mono); font-size:9px; letter-spacing:.5px;
+  text-transform:uppercase; color:var(--tx3); transition:color 0.15s;
+}
+.nav-item.on .nav-dot { background:var(--teal); }
+.nav-item.on .nav-label { color:var(--teal); }
+
+/* ── TYPOGRAPHY ── */
+.disp { font-family:var(--disp); }
+.mono { font-family:var(--mono); }
+.eb {
+  font-family:var(--mono); font-size:9px; font-weight:500;
+  letter-spacing:1.5px; text-transform:uppercase; color:var(--tx3);
+}
+.eb.teal  { color:var(--teal); }
+.eb.amber { color:var(--amber); }
+.eb.blue  { color:var(--blue); }
+.eb.green { color:var(--green); }
+.eb.purple{ color:var(--purple); }
+
+/* ── UTILITIES ── */
+.row { display:flex; align-items:center; justify-content:space-between; }
+.col { display:flex; flex-direction:column; }
+.gap6  { gap:6px; }
+.gap8  { gap:8px; }
+.gap10 { gap:10px; }
+.gap12 { gap:12px; }
+.p16 { padding:0 16px; }
+.mt6  { margin-top:6px; }
+.mt8  { margin-top:8px; }
+.mt10 { margin-top:10px; }
+.mt12 { margin-top:12px; }
+.mt14 { margin-top:14px; }
+.mt16 { margin-top:16px; }
+.mb4  { margin-bottom:4px; }
+.mb6  { margin-bottom:6px; }
+.mb8  { margin-bottom:8px; }
+.mb10 { margin-bottom:10px; }
+.mb12 { margin-bottom:12px; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--bg2);
+  border:1px solid var(--ln1);
+  border-radius:var(--r14);
+  padding:12px 14px;
+}
+.card-teal {
+  background:var(--teal-dim);
+  border:1px solid var(--teal-bdr);
+  border-radius:var(--r14);
+  padding:12px 14px;
+  position:relative;
+  overflow:hidden;
+}
+.card-teal::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,224,181,0.4),transparent);
+}
+.card-amber {
+  background:var(--amber-d);
+  border:1px solid rgba(245,165,36,0.25);
+  border-radius:var(--r14);
+  padding:12px 14px;
+}
+.card-blue {
+  background:var(--blue-d);
+  border:1px solid rgba(77,163,255,0.25);
+  border-radius:var(--r14);
+  padding:12px 14px;
+}
+.card-purple {
+  background:var(--purple-d);
+  border:1px solid rgba(155,127,255,0.25);
+  border-radius:var(--r14);
+  padding:12px 14px;
+}
+.card-green {
+  background:var(--green-d);
+  border:1px solid rgba(54,217,154,0.25);
+  border-radius:var(--r14);
+  padding:12px 14px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  width:100%; padding:11px; border:none; border-radius:var(--r10);
+  font-family:var(--body); font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.btn-primary { background:var(--teal); color:var(--bg0); }
+.btn-primary:hover { background:var(--teal2); }
+.btn-primary:active { transform:scale(0.98); }
+.btn-ghost {
+  background:var(--bg3); color:var(--tx1);
+  border:1px solid var(--ln2);
+}
+.btn-ghost:hover { background:var(--bg4); border-color:var(--ln3); }
+
+/* ── PILL BADGE ── */
+.pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px; border:1px solid;
+  font-family:var(--mono); font-size:9px; letter-spacing:.5px;
+}
+.pill-teal  { color:var(--teal);   border-color:var(--teal-bdr);  background:var(--teal-dim); }
+.pill-green { color:var(--green);  border-color:rgba(54,217,154,0.25); background:var(--green-d); }
+.pill-amber { color:var(--amber);  border-color:rgba(245,165,36,0.25); background:var(--amber-d); }
+.pill-blue  { color:var(--blue);   border-color:rgba(77,163,255,0.25);  background:var(--blue-d); }
+.pill-purple{ color:var(--purple); border-color:rgba(155,127,255,0.25); background:var(--purple-d); }
+.pill-red   { color:var(--red);    border-color:rgba(255,69,96,0.25);   background:var(--red-d); }
+
+/* ── METRIC BAR ── */
+.metric-row { margin-bottom:9px; }
+.metric-bar-track {
+  height:3px; background:var(--bg5);
+  border-radius:2px; overflow:hidden; margin-top:4px;
+}
+.metric-bar-fill { height:100%; border-radius:2px; transition:width 1s ease; }
+
+/* ── LDOT (Live indicator) ── */
+.ldot {
+  width:5px; height:5px; border-radius:50%;
+  background:var(--teal);
+  animation:blink 1.5s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50%      { opacity:0.2; }
+}
+
+/* ── SEGMENT BAR ── */
+.seg-wrap { display:flex; gap:3px; }
+.seg { flex:1; height:3px; border-radius:2px; background:var(--bg5); }
+.seg.on  { background:var(--teal); }
+.seg.dim { background:rgba(0,224,181,0.22); }
+
+/* ── SCORE RING ── */
+.ring-container { display:flex; justify-content:center; padding:16px 0 8px; }
+.ring-svg { overflow:visible; }
+
+/* ── XP RING ── */
+.xp-track { height:3px; background:var(--bg5); border-radius:2px; overflow:hidden; margin-top:5px; }
+.xp-fill  { height:100%; width:67%; background:linear-gradient(90deg,var(--teal),var(--green)); border-radius:2px; }
+
+/* ── DROP ZONE ── */
+.drop-zone {
+  border:1.5px dashed var(--ln2); border-radius:var(--r14);
+  padding:22px; text-align:center; cursor:pointer;
+  transition:border-color 0.15s;
+}
+.drop-zone:hover { border-color:var(--teal); }
+
+/* ── CHAT INPUT ── */
+.chat-row {
+  display:flex; gap:8px;
+  padding:10px 16px;
+  border-top:1px solid var(--ln1);
+}
+.chat-input {
+  flex:1;
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r10);
+  padding:9px 12px; font-family:var(--body); font-size:12px; color:var(--tx1);
+  outline:none; transition:border-color 0.15s;
+}
+.chat-input::placeholder { color:var(--tx3); }
+.chat-input:focus { border-color:var(--teal); }
+.chat-send {
+  background:var(--teal); color:var(--bg0); border:none;
+  border-radius:var(--r10); padding:9px 16px;
+  font-family:var(--body); font-size:16px; cursor:pointer;
+  transition:background 0.15s;
+}
+.chat-send:hover { background:var(--teal2); }
+
+/* ── CHIP (prompt chips) ── */
+.chip {
+  display:inline-block; padding:5px 11px;
+  background:var(--bg2); border:1px solid var(--ln2); border-radius:20px;
+  font-size:10px; color:var(--teal); cursor:pointer;
+  transition:all 0.15s; white-space:nowrap;
+}
+.chip:hover { border-color:var(--teal); background:var(--teal-dim); }
+
+/* ── TIER CARDS (page 1) ── */
+.tier-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.tier-card {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  height:88px; cursor:pointer; transition:all 0.15s;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding-top:0; position:relative; overflow:hidden;
+}
+.tier-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:2px; background:transparent; transition:background 0.15s;
+}
+.tier-card:hover { border-color:var(--ln2); transform:translateY(-1px); }
+.tier-card:hover::before { background:var(--teal); }
+.tier-card.active { border-color:var(--teal-bdr); background:var(--teal-dim); }
+.tier-card.active::before { background:var(--teal); }
+.tier-name {
+  font-family:var(--disp); font-size:9.5px; font-weight:600;
+  color:var(--tx2); text-align:center; padding:0 4px; transition:color 0.15s;
+}
+.tier-card.active .tier-name,
+.tier-card:hover .tier-name { color:var(--teal); }
+.tier-icon { font-size:20px; margin-top:6px; opacity:0.5; transition:opacity 0.15s; }
+.tier-card.active .tier-icon { opacity:1; }
+
+/* ── BESPOKE STRIP ── */
+.bespoke-strip {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r10); overflow:hidden;
+}
+.bespoke-item {
+  padding:11px 4px; text-align:center;
+  font-family:var(--body); font-size:12px; font-weight:500; color:var(--tx2);
+  cursor:pointer; transition:all 0.15s; border-right:1px solid var(--ln1);
+}
+.bespoke-item:last-child { border-right:none; }
+.bespoke-item:hover { background:var(--bg3); color:var(--teal); }
+
+/* ── BIG CARDS ── */
+.big-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.big-card {
+  border-radius:var(--r10); height:56px; padding:0 14px;
+  cursor:pointer; transition:transform 0.15s;
+  display:flex; align-items:center; justify-content:space-between;
+  position:relative; overflow:hidden;
+}
+.big-card:hover { transform:scale(1.018); }
+.big-card::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+}
+.big-training {
+  background:linear-gradient(135deg,#0D1E0E 0%,#091209 100%);
+  border:1px solid rgba(54,217,154,0.18);
+}
+.big-training::after { background:linear-gradient(90deg,transparent,rgba(54,217,154,0.35),transparent); }
+.big-nutrition {
+  background:linear-gradient(135deg,#1E160A 0%,#0F0A04 100%);
+  border:1px solid rgba(245,165,36,0.18);
+}
+.big-nutrition::after { background:linear-gradient(90deg,transparent,rgba(245,165,36,0.35),transparent); }
+.bc-name { font-family:var(--disp); font-size:14px; font-weight:700; letter-spacing:-.2px; line-height:1; }
+.bc-sub  { font-size:9px; color:var(--tx3); margin-top:1px; }
+
+/* ── MBS TABS ── */
+.mbs-tabs {
+  display:flex; background:var(--bg3);
+  padding:3px; border-radius:var(--r10); margin-bottom:8px;
+}
+.mbs-tab {
+  flex:1; padding:6px 0; border-radius:7px; text-align:center;
+  font-family:var(--body); font-size:12px; font-weight:500; color:var(--tx3);
+  cursor:pointer; transition:all 0.15s; border:none; background:none;
+}
+.mbs-tab.on { background:var(--teal); color:var(--bg0); font-weight:700; }
+.mbs-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.mc {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:11px; cursor:pointer; transition:border-color 0.15s;
+}
+.mc:hover { border-color:var(--ln2); }
+.mc-icon { font-size:17px; margin-bottom:5px; }
+.mc-name { font-size:12px; font-weight:700; color:var(--tx1); margin-bottom:2px; line-height:1.2; }
+.mc-sub  { font-size:10px; color:var(--tx3); line-height:1.3; }
+
+/* ── COMMUNITY CARD ── */
+.community-card {
+  background:
+    radial-gradient(ellipse 160px 100px at 88% 25%, rgba(77,163,255,0.07) 0%, transparent 55%),
+    var(--bg2);
+  border:1px solid rgba(77,163,255,0.16);
+  border-radius:var(--r18);
+  padding:14px 15px;
+  cursor:pointer;
+  transition:transform 0.15s;
+  position:relative; overflow:hidden;
+}
+.community-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(77,163,255,0.25),transparent);
+}
+.community-card:hover { transform:scale(1.01); }
+.av-stack { display:flex; align-items:center; margin-top:9px; }
+.av {
+  width:25px; height:25px; border-radius:50%; background:var(--bg3);
+  border:2px solid var(--bg1); display:flex; align-items:center;
+  justify-content:center; font-size:12px; margin-left:-5px;
+}
+.av:first-child { margin-left:0; }
+
+/* ── FIX YOUR FORM CARD ── */
+.fcard {
+  background:
+    radial-gradient(ellipse 100px 70px at 95% 10%, rgba(0,224,181,0.09) 0%, transparent 55%),
+    var(--bg2);
+  border-color:var(--teal-bdr) !important;
+}
+.fcard::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,224,181,0.3),transparent);
+}
+
+/* ── GOAL BAR ── */
+.goal-bar { height:3px; background:var(--bg5); border-radius:2px; margin-top:6px; overflow:hidden; }
+.goal-fill { height:100%; width:74%; background:linear-gradient(90deg,var(--teal2),var(--green)); border-radius:2px; }
+
+/* ── ROW 2 (Dashboard) ── */
+.row2 {
+  margin:10px 16px 0;
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:12px 13px; display:flex; align-items:center; gap:10px;
+}
+.av-ring { flex-shrink:0; }
+.drop { width:5px; height:7px; border-radius:50% 50% 50% 50%/60% 60% 40% 40%; background:var(--bg5); }
+.drop.on { background:var(--blue); }
+
+/* ── SCOREBOARD ── */
+.row3 {
+  margin:10px 16px 0;
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:13px 14px; position:relative; overflow:hidden;
+}
+.row3::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,224,181,0.25),transparent);
+}
+.sb-nums { display:flex; margin-bottom:10px; }
+.sb-i { flex:1; border-right:1px solid var(--ln1); padding-right:12px; margin-right:12px; }
+.sb-i:last-child { border:none; padding:0; margin:0; }
+.sb-val { font-family:var(--disp); font-size:20px; font-weight:700; letter-spacing:-.5px; color:var(--teal); line-height:1; }
+.sb-unit { font-family:var(--mono); font-size:9px; color:var(--tx3); margin-top:2px; }
+
+/* ── TIP CARD ── */
+.tip-card {
+  margin:10px 16px 0;
+  background:rgba(0,224,181,0.04); border:1px solid rgba(0,224,181,0.12);
+  border-radius:var(--r14); padding:11px 13px;
+  display:flex; gap:10px; align-items:flex-start;
+}
+
+/* ── 3-COL STAT GRID ── */
+.row5 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:10px 16px 0; }
+.sc {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:11px 10px; cursor:pointer; transition:border-color 0.15s; position:relative; overflow:hidden;
+}
+.sc:hover { border-color:var(--ln2); }
+.sc-ic  { font-size:15px; margin-bottom:5px; }
+.sc-val { font-family:var(--disp); font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--teal); line-height:1; }
+.sc-lbl { font-size:10px; color:var(--tx3); margin-top:3px; line-height:1.3; }
+.sc-sub { font-family:var(--mono); font-size:8px; color:var(--tx3); letter-spacing:.5px; margin-top:4px; }
+.fcard-title { font-family:var(--disp); font-size:13px; font-weight:700; letter-spacing:-.2px; color:var(--tx1); line-height:1.1; margin-bottom:4px; }
+.fcard-actions { display:flex; flex-direction:column; gap:4px; }
+.fa {
+  width:100%; padding:5px 0; border-radius:var(--r6); border:1px solid var(--ln2);
+  background:var(--bg3); color:var(--tx2); font-family:var(--body); font-size:10px;
+  font-weight:500; text-align:center; cursor:pointer; transition:all 0.15s;
+}
+.fa:hover { border-color:var(--ln3); color:var(--tx1); }
+.fa.primary { background:var(--teal); border-color:var(--teal); color:var(--bg0); font-weight:700; }
+.fa.primary:hover { background:var(--teal2); }
+
+/* ── ANALYSIS LEVEL LADDER ── */
+.level-ladder { display:flex; height:4px; border-radius:2px; overflow:hidden; margin:8px 0 6px; }
+
+/* ── FOOTER ── */
+.footer-links {
+  display:flex; align-items:center; justify-content:center;
+  flex-wrap:nowrap; overflow:hidden; gap:0; padding:2px 0;
+}
+.fl { font-size:9.5px; color:var(--tx3); cursor:pointer; padding:2px 3px; transition:color .15s; white-space:nowrap; }
+.fl:hover { color:var(--tx1); }
+.fsep { font-size:9.5px; color:var(--tx3); padding:2px 1px; }
+
+/* ── PAGE SCROLL ── */
+.page-scroll { overflow-y:auto; max-height:calc(100vh - 80px); padding-bottom:8px; }
+.page-scroll::-webkit-scrollbar { display:none; }
+
+/* ── ANIMATIONS ── */
+.a0 { animation:up 0.38s 0.00s both; }
+.a1 { animation:up 0.38s 0.06s both; }
+.a2 { animation:up 0.38s 0.11s both; }
+.a3 { animation:up 0.38s 0.16s both; }
+.a4 { animation:up 0.38s 0.21s both; }
+.a5 { animation:up 0.38s 0.26s both; }
+.a6 { animation:up 0.38s 0.31s both; }
+@keyframes up {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── PROGRESS RING (Readiness) ── */
+@keyframes ringFill {
+  from { stroke-dashoffset: 314; }
+}
+.ring-fill { animation:ringFill 1.2s cubic-bezier(.2,0,.2,1) .3s both; }
+
+/* ── SCORE COUNT UP ── */
+.count-up { animation:countUp 0.8s ease-out both; }
+@keyframes countUp { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
+
+/* ── SLIDER ── */
+input[type=range] {
+  -webkit-appearance:none; appearance:none;
+  height:3px; background:var(--bg5); border-radius:2px; outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+  background:var(--teal); cursor:pointer; transition:transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.2); }
+
+/* ── SECTION HEADER ── */
+.section { padding:16px 20px 0; }
+
+/* ── PAGE 1 specific ── */
+.hero { padding:18px 20px 0; text-align:center; }
+.hero-tag { font-family:var(--mono); font-size:9px; color:var(--teal); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.hero-title { font-family:var(--disp); font-size:32px; font-weight:700; letter-spacing:-.5px; line-height:1.05; color:var(--tx1); }
+.hero-title .accent { color:var(--teal); }
+.hero-row { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.demo-chip {
+  display:flex; align-items:center; gap:6px; height:30px; padding:0 12px;
+  border:1px solid var(--ln2); border-radius:var(--r6); background:var(--bg2);
+  font-family:var(--body); font-size:12px; font-weight:500; color:var(--tx1); cursor:pointer; transition:all .15s;
+}
+.demo-chip:hover { border-color:var(--teal); color:var(--teal); }
+.hero-sep  { color:var(--tx3); font-size:11px; }
+.hero-link { font-size:12px; color:var(--tx2); cursor:pointer; transition:color .15s; }
+.hero-link:hover { color:var(--teal); }
+.analysis-sub { font-family:var(--mono); font-size:9px; color:var(--tx3); letter-spacing:1.5px; text-transform:uppercase; margin-top:7px; }
+
+/* ── TOPBAR (page 1) ── */
+.topbar { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:20px 20px 0; }
+.logo { font-family:var(--disp); font-size:46px; font-weight:700; letter-spacing:-2px; line-height:.95; color:var(--tx1); }
+.logo .teal { color:var(--teal); }
+.tagline { font-size:11.5px; color:var(--tx2); line-height:1.55; margin-top:8px; max-width:210px; }
+.tagline .headline { display:block; font-family:var(--disp); font-size:13px; font-weight:700; color:var(--tx1); letter-spacing:-.2px; line-height:1.3; margin-bottom:3px; }
+.tagline .headline .dot { color:var(--teal); }
+.tagline .spec { display:block; font-family:var(--mono); font-size:9px; color:var(--tx3); letter-spacing:1.2px; text-transform:uppercase; margin-top:2px; }
+.try-btn {
+  flex-shrink:0; margin-top:8px; height:32px; padding:0 13px;
+  border:1.5px solid var(--ln3); border-radius:var(--r6);
+  background:transparent; color:var(--tx1); font-family:var(--disp);
+  font-size:10px; font-weight:600; letter-spacing:.3px; cursor:pointer; white-space:nowrap;
+  transition:all .15s; display:flex; align-items:center;
+}
+.try-btn:hover { background:var(--teal); border-color:var(--teal); color:var(--bg0); }
+.divider { height:1px; background:var(--ln1); margin:18px 20px 0; }
+
+/* ── FOOTER (page 1) ── */
+.footer { padding:16px 20px 0; border-top:1px solid var(--ln1); margin-top:20px; }
+.help-btn {
+  width:22px; height:22px; border-radius:50%; border:1px solid var(--ln2);
+  background:var(--bg3); display:flex; align-items:center; justify-content:center;
+  font-family:var(--disp); font-size:11px; font-weight:700; color:var(--tx3); cursor:pointer;
+}
+
+/* ── COACH MESSAGES ── */
+.msg { margin-bottom:10px; }
+.msg-ai {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  border-bottom-left-radius:4px; padding:10px 13px; font-size:12px; color:var(--tx2); line-height:1.6;
+}
+.msg-user {
+  background:var(--teal-dim); border:1px solid var(--teal-bdr); border-radius:var(--r14);
+  border-bottom-right-radius:4px; padding:10px 13px; font-size:12px; color:var(--tx1); line-height:1.6;
+  margin-left:40px;
+}
+.msg-label { font-family:var(--mono); font-size:9px; color:var(--tx3); margin-bottom:4px; letter-spacing:.5px; }
+
+/* ── MOVEMENT GRID (Form check) ── */
+.mov-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.mov-item {
+  padding:8px 10px; border-radius:var(--r10);
+  border:1px solid var(--ln1); background:var(--bg3);
+  font-size:11px; color:var(--tx2); cursor:pointer; transition:all .15s;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.mov-item.on { border-color:var(--teal); background:var(--teal-dim); color:var(--teal); font-weight:700; }
+.mov-item:hover:not(.on) { border-color:var(--ln2); color:var(--tx1); }
+.mov-score { font-family:var(--mono); font-size:10px; color:var(--teal); }
+
+/* ── SPORT GRID ── */
+.sport-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.sport-item {
+  padding:7px 4px; text-align:center; border-radius:var(--r10);
+  border:1px solid var(--ln1); background:var(--bg3);
+  font-size:10px; color:var(--tx2); cursor:pointer; transition:all .15s;
+}
+.sport-item.on { border-color:var(--teal); background:var(--teal-dim); color:var(--teal); font-weight:700; }
+.sport-item:hover:not(.on) { border-color:var(--ln2); color:var(--tx1); }
+
+/* ── HISTORY ── */
+.hist-card {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:12px 14px; margin-bottom:8px; cursor:pointer; transition:border-color .15s;
+}
+.hist-card:hover { border-color:var(--ln2); }
+.hist-score { font-family:var(--disp); font-size:22px; font-weight:700; line-height:1; }
+
+/* ── PROGRESS SECTION ── */
+.mini-chart {
+  display:flex; align-items:flex-end; gap:3px;
+  height:48px; padding:0 2px;
+}
+.bar-col { flex:1; border-radius:3px 3px 0 0; background:var(--bg4); transition:height .3s; }
+.bar-col.hi { background:var(--teal); }
+.bar-col.med { background:var(--teal2); opacity:.6; }
+
+/* ── STAT MINI GRID ── */
+.mini-stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.mini-stat {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:11px 12px;
+}
+.mini-stat-val { font-family:var(--disp); font-size:20px; font-weight:700; letter-spacing:-.5px; line-height:1; }
+.mini-stat-lbl { font-size:10px; color:var(--tx3); margin-top:3px; }
+
+/* ── READINESS FACTOR CARDS ── */
+.factor-card {
+  background:var(--bg2); border:1px solid var(--ln1); border-radius:var(--r14);
+  padding:10px 13px; cursor:pointer; transition:border-color .15s;
+}
+.factor-card:hover { border-color:var(--ln2); }
+.factor-card.teal  { border-color:rgba(0,224,181,.3); }
+.factor-card.green { border-color:rgba(54,217,154,.3); }
+.factor-card.amber { border-color:rgba(245,165,36,.3); }
+.factor-card.red   { border-color:rgba(255,69,96,.3); }
+
+/* ── NOTIFICATION DOT ── */
+.notif-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--red);
+  position:absolute; top:2px; right:2px;
+}
+
+/* ── PAGE 2 ROW 1 ── */
+.row1 { display:flex; align-items:flex-start; justify-content:space-between; padding:18px 16px 0; }
+.app-logo { font-family:var(--disp); font-size:17px; font-weight:700; letter-spacing:-.5px; color:var(--tx1); margin-bottom:4px; }
+.app-logo span { color:var(--teal); }
+.welcome-name { font-family:var(--disp); font-size:18px; font-weight:700; letter-spacing:-.3px; color:var(--tx1); line-height:1.1; }
+.welcome-sub  { font-family:var(--mono); font-size:9px; color:var(--tx3); letter-spacing:1px; margin-top:2px; }
+.streak-badge {
+  display:flex; align-items:center; gap:5px; padding:5px 10px;
+  background:var(--amber-d); border:1px solid rgba(245,165,36,.22); border-radius:var(--r6);
+}
+.streak-n   { font-family:var(--disp); font-size:16px; font-weight:700; color:var(--amber); line-height:1; }
+.streak-lbl { font-family:var(--mono); font-size:8px; color:var(--amber); opacity:.7; letter-spacing:.5px; }
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="phone" id="app">
+  <div class="notch"></div>
+  <div class="screens">
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: PAGE 1 — LANDING
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen active" id="screen-landing">
+      <div class="page-scroll">
+        <div class="topbar a0">
+          <div>
+            <div class="logo"><span class="teal">F</span>ormm</div>
+            <div class="tagline">
+              <span class="headline">Train Smarter<span class="dot">.</span> Recover Better<span class="dot">.</span></span>
+              <span class="spec">Sports Science Specialists</span>
+            </div>
+          </div>
+          <button class="try-btn" onclick="goScreen('dashboard')">Try Formm</button>
+        </div>
+        <div class="divider a1"></div>
+        <div class="hero a1">
+          <div class="hero-tag">Movement Intelligence</div>
+          <div class="hero-title">Fix Your <span class="accent">Form</span></div>
+          <div class="hero-row">
+            <div class="demo-chip" onclick="goScreen('formcheck')"><span class="ldot"></span> Demo</div>
+            <span class="hero-sep">—</span>
+            <span class="hero-link">Stats</span>
+            <span class="hero-sep">·</span>
+            <span class="hero-link">Did you know?</span>
+          </div>
+          <div class="analysis-sub" onclick="goScreen('formcheck')">Analysis form</div>
+        </div>
+        <div class="section a2">
+          <div class="tier-grid" id="tier-grid">
+            <div class="tier-card" data-tier="ATHLETE" onclick="selectTier(this)">
+              <div class="tier-name">Athlete</div>
+              <div class="tier-icon">🏅</div>
+            </div>
+            <div class="tier-card active" data-tier="AMATEUR" onclick="selectTier(this)">
+              <div class="tier-name">Amateur Athlete</div>
+              <div class="tier-icon">🎽</div>
+            </div>
+            <div class="tier-card" data-tier="PROFESSIONAL" onclick="selectTier(this)">
+              <div class="tier-name">Professional</div>
+              <div class="tier-icon">🏆</div>
+            </div>
+          </div>
+        </div>
+        <div class="section a3">
+          <div class="eb mb8" style="text-align:center">Bespoke</div>
+          <div class="bespoke-strip">
+            <div class="bespoke-item" onclick="goScreen('dashboard')">Programs</div>
+            <div class="bespoke-item" onclick="goScreen('coach')">Coaching</div>
+            <div class="bespoke-item" onclick="goScreen('progress')">Tracking</div>
+          </div>
+        </div>
+        <div class="section a4">
+          <div class="big-grid">
+            <div class="big-card big-training" onclick="goScreen('dashboard')">
+              <div class="col">
+                <div class="bc-name" style="color:var(--green)">Training</div>
+                <div class="bc-sub">Bespoke programmes</div>
+              </div>
+              <div style="font-size:18px;opacity:.6">🏋️</div>
+            </div>
+            <div class="big-card big-nutrition" onclick="goScreen('dashboard')">
+              <div class="col">
+                <div class="bc-name" style="color:var(--amber)">Nutrition</div>
+                <div class="bc-sub">Fuel your goals</div>
+              </div>
+              <div style="font-size:18px;opacity:.6">🥗</div>
+            </div>
+          </div>
+        </div>
+        <div class="footer a5">
+          <div class="footer-links">
+            <span class="fl">About Us</span><span class="fsep">|</span>
+            <span class="fl">Company</span><span class="fsep">|</span>
+            <span class="fl">Legal</span><span class="fsep">|</span>
+            <span class="fl">Contact</span><span class="fsep">|</span>
+            <span class="fl">FAQ</span><span class="fsep">|</span>
+            <span class="fl">Terms</span><span class="fsep">|</span>
+            <span class="fl">Privacy</span>
+          </div>
+          <div class="row mt10" style="justify-content:flex-end;padding-bottom:16px">
+            <div class="help-btn">?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: DASHBOARD (Page 2)
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-dashboard">
+      <div class="page-scroll">
+        <div class="row1 a0">
+          <div>
+            <div class="app-logo"><span>F</span>ormm</div>
+            <div class="welcome-name">Welcome Back, Samrat</div>
+            <div class="welcome-sub">Monday · Training Day</div>
+          </div>
+          <div class="streak-badge">
+            <span style="font-size:14px">🔥</span>
+            <span class="streak-n">14</span>
+            <span class="streak-lbl">Day Streak</span>
+          </div>
+        </div>
+
+        <!-- Row 2: Avatar / Rank / XP + Hours + Water -->
+        <div class="row2 a1">
+          <div class="av-ring">
+            <svg width="54" height="54" viewBox="0 0 54 54">
+              <circle cx="27" cy="27" r="22" fill="var(--bg3)" stroke="var(--bg5)" stroke-width="3"/>
+              <circle cx="27" cy="27" r="22" fill="none"
+                stroke="url(#xpGrad)" stroke-width="3" stroke-linecap="round"
+                stroke-dasharray="138.2" stroke-dashoffset="45.6"
+                transform="rotate(-90 27 27)" class="ring-fill"/>
+              <defs>
+                <linearGradient id="xpGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="var(--teal)"/>
+                  <stop offset="100%" stop-color="var(--green)"/>
+                </linearGradient>
+              </defs>
+              <text x="27" y="30" text-anchor="middle" font-size="18" fill="var(--tx1)">🧑‍🏋️</text>
+            </svg>
+          </div>
+          <div class="col" style="flex:1;gap:3px">
+            <div class="row" style="margin-bottom:2px">
+              <span class="mono" style="font-size:10px;color:var(--amber);font-weight:500">🥈 Silver · Rank #142</span>
+            </div>
+            <div class="mono" style="font-size:9px;color:var(--tx3)">XP 6,720 / 10,000 → Gold</div>
+            <div class="xp-track"><div class="xp-fill"></div></div>
+          </div>
+          <div class="col" style="align-items:flex-end;gap:6px">
+            <div class="row gap6">
+              <span class="mono" style="font-size:14px;font-weight:500;color:var(--teal)">4.2h</span>
+              <span class="mono" style="font-size:8px;color:var(--tx3)">/wk</span>
+            </div>
+            <div class="row gap6" style="align-items:center">
+              <span style="font-size:11px">💧</span>
+              <div style="display:flex;gap:2px;align-items:center">
+                <div class="drop on"></div><div class="drop on"></div><div class="drop on"></div>
+                <div class="drop on"></div><div class="drop on"></div>
+                <div class="drop"></div><div class="drop"></div><div class="drop"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Scoreboard -->
+        <div class="row3 a2">
+          <div class="row mb8">
+            <span class="eb">Running Meter Board</span>
+            <span class="pill pill-teal" style="font-size:8px;padding:2px 7px">Analog</span>
+          </div>
+          <div class="sb-nums">
+            <div class="sb-i" onclick="goScreen('progress')">
+              <div class="sb-val">124</div>
+              <div class="sb-unit">KM / Month</div>
+            </div>
+            <div class="sb-i" onclick="goScreen('progress')">
+              <div class="sb-val">38</div>
+              <div class="sb-unit">Sessions</div>
+            </div>
+            <div class="sb-i" onclick="goScreen('scout')">
+              <div class="sb-val" style="color:var(--purple)">72</div>
+              <div class="sb-unit">Formm Score</div>
+            </div>
+          </div>
+          <div class="seg-wrap" id="segs"></div>
+        </div>
+
+        <!-- Row 4: Tip of the Day -->
+        <div class="tip-card a3">
+          <span style="font-size:15px;flex-shrink:0;margin-top:1px">💡</span>
+          <div>
+            <div class="eb teal mb4">Tip Of The Day</div>
+            <div style="font-size:12px;color:var(--tx2);line-height:1.55">Knee valgus improved 12% this week. Keep cueing "knees out" during descent. Clamshells 3×15 daily to maintain.</div>
+          </div>
+        </div>
+
+        <!-- Row 5+6: 3-col grid -->
+        <div class="row5 a4">
+          <div class="sc" onclick="goScreen('progress')">
+            <div class="sc-ic">✅</div>
+            <div class="sc-val">28</div>
+            <div class="sc-lbl">Completed Workouts</div>
+          </div>
+          <div class="sc" onclick="goScreen('progress')">
+            <div class="sc-ic">🎯</div>
+            <div class="sc-val">74%</div>
+            <div class="sc-lbl">Goal Tracking</div>
+            <div class="goal-bar"><div class="goal-fill"></div></div>
+            <div class="sc-sub">Are we there yet?</div>
+          </div>
+          <div class="sc fcard" onclick="goScreen('formcheck')">
+            <div class="live-pill mb4">
+              <span class="ldot"></span>
+              <span class="mono" style="font-size:8px;letter-spacing:1px;color:var(--teal)">LIVE</span>
+            </div>
+            <div class="fcard-title">Fix Your Form</div>
+            <div class="fcard-actions">
+              <div class="fa primary" onclick="event.stopPropagation();goScreen('formcheck')">📹 Live</div>
+              <div class="fa" onclick="event.stopPropagation();goScreen('formcheck')">📁 Upload</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MBS Tabs -->
+        <div class="section a5" style="padding-bottom:10px">
+          <div class="eb mb8">Programmes</div>
+          <div class="mbs-tabs" id="mbs-tabs">
+            <button class="mbs-tab" onclick="setMbs('Mind',this)">Mind</button>
+            <button class="mbs-tab on" onclick="setMbs('Body',this)">Body</button>
+            <button class="mbs-tab" onclick="setMbs('Soul',this)">Soul</button>
+          </div>
+          <div class="mbs-grid" id="mbs-grid"></div>
+        </div>
+
+        <!-- Community -->
+        <div style="margin:0 16px 10px">
+          <div class="community-card a6" onclick="goScreen('progress')">
+            <div class="eb blue mb4">Find Your Tribe</div>
+            <div style="font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:-.3px;color:var(--tx1);margin-bottom:2px">Explore Community</div>
+            <div style="font-size:11px;color:var(--tx2)">Connect with athletes · Share progress · Join challenges</div>
+            <div class="av-stack mt8">
+              <div class="av">🏃</div><div class="av">💪</div><div class="av">🧘</div>
+              <div class="av">🏊</div><div class="av">⚽</div>
+              <span style="margin-left:8px;font-family:var(--mono);font-size:10px;color:var(--blue)">+2,841 members</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: FORM CHECK
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-formcheck">
+      <div class="page-scroll">
+        <div style="padding:18px 16px 0">
+          <div class="row mb14 a0">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--tx1)">Form Check</div>
+              <div class="eb mt4">TF.js · client-side · no upload</div>
+            </div>
+            <div class="pill pill-teal"><span class="ldot"></span> Live</div>
+          </div>
+
+          <div class="card a1 mb10">
+            <div class="eb mb8">Select sport</div>
+            <div class="sport-grid" id="sport-grid">
+              <div class="sport-item on" onclick="selectSport(this)">Gym / Lifting</div>
+              <div class="sport-item" onclick="selectSport(this)">Cricket</div>
+              <div class="sport-item" onclick="selectSport(this)">Running</div>
+              <div class="sport-item" onclick="selectSport(this)">Football</div>
+              <div class="sport-item" onclick="selectSport(this)">Badminton</div>
+              <div class="sport-item" onclick="selectSport(this)">Other</div>
+            </div>
+          </div>
+
+          <div class="card a2 mb10">
+            <div class="eb mb8">Select movement</div>
+            <div class="mov-grid">
+              <div class="mov-item on" onclick="selectMov(this)">
+                <span>Squat</span><span class="mov-score">84</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>Deadlift</span><span class="mov-score">76</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>Push-up</span><span class="mov-score">81</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>Pull-up</span><span style="font-size:10px;color:var(--tx3)">—</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>RDL</span><span style="font-size:10px;color:var(--tx3)">—</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>Plank</span><span style="font-size:10px;color:var(--tx3)">—</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>Military press</span>
+              </div>
+              <div class="mov-item" onclick="selectMov(this)">
+                <span>Olympic lifts</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="drop-zone a3 mb10" onclick="goScreen('result')">
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:8px">Upload your movement video</div>
+            <div style="font-size:28px;margin-bottom:6px">📹</div>
+            <div style="font-size:10px;color:var(--tx3)">10–30 seconds · from your camera roll</div>
+          </div>
+
+          <div class="card-amber a4 mb12">
+            <div class="eb amber mb6">Shooting tips</div>
+            <div style="font-size:11px;color:var(--tx2);line-height:1.6">
+              Film from the side · Full body in frame · 2–4 reps · Good lighting · Wear fitted clothing
+            </div>
+          </div>
+
+          <button class="btn btn-primary mb8" onclick="goScreen('result')">Analyse My Form →</button>
+          <div style="text-align:center;font-size:11px;color:var(--tx3);padding-bottom:4px;cursor:pointer">History</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: ANALYSIS RESULT (NEW SCREEN)
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-result">
+      <div class="page-scroll">
+      <div class="back-bar a0">
+        <div class="back-btn" onclick="goScreen('formcheck')">
+          <span class="back-btn-arrow">‹</span>
+          <span>Back</span>
+        </div>
+        <div>
+          <div class="back-title">Analysis result</div>
+          <div class="back-subtitle">Gym · Squat · Apr 22 2026</div>
+        </div>
+      </div>
+        <div style="padding:12px 16px 0">
+          <div class="eb mb12">Gym · Squat · Apr 22 2026</div>
+
+          <div class="card-teal a1" style="text-align:center;margin-bottom:14px">
+            <div class="eb teal mb10">Your analysis is ready</div>
+            <div class="count-up disp" style="font-size:60px;font-weight:700;color:var(--teal);line-height:1">84</div>
+            <div style="font-size:13px;color:var(--tx2)">/100</div>
+            <div style="font-size:13px;font-weight:700;color:var(--tx1);margin-top:10px">Strong — a few things to sharpen.</div>
+            <div style="font-size:11px;color:var(--green);margin-top:4px">↑ 12% vs your first squat analysis</div>
+          </div>
+
+          <div class="card a2 mb10">
+            <div class="eb mb10">Metrics</div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Form accuracy</span><span style="font-size:11px;font-weight:500;color:var(--green)">88</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:88%;background:var(--green)"></div></div>
+            </div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Range of motion</span><span style="font-size:11px;font-weight:500;color:var(--amber)">71</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:71%;background:var(--amber)"></div></div>
+            </div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Stability</span><span style="font-size:11px;font-weight:500;color:var(--green)">90</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:90%;background:var(--green)"></div></div>
+            </div>
+            <div class="metric-row" style="margin-bottom:0">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Symmetry</span><span style="font-size:11px;font-weight:500;color:var(--green)">86</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:86%;background:var(--green)"></div></div>
+            </div>
+          </div>
+
+          <div class="card-amber a3 mb12">
+            <div class="eb amber mb10">What to work on</div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:12px;font-weight:700;color:var(--tx1);margin-bottom:4px">↓ Depth — slightly above parallel</div>
+              <div style="font-size:11px;color:var(--tx2);line-height:1.55">Fix: ankle mobility before squatting. 10 ankle circles per side, then re-attempt depth.</div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--tx1);margin-bottom:4px">↑ Hip hinge — torso slightly forward</div>
+              <div style="font-size:11px;color:var(--tx2);line-height:1.55">Fix: push hips back first, not sit down. Box squat drill reinforces the pattern.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-primary" onclick="goScreen('coach')">Ask coach about this →</button>
+            <button class="btn btn-ghost" onclick="goScreen('scout')">View Formm Score impact</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: READINESS
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-readiness">
+      <div class="page-scroll">
+      <div class="back-bar a0">
+        <div class="back-btn" onclick="goScreen('dashboard')">
+          <span class="back-btn-arrow">‹</span>
+          <span>Back</span>
+        </div>
+        <div>
+          <div class="back-title">Readiness</div>
+          <div class="back-subtitle">HRV · wellness · training load</div>
+        </div>
+      </div>
+        <div style="padding:12px 16px 0">
+          <div class="row mb14">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--tx1)">Readiness</div>
+              <div class="eb mt4">Monday · Apr 22</div>
+            </div>
+            <span class="pill pill-green" id="zone-pill">Train hard today</span>
+          </div>
+
+          <!-- Score ring -->
+          <div class="ring-container a1">
+            <div style="position:relative;text-align:center">
+              <svg class="ring-svg" width="130" height="130" viewBox="0 0 130 130">
+                <circle cx="65" cy="65" r="52" fill="none" stroke="var(--bg3)" stroke-width="6"/>
+                <circle id="readiness-ring" cx="65" cy="65" r="52" fill="none"
+                  stroke="var(--teal)" stroke-width="6" stroke-linecap="round"
+                  stroke-dasharray="326.7"
+                  stroke-dashoffset="71.9"
+                  transform="rotate(-90 65 65)" class="ring-fill"/>
+              </svg>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-52%)">
+                <div class="disp count-up" style="font-size:30px;font-weight:700;color:var(--teal);line-height:1" id="readiness-score">7.8</div>
+                <div style="font-size:11px;color:var(--tx2)">/10</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--tx2);margin-bottom:14px" id="session-target">
+            Target: 380–450 AU · ~65 min · RPE 7/10
+          </div>
+
+          <!-- Factor cards -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px" class="a2">
+            <div class="factor-card teal row" onclick="this.style.borderColor='var(--ln2)'">
+              <div>
+                <div class="eb teal mb4">HRV</div>
+                <div style="font-size:12px;font-weight:700;color:var(--tx1)">↑ 8.2 above baseline</div>
+                <div style="font-size:10px;color:var(--tx2);margin-top:2px">Recovery signal strong</div>
+              </div>
+              <span style="font-size:18px;color:var(--teal)">›</span>
+            </div>
+            <div class="factor-card green row" onclick="this.style.borderColor='var(--ln2)'">
+              <div>
+                <div class="eb green mb4">Wellness</div>
+                <div style="font-size:12px;font-weight:700;color:var(--tx1)">7.6 · sleep + mood + soreness</div>
+                <div style="font-size:10px;color:var(--tx2);margin-top:2px">Subjective inputs good</div>
+              </div>
+              <span style="font-size:18px;color:var(--green)">›</span>
+            </div>
+            <div class="factor-card green row" onclick="this.style.borderColor='var(--ln2)'">
+              <div>
+                <div class="eb green mb4">Load factor</div>
+                <div style="font-size:12px;font-weight:700;color:var(--tx1)">ACWR 1.1 · sweet spot</div>
+                <div style="font-size:10px;color:var(--tx2);margin-top:2px">Training load optimal</div>
+              </div>
+              <span style="font-size:18px;color:var(--green)">›</span>
+            </div>
+          </div>
+
+          <!-- Check-in sliders -->
+          <div class="card a3 mb12">
+            <div class="eb mb10">This morning's check-in</div>
+            <div style="margin-bottom:10px">
+              <div class="row mb4">
+                <span style="font-size:11px;color:var(--tx2)">Sleep</span>
+                <span class="mono" style="font-size:11px;color:var(--teal)" id="sleep-val">7.5</span>
+              </div>
+              <input type="range" min="0" max="10" step="0.5" value="7.5" style="width:100%"
+                oninput="updateSlider(this,'sleep-val');recalcReadiness()">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="row mb4">
+                <span style="font-size:11px;color:var(--tx2)">Soreness</span>
+                <span class="mono" style="font-size:11px;color:var(--teal)" id="sore-val">6.0</span>
+              </div>
+              <input type="range" min="0" max="10" step="0.5" value="6" style="width:100%"
+                oninput="updateSlider(this,'sore-val');recalcReadiness()">
+            </div>
+            <div style="margin-bottom:12px">
+              <div class="row mb4">
+                <span style="font-size:11px;color:var(--tx2)">Mood</span>
+                <span class="mono" style="font-size:11px;color:var(--teal)" id="mood-val">8.0</span>
+              </div>
+              <input type="range" min="0" max="10" step="0.5" value="8" style="width:100%"
+                oninput="updateSlider(this,'mood-val');recalcReadiness()">
+            </div>
+            <button class="btn btn-primary" style="padding:9px;font-size:12px">Confirm check-in</button>
+          </div>
+
+          <div style="text-align:center;font-size:10px;color:var(--tx3);padding-bottom:6px">
+            Accuracy: Good · 6 weeks of data · improves over time
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: FORMM SCORE
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-scout">
+      <div class="page-scroll">
+      <div class="back-bar a0">
+        <div class="back-btn" onclick="goScreen('progress')">
+          <span class="back-btn-arrow">‹</span>
+          <span>Back</span>
+        </div>
+        <div>
+          <div class="back-title">Formm Score</div>
+          <div class="back-subtitle">Movement quality · peer-reviewed benchmarks</div>
+        </div>
+      </div>
+      <div class="explainer explainer-purple a1">
+        <div class="explainer-title">What is Formm Score?</div>
+        <div class="explainer-body">Your <strong>Formm Score</strong> is a 0–100 rating of your movement quality across all analysed exercises. It's calculated from five dimensions — form accuracy, range of motion, stability, symmetry, and improvement rate — benchmarked against peer-reviewed sports science research. The more exercises you analyse, the more accurate it becomes. <strong>Purple = Formm Score only</strong>. It never appears elsewhere in the app.</div>
+      </div>
+        <div style="padding:12px 16px 0">
+          <div class="row mb14">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--tx1)">Formm Score</div>
+              <div class="eb mt4">Updated today · 8 analyses</div>
+            </div>
+            <span class="pill pill-purple">Advanced</span>
+          </div>
+
+          <div style="text-align:center;margin-bottom:14px" class="a1">
+            <div class="count-up disp" style="font-size:64px;font-weight:700;color:var(--purple);line-height:1">72</div>
+            <div style="font-size:12px;color:var(--tx2);margin-top:6px">Top 29% · Gym / Lifting users</div>
+          </div>
+
+          <!-- Level ladder -->
+          <div class="card a2 mb10">
+            <div class="eb mb8">Level ladder</div>
+            <div style="display:flex;height:5px;border-radius:3px;overflow:hidden;margin-bottom:7px">
+              <div style="flex:40;background:var(--bg5)"></div>
+              <div style="flex:20;background:rgba(155,127,255,0.3)"></div>
+              <div style="flex:15;background:var(--purple);opacity:.85"></div>
+              <div style="flex:10;background:var(--bg5)"></div>
+              <div style="flex:15;background:var(--bg5)"></div>
+            </div>
+            <div class="row" style="font-family:var(--mono);font-size:9px;color:var(--tx3)">
+              <span>0 Rec.</span><span>40 Int.</span><span>60 Adv.</span><span>75 Col.</span><span>100 Elite</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:10px">
+              <span style="color:var(--purple);font-weight:700">3 pts to Collegiate</span> · Best: Stability (90)
+            </div>
+          </div>
+
+          <!-- Metrics -->
+          <div class="card a3 mb10">
+            <div class="eb mb10">Performance metrics</div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Form accuracy <span class="mono" style="font-size:9px;color:var(--tx3)">35%</span></span><span style="font-size:11px;font-weight:500;color:var(--green)">88</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:88%;background:var(--green)"></div></div>
+            </div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Range of motion <span class="mono" style="font-size:9px;color:var(--tx3)">20%</span></span><span style="font-size:11px;font-weight:500;color:var(--amber)">71</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:71%;background:var(--amber)"></div></div>
+            </div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Stability <span class="mono" style="font-size:9px;color:var(--tx3)">20%</span></span><span style="font-size:11px;font-weight:500;color:var(--green)">90</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:90%;background:var(--green)"></div></div>
+            </div>
+            <div class="metric-row">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Symmetry <span class="mono" style="font-size:9px;color:var(--tx3)">15%</span></span><span style="font-size:11px;font-weight:500;color:var(--green)">86</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:86%;background:var(--green)"></div></div>
+            </div>
+            <div class="metric-row" style="margin-bottom:0">
+              <div class="row"><span style="font-size:11px;color:var(--tx2)">Improvement rate <span class="mono" style="font-size:9px;color:var(--tx3)">10%</span></span><span style="font-size:11px;font-weight:500;color:var(--amber)">62</span></div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:62%;background:var(--amber)"></div></div>
+            </div>
+          </div>
+
+          <!-- Community percentile -->
+          <div class="card a4 mb10">
+            <div class="eb mb8">Community percentile · Gym / Lifting</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:10px">
+                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">Overall form</div>
+                <div class="disp" style="font-size:20px;font-weight:700;color:var(--purple)">Top 29%</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:10px">
+                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">Squat form</div>
+                <div class="disp" style="font-size:20px;font-weight:700;color:var(--green)">Top 18%</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:10px">
+                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">Range of motion</div>
+                <div class="disp" style="font-size:20px;font-weight:700;color:var(--amber)">Top 54%</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:10px">
+                <div style="font-size:10px;color:var(--tx3);margin-bottom:3px">Sport rank</div>
+                <div class="disp" style="font-size:20px;font-weight:700;color:var(--tx1)">#142</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Path -->
+          <div class="card-amber a5 mb12">
+            <div class="eb amber mb6">Path to Collegiate (75)</div>
+            <div style="font-size:12px;color:var(--tx2);line-height:1.55">Focus on Range of Motion — your lowest at 71. Ankle mobility + hip flexor stretching before each session. Improving this to 75 pushes your score to 75.</div>
+          </div>
+
+          <button class="btn btn-primary" onclick="goScreen('coach')">Ask coach how to improve →</button>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: COACH
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-coach">
+      <div style="display:flex;flex-direction:column">
+        <div class="page-scroll" style="flex:1">
+          <div class="back-bar a0" style="justify-content:space-between">
+            <div class="back-btn" onclick="goScreen('dashboard')">
+              <span class="back-btn-arrow">‹</span>
+              <span>Back</span>
+            </div>
+            <div class="back-title">Bespoke Coach</div>
+            <div style="font-size:11px;color:var(--teal);cursor:pointer;padding:6px 12px;background:var(--bg2);border:1px solid var(--ln2);border-radius:var(--r10)">+ New</div>
+          </div>
+          <div style="padding:12px 16px 0">
+
+            <!-- Context card -->
+            <div class="card a1 mb10">
+              <div class="eb teal mb8">Your data — coach has full context</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <div style="background:var(--bg3);border-radius:var(--r10);padding:8px 10px">
+                  <div style="font-size:9px;color:var(--tx3);margin-bottom:2px">Readiness</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--teal)">7.8 · Green</div>
+                </div>
+                <div style="background:var(--bg3);border-radius:var(--r10);padding:8px 10px">
+                  <div style="font-size:9px;color:var(--tx3);margin-bottom:2px">ACWR</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--green)">1.1 · optimal</div>
+                </div>
+                <div style="background:var(--bg3);border-radius:var(--r10);padding:8px 10px">
+                  <div style="font-size:9px;color:var(--tx3);margin-bottom:2px">Last form check</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--tx1)">Squat 84/100</div>
+                </div>
+                <div style="background:var(--bg3);border-radius:var(--r10);padding:8px 10px">
+                  <div style="font-size:9px;color:var(--tx3);margin-bottom:2px">Formm Score</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--purple)">72 · Advanced</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI message -->
+            <div class="msg a2">
+              <div class="msg-label">Coach</div>
+              <div class="msg-ai">Based on your data today, recovery looks strong and load is optimal — a good day to push. Your squat scored 84/100 on Monday. Range of motion is the main opportunity at 71 — it's your lowest dimension. Here's how to address it in today's session.</div>
+            </div>
+
+            <!-- Prompt chips -->
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" class="a3">
+              <div class="chip" onclick="sendCoachMsg('How do I improve range of motion?')">Improve range of motion</div>
+              <div class="chip" onclick="sendCoachMsg('What should I train today?')">Today\'s plan</div>
+              <div class="chip" onclick="sendCoachMsg('Explain my ACWR')">Explain my ACWR</div>
+              <div class="chip" onclick="sendCoachMsg('Plan this week\'s sessions')">Plan this week</div>
+            </div>
+
+            <!-- Chat history -->
+            <div id="chat-history">
+              <div style="font-family:var(--mono);font-size:9px;color:var(--tx3);text-align:center;margin-bottom:10px">Last week</div>
+              <div class="msg">
+                <div class="msg-label" style="text-align:right">You</div>
+                <div class="msg-user">How do I fix my squat depth?</div>
+              </div>
+              <div class="msg">
+                <div class="msg-label">Coach</div>
+                <div class="msg-ai">Your depth issue is most likely ankle dorsiflexion restriction. Before each squat session: 10 ankle circles per side, then a wall ankle stretch (knee over toes, heel flat) for 30 seconds per side. You should see improvement within 2–3 sessions.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- Chat input — sticks to bottom -->
+        <div class="chat-row">
+          <input class="chat-input" id="chat-input" placeholder="Ask your coach..." onkeydown="if(event.key==='Enter')sendCoachMsg()">
+          <button class="chat-send" onclick="sendCoachMsg()">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: PROGRESS
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-progress">
+      <div class="page-scroll">
+        <div style="padding:16px 16px 0">
+          <div class="row mb14 a0">
+            <div style="font-size:15px;font-weight:700;color:var(--tx1)">Progress</div>
+            <div class="pill pill-teal" style="cursor:pointer">+ Log workout</div>
+          </div>
+
+          <!-- Stat tiles -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px" class="a1">
+            <div class="mini-stat">
+              <div class="eb amber mb4">Streak</div>
+              <div class="mini-stat-val" style="color:var(--amber)">14 <span style="font-size:12px">days</span></div>
+              <div class="mini-stat-lbl">Best: 21 days</div>
+            </div>
+            <div class="mini-stat">
+              <div class="eb green mb4">ACWR</div>
+              <div class="mini-stat-val" style="color:var(--green)">1.1</div>
+              <div class="mini-stat-lbl" style="color:var(--green)">Optimal</div>
+            </div>
+            <div class="mini-stat" onclick="goScreen('scout')">
+              <div class="eb purple mb4">Formm Score</div>
+              <div class="mini-stat-val" style="color:var(--purple)">72</div>
+              <div class="mini-stat-lbl">Advanced · Top 29%</div>
+            </div>
+            <div class="mini-stat" onclick="goScreen('acwr')">
+              <div class="eb green mb4">ACWR</div>
+              <div class="mini-stat-val" style="color:var(--green)">1.1</div>
+              <div class="mini-stat-lbl" style="color:var(--green)">Optimal — tap for detail</div>
+            </div>
+          </div>
+
+          <!-- Form trend chart -->
+          <div class="card a2 mb10">
+            <div class="row mb8">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tx1)">Form score trends</div>
+                <div style="font-size:11px;color:var(--green);margin-top:2px">↑ +14% this month · Squat</div>
+              </div>
+              <div class="pill pill-teal" style="font-size:9px">8 months</div>
+            </div>
+            <!-- Mini chart bars -->
+            <div style="display:flex;align-items:flex-end;gap:3px;height:52px;margin-bottom:8px">
+              <div style="flex:1;border-radius:2px 2px 0 0;height:50%;background:var(--bg4)"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:54%;background:var(--bg4)"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:58%;background:var(--teal);opacity:.4"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:61%;background:var(--teal);opacity:.5"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:62%;background:var(--teal);opacity:.6"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:65%;background:var(--teal);opacity:.7"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:70%;background:var(--teal);opacity:.85"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:72%;background:var(--teal)"></div>
+              <div style="flex:1;border-radius:2px 2px 0 0;height:84%;background:var(--teal)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--tx3)">
+              <span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
+            </div>
+          </div>
+
+          <!-- Analysis history -->
+          <div class="a3">
+            <div class="eb mb8">Recent analyses</div>
+            <div class="hist-card" onclick="goScreen('result')">
+              <div class="row">
+                <div>
+                  <div style="font-size:12px;font-weight:700;color:var(--tx1)">Squat</div>
+                  <div style="font-size:10px;color:var(--tx3)">Apr 22 · 3 reps</div>
+                </div>
+                <div class="hist-score" style="color:var(--green)">84</div>
+              </div>
+              <div class="metric-bar-track mt6"><div class="metric-bar-fill" style="width:84%;background:var(--green)"></div></div>
+            </div>
+            <div class="hist-card" onclick="goScreen('result')">
+              <div class="row">
+                <div>
+                  <div style="font-size:12px;font-weight:700;color:var(--tx1)">Deadlift</div>
+                  <div style="font-size:10px;color:var(--tx3)">Apr 19 · 2 reps</div>
+                </div>
+                <div class="hist-score" style="color:var(--green)">76</div>
+              </div>
+              <div class="metric-bar-track mt6"><div class="metric-bar-fill" style="width:76%;background:var(--green)"></div></div>
+            </div>
+            <div class="hist-card" onclick="goScreen('result')">
+              <div class="row">
+                <div>
+                  <div style="font-size:12px;font-weight:700;color:var(--tx1)">Push-up</div>
+                  <div style="font-size:10px;color:var(--tx3)">Apr 17 · 4 reps</div>
+                </div>
+                <div class="hist-score" style="color:var(--green)">81</div>
+              </div>
+              <div class="metric-bar-track mt6"><div class="metric-bar-fill" style="width:81%;background:var(--green)"></div></div>
+            </div>
+          </div>
+
+          <div style="height:8px"></div>
+
+          <!-- Load management section — highlighted -->
+          <div style="margin:0 16px 8px;display:flex;align-items:center;gap:10px">
+            <div style="font-family:var(--mono);font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--teal);white-space:nowrap">Load management</div>
+            <div style="flex:1;height:1px;background:var(--teal);opacity:.2"></div>
+          </div>
+          <div style="margin:0 16px 16px;background:var(--bg2);border:1px solid rgba(0,224,181,.18);border-radius:var(--r14);overflow:hidden">
+            <div style="cursor:pointer;padding:13px 14px;border-bottom:1px solid var(--ln1);transition:background .15s" onclick="goScreen('acwr')" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:var(--r10);background:rgba(54,217,154,.1);border:1px solid rgba(54,217,154,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green)">AU</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:var(--tx1)">Training Load (ACWR)</div>
+                    <div style="font-size:10px;color:var(--tx3);margin-top:1px">7-day vs 28-day · sweet spot · danger zones</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="pill pill-green" style="font-size:9px">1.1</span>
+                  <span style="color:var(--tx3);font-size:16px">›</span>
+                </div>
+              </div>
+            </div>
+            <div style="cursor:pointer;padding:13px 14px;border-bottom:1px solid var(--ln1);transition:background .15s" onclick="goScreen('rpe')" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:var(--r10);background:rgba(245,165,36,.1);border:1px solid rgba(245,165,36,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber)">RPE</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:var(--tx1)">Log Session RPE</div>
+                    <div style="font-size:10px;color:var(--tx3);margin-top:1px">RPE × duration = session AU · feeds ACWR</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="pill pill-teal" style="font-size:9px">+ Log</span>
+                  <span style="color:var(--tx3);font-size:16px">›</span>
+                </div>
+              </div>
+            </div>
+            <div style="cursor:pointer;padding:13px 14px;transition:background .15s" onclick="goScreen('wearables')" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:32px;height:32px;border-radius:var(--r10);background:rgba(0,224,181,.08);border:1px solid rgba(0,224,181,.2);display:flex;align-items:center;justify-content:center;font-size:16px">⌚</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:var(--tx1)">Wearables</div>
+                    <div style="font-size:10px;color:var(--tx3);margin-top:1px">WHOOP · Oura · Garmin · Health Connect</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="pill pill-green" style="font-size:9px">1 live</span>
+                  <span style="color:var(--tx3);font-size:16px">›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: ACWR / LOAD MANAGEMENT
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-acwr">
+      <div class="page-scroll">
+      <div class="back-bar a0">
+        <div class="back-btn" onclick="goScreen('progress')">
+          <span class="back-btn-arrow">‹</span>
+          <span>Back</span>
+        </div>
+        <div>
+          <div class="back-title">Training Load (ACWR)</div>
+          <div class="back-subtitle">Acute:chronic workload ratio</div>
+        </div>
+      </div>
+      <div class="explainer  a1">
+        <div class="explainer-title">What is ACWR?</div>
+        <div class="explainer-body"><strong>ACWR</strong> (Acute:Chronic Workload Ratio) compares how hard you've trained <strong>this week</strong> against your <strong>28-day rolling average</strong>. A ratio of 1.0 means you're training at your usual level. The <strong>sweet spot is 0.8–1.3</strong>. Above 1.5, injury risk rises significantly. Below 0.8, you risk detraining. Every session you log with an RPE rating updates this number automatically.</div>
+      </div>
+        <div style="padding:12px 16px 0">
+          <div class="row mb14">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--tx1)">Training Load</div>
+              <div class="eb mt4">ACWR · acute:chronic workload ratio</div>
+            </div>
+            <span class="pill pill-green" id="acwr-zone-pill">Optimal</span>
+          </div>
+
+          <!-- ACWR big number -->
+          <div class="card-teal a1" style="text-align:center;margin-bottom:14px">
+            <div class="eb teal mb6">Your training load ratio</div>
+            <div class="disp count-up" style="font-size:56px;font-weight:700;color:var(--teal);line-height:1" id="acwr-display">1.1</div>
+            <div style="font-size:12px;color:var(--tx2);margin-top:6px" id="acwr-plain">You're training 10% above your usual level — the sweet spot.</div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:4px">7-day load ÷ 28-day average</div>
+          </div>
+
+          <!-- Zone band viz -->
+          <div class="card a2 mb10">
+            <div class="eb mb8">Load zones</div>
+            <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px">
+              <div style="flex:20;background:var(--blue);opacity:.5"></div>
+              <div style="flex:30;background:var(--green)"></div>
+              <div style="flex:10;background:var(--amber)"></div>
+              <div style="flex:10;background:var(--red);opacity:.7"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--tx3);margin-bottom:12px">
+              <span>0</span><span>0.8</span><span>1.3</span><span>1.5</span><span>2.0+</span>
+            </div>
+            <!-- Zone marker -->
+            <div style="position:relative;height:20px;margin-bottom:4px">
+              <div id="acwr-marker" style="position:absolute;top:0;width:2px;height:20px;background:var(--tx1);border-radius:1px;transition:left .5s ease;left:42%"></div>
+              <div id="acwr-marker-label" style="position:absolute;top:0;font-family:var(--mono);font-size:10px;color:var(--tx1);transform:translateX(-50%);left:42%;transition:left .5s ease">1.1</div>
+            </div>
+            <!-- 4 zones explained -->
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--blue);opacity:.7;flex-shrink:0"></div>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">Under-training</span> &lt;0.8 · You're below your usual training level. Risk of detraining.</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">Sweet spot</span> 0.8–1.3 · Optimal load. Your body is adapting without accumulating excessive fatigue.</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">Caution</span> 1.3–1.5 · You're pushing above your usual level. Train — but keep today controlled.</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--red);opacity:.8;flex-shrink:0"></div>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">Danger</span> &gt;1.5 · You're training significantly harder than your body is adapted to. Injury risk elevated.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulate ACWR -->
+          <div class="card a3 mb10">
+            <div class="eb mb8">Simulate your load</div>
+            <div style="margin-bottom:10px">
+              <div class="row mb6">
+                <span style="font-size:11px;color:var(--tx2)">This week's sessions</span>
+                <span class="mono" style="font-size:11px;color:var(--teal)" id="sessions-val">5</span>
+              </div>
+              <input type="range" min="0" max="14" step="1" value="5" style="width:100%" oninput="updateAcwr(this,'sessions')">
+            </div>
+            <div>
+              <div class="row mb6">
+                <span style="font-size:11px;color:var(--tx2)">Avg RPE per session</span>
+                <span class="mono" style="font-size:11px;color:var(--teal)" id="rpe-sim-val">7</span>
+              </div>
+              <input type="range" min="1" max="10" step="1" value="7" style="width:100%" oninput="updateAcwr(this,'rpe')">
+            </div>
+          </div>
+
+          <!-- 7-day load chart -->
+          <div class="card a4 mb10">
+            <div class="row mb8">
+              <span style="font-size:13px;font-weight:700;color:var(--tx1)">Load this week</span>
+              <span class="mono" style="font-size:11px;color:var(--teal)" id="weekly-au-total">2,840 AU</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:60px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--teal);border-radius:2px 2px 0 0;height:80%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Mon</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--bg4);border-radius:2px 2px 0 0;height:10%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Tue</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--teal);border-radius:2px 2px 0 0;height:65%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Wed</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--teal);opacity:.5;border-radius:2px 2px 0 0;height:50%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Thu</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--teal);border-radius:2px 2px 0 0;height:90%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Fri</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--bg4);border-radius:2px 2px 0 0;height:10%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Sat</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="flex:1;width:100%;background:var(--bg4);border-radius:2px 2px 0 0;height:10%"></div>
+                <span style="font-family:var(--mono);font-size:9px;color:var(--tx3)">Sun</span>
+              </div>
+            </div>
+            <div class="row mt8" style="font-size:10px;color:var(--tx3)">
+              <span>Chronic avg (28d): 540 AU/session</span>
+              <span>Acute avg (7d): 593 AU/session</span>
+            </div>
+          </div>
+
+          <!-- ACWR alert preview -->
+          <div class="card-amber a5 mb12" id="acwr-amber-note">
+            <div class="eb amber mb6">What happens above 1.3</div>
+            <div style="font-size:11px;color:var(--tx2);line-height:1.6">A banner slides in from the top: <span style="color:var(--tx1);font-weight:700">"You're training 35% harder than your body is used to. Consider a lighter session tomorrow."</span> It requires explicit acknowledgment — it never auto-dismisses. The red alert (&gt;1.5) uses heavy haptic and is safety-critical.</div>
+          </div>
+
+          <button class="btn btn-primary mb8" onclick="goScreen('readiness')">View today's readiness</button>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: RPE LOG
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-rpe">
+      <div class="page-scroll">
+      <div class="back-bar a0">
+        <div class="back-btn" onclick="goScreen('progress')">
+          <span class="back-btn-arrow">‹</span>
+          <span>Back</span>
+        </div>
+        <div>
+          <div class="back-title">Session RPE</div>
+          <div class="back-subtitle">Rate perceived exertion · log session load</div>
+        </div>
+      </div>
+      <div class="explainer explainer-amber a1">
+        <div class="explainer-title">What is RPE?</div>
+        <div class="explainer-body"><strong>RPE</strong> (Rate of Perceived Exertion) is a 1–10 scale for how hard a session felt. Combined with duration, it gives your <strong>session load in AU</strong> (Arbitrary Units): <strong>AU = RPE × minutes</strong>. A 7/10 effort for 60 minutes = 420 AU. This feeds directly into your ACWR and Readiness score. You should log RPE within 30 minutes of finishing — that's when your perception is most accurate.</div>
+      </div>
+        <div style="padding:12px 16px 0">
+          <div class="row mb14">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--tx1)">Session RPE</div>
+              <div class="eb mt4">Rate perceived exertion</div>
+            </div>
+            <span class="pill pill-teal">+30 min post-session</span>
+          </div>
+
+          <!-- RPE selector -->
+          <div class="card a2 mb10">
+            <div class="eb mb12">Select your RPE</div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px" id="rpe-grid">
+            </div>
+            <div style="text-align:center;margin-bottom:10px">
+              <div style="font-size:13px;color:var(--tx2)" id="rpe-description">Tap a number above</div>
+            </div>
+            <div class="row" style="font-size:10px;color:var(--tx3);padding:8px 0;border-top:1px solid var(--ln1)">
+              <span>1–3 Very easy</span>
+              <span>4–6 Moderate</span>
+              <span>7–8 Hard</span>
+              <span>9–10 Max</span>
+            </div>
+          </div>
+
+          <!-- Duration input -->
+          <div class="card a3 mb10">
+            <div class="eb mb8">Session duration</div>
+            <div class="row">
+              <span style="font-size:11px;color:var(--tx2)">Duration (minutes)</span>
+              <span class="mono" style="font-size:13px;color:var(--teal)" id="duration-display">60 min</span>
+            </div>
+            <input type="range" min="10" max="180" step="5" value="60" style="width:100%;margin-top:8px" oninput="updateDuration(this)">
+            <div class="row mt8">
+              <span style="font-size:10px;color:var(--tx3)">10 min</span>
+              <span style="font-size:10px;color:var(--tx3)">180 min</span>
+            </div>
+          </div>
+
+          <!-- AU calculation output -->
+          <div class="card a4 mb10" id="au-calc-card">
+            <div class="eb mb8">Session load calculation</div>
+            <div class="row mb8">
+              <span style="font-size:12px;color:var(--tx2)">RPE × Duration</span>
+              <span style="font-size:12px;color:var(--tx2)" id="au-formula">— × 60 min</span>
+            </div>
+            <div class="row">
+              <span style="font-size:13px;font-weight:700;color:var(--tx1)">Session AU</span>
+              <span class="disp" style="font-size:28px;font-weight:700;color:var(--teal)" id="au-result">—</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:8px" id="au-context"></div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="au-acwr-impact"></div>
+          </div>
+
+          <!-- RPE scale reference -->
+          <div class="card a5 mb12">
+            <div class="eb mb8">RPE reference guide</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;gap:10px;align-items:center">
+                <span class="mono" style="font-size:11px;color:var(--green);min-width:24px">1–2</span>
+                <div style="flex:1;height:3px;background:var(--green);border-radius:2px;opacity:.4"></div>
+                <span style="font-size:11px;color:var(--tx2)">Very light — warm-up, cool-down</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <span class="mono" style="font-size:11px;color:var(--green);min-width:24px">3–4</span>
+                <div style="flex:1;height:3px;background:var(--green);border-radius:2px;opacity:.6"></div>
+                <span style="font-size:11px;color:var(--tx2)">Light — could hold full conversation</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <span class="mono" style="font-size:11px;color:var(--teal);min-width:24px">5–6</span>
+                <div style="flex:1;height:3px;background:var(--teal);border-radius:2px;opacity:.7"></div>
+                <span style="font-size:11px;color:var(--tx2)">Moderate — short sentences only</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <span class="mono" style="font-size:11px;color:var(--amber);min-width:24px">7–8</span>
+                <div style="flex:1;height:3px;background:var(--amber);border-radius:2px"></div>
+                <span style="font-size:11px;color:var(--tx2)">Hard — can't easily talk</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <span class="mono" style="font-size:11px;color:var(--red);min-width:24px">9–10</span>
+                <div style="flex:1;height:3px;background:var(--red);border-radius:2px"></div>
+                <span style="font-size:11px;color:var(--tx2)">Max — all-out effort</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary mb8" id="log-session-btn" onclick="logSession()" style="opacity:.4" disabled>Log this session</button>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN: WEARABLES
+    ═══════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-wearables">
+      <div class="page-scroll">
+      <div class="back-bar a0">
+        <div class="back-btn" onclick="goScreen('progress')">
+          <span class="back-btn-arrow">‹</span>
+          <span>Back</span>
+        </div>
+        <div>
+          <div class="back-title">Wearables</div>
+          <div class="back-subtitle">Raw signals · no proprietary scores</div>
+        </div>
+      </div>
+      <div class="explainer explainer-green a1">
+        <div class="explainer-title">How wearables work in Formm</div>
+        <div class="explainer-body">Formm reads <strong>raw physiological signals</strong> (HRV, RHR, sleep stages, respiratory rate) from your wearable. It <strong>does not</strong> use proprietary scores like WHOOP Recovery or Oura Readiness — those are black boxes. Formm builds its own interpretation using the same signals, calibrated to your personal baseline. The longer you use it, the more accurate your readiness score becomes.</div>
+      </div>
+        <div style="padding:12px 16px 0">
+          <div class="row mb14">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--tx1)">Wearables</div>
+              <div class="eb mt4">Raw signals · no proprietary scores</div>
+            </div>
+          </div>
+
+          <!-- Health Connect (connected) -->
+          <div class="card a1 mb8" style="border-color:rgba(54,217,154,.3)">
+            <div class="row mb8">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:var(--r10);background:var(--green-d);border:1px solid rgba(54,217,154,.3);display:flex;align-items:center;justify-content:center;font-size:18px">🤖</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tx1)">Health Connect</div>
+                  <div style="font-size:10px;color:var(--green)">Connected · syncing</div>
+                </div>
+              </div>
+              <span class="pill pill-green" style="font-size:9px">Live</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:8px;text-align:center">
+                <div style="font-size:9px;color:var(--tx3);margin-bottom:3px">HRV</div>
+                <div class="mono" style="font-size:14px;font-weight:500;color:var(--teal)">62ms</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:8px;text-align:center">
+                <div style="font-size:9px;color:var(--tx3);margin-bottom:3px">RHR</div>
+                <div class="mono" style="font-size:14px;font-weight:500;color:var(--green)">52bpm</div>
+              </div>
+              <div style="background:var(--bg3);border-radius:var(--r10);padding:8px;text-align:center">
+                <div style="font-size:9px;color:var(--tx3);margin-bottom:3px">Sleep</div>
+                <div class="mono" style="font-size:14px;font-weight:500;color:var(--teal)">7h 22m</div>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:8px">Last synced: today 6:47am · Steps, sleep stages, HRV, RHR</div>
+          </div>
+
+          <!-- Separator -->
+          <div class="eb mb8 mt12">Connect a device</div>
+
+          <!-- WHOOP -->
+          <div class="card a2 mb8 wearable-card" onclick="connectWearable(this,'WHOOP')">
+            <div class="row">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:var(--r10);background:var(--bg3);border:1px solid var(--ln2);display:flex;align-items:center;justify-content:center;font-size:18px">⌚</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tx1)">WHOOP</div>
+                  <div style="font-size:10px;color:var(--tx3)">HRV · RHR · sleep stages · resp. rate · skin temp</div>
+                </div>
+              </div>
+              <button class="connect-btn" style="background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r6);padding:5px 12px;font-size:11px;color:var(--tx1);cursor:pointer;font-family:inherit">Connect</button>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)">Raw signals only · NOT WHOOP's Recovery Score · HRV + sleep data feeds Formm Readiness directly</div>
+          </div>
+
+          <!-- Oura -->
+          <div class="card a3 mb8 wearable-card" onclick="connectWearable(this,'Oura Ring')">
+            <div class="row">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:var(--r10);background:var(--bg3);border:1px solid var(--ln2);display:flex;align-items:center;justify-content:center;font-size:18px">💍</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tx1)">Oura Ring</div>
+                  <div style="font-size:10px;color:var(--tx3)">HRV · RHR · sleep stages · body temp · SpO2</div>
+                </div>
+              </div>
+              <button class="connect-btn" style="background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r6);padding:5px 12px;font-size:11px;color:var(--tx1);cursor:pointer;font-family:inherit">Connect</button>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)">Gen 3 & 4 supported · Raw signals only · NOT Oura's Readiness Score</div>
+          </div>
+
+          <!-- Garmin -->
+          <div class="card a4 mb8 wearable-card" onclick="connectWearable(this,'Garmin')">
+            <div class="row">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:var(--r10);background:var(--bg3);border:1px solid var(--ln2);display:flex;align-items:center;justify-content:center;font-size:18px">🏃</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tx1)">Garmin</div>
+                  <div style="font-size:10px;color:var(--tx3)">HRV · RHR · sleep · training load · VO2max</div>
+                </div>
+              </div>
+              <button class="connect-btn" style="background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r6);padding:5px 12px;font-size:11px;color:var(--tx1);cursor:pointer;font-family:inherit">Connect</button>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)">Fenix / Forerunner / Venu series · Garmin Connect API · Raw HRV, sleep, RHR only</div>
+          </div>
+
+          <!-- Apple Health -->
+          <div class="card a5 mb8 wearable-card" onclick="connectWearable(this,'Apple Health')">
+            <div class="row">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:var(--r10);background:var(--bg3);border:1px solid var(--ln2);display:flex;align-items:center;justify-content:center;font-size:18px">🍎</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tx1)">Apple Health</div>
+                  <div style="font-size:10px;color:var(--tx3)">HRV · RHR · sleep stages · activity · VO2max</div>
+                </div>
+              </div>
+              <button class="connect-btn" style="background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r6);padding:5px 12px;font-size:11px;color:var(--tx1);cursor:pointer;font-family:inherit">Connect</button>
+            </div>
+            <div style="font-size:10px;color:var(--tx3);margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)">HealthKit API · iPhone / Apple Watch · iOS 16+ required</div>
+          </div>
+
+          <!-- What Formm reads -->
+          <div class="card-blue a6 mb10">
+            <div class="eb blue mb8">What Formm reads from wearables</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;gap:8px">
+                <span style="color:var(--teal);font-size:12px;min-width:16px">✓</span>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">HRV</span> — Heart rate variability. Key input into your readiness score and ACWR interpretation.</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <span style="color:var(--teal);font-size:12px;min-width:16px">✓</span>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">RHR</span> — Resting heart rate. Elevated RHR signals incomplete recovery before load is added.</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <span style="color:var(--teal);font-size:12px;min-width:16px">✓</span>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">Sleep stages</span> — Deep + REM duration. Directly affects wellness score and session prescription.</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <span style="color:var(--teal);font-size:12px;min-width:16px">✓</span>
+                <div style="font-size:11px;color:var(--tx2)"><span style="color:var(--tx1);font-weight:700">Respiratory rate</span> — Elevated rate during rest signals systemic stress or illness.</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <span style="color:var(--red);font-size:12px;min-width:16px">✗</span>
+                <div style="font-size:11px;color:var(--tx2)">Proprietary scores (WHOOP Recovery, Oura Readiness, Garmin Body Battery) — not used. Formm builds its own interpretation from raw signals.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- ── BOTTOM NAV ── -->
+  <div class="nav" id="main-nav">
+    <div class="nav-item on" data-screen="dashboard" onclick="goScreen('dashboard')">
+      <div class="nav-icon"><div class="nav-dot"></div></div>
+      <div class="nav-label">Home</div>
+    </div>
+    <div class="nav-item" data-screen="formcheck" onclick="goScreen('formcheck')">
+      <div class="nav-icon"><div class="nav-dot"></div></div>
+      <div class="nav-label">Train</div>
+    </div>
+    <div class="nav-item" data-screen="readiness" onclick="goScreen('readiness')">
+      <div class="nav-icon"><div class="nav-dot"></div></div>
+      <div class="nav-label">Recover</div>
+    </div>
+    <div class="nav-item" data-screen="progress" onclick="goScreen('progress')">
+      <div class="nav-icon"><div class="nav-dot"></div></div>
+      <div class="nav-label">Progress</div>
+    </div>
+    <div class="nav-item" data-screen="coach" onclick="goScreen('coach')">
+      <div class="nav-icon"><div class="nav-dot"></div></div>
+      <div class="nav-label">Coach</div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+</div><!-- /shell -->
+
+<script>
+// ── SCREEN MAP ──────────────────────────────────────────
+const SCREEN_MAP = {
+  landing:   {el:'screen-landing',   nav:null},
+  dashboard: {el:'screen-dashboard', nav:'dashboard'},
+  formcheck: {el:'screen-formcheck', nav:'formcheck'},
+  result:    {el:'screen-result',    nav:'formcheck'},
+  readiness: {el:'screen-readiness', nav:'readiness'},
+  scout:     {el:'screen-scout',     nav:'progress'},
+  coach:     {el:'screen-coach',     nav:'coach'},
+  progress:  {el:'screen-progress',  nav:'progress'},
+  acwr:      {el:'screen-acwr',      nav:'progress'},
+  rpe:       {el:'screen-rpe',       nav:'progress'},
+  wearables: {el:'screen-wearables', nav:'progress'},
+};
+
+let currentScreen = 'landing';
+
+function goScreen(id) {
+  if (!SCREEN_MAP[id]) return;
+  document.getElementById(SCREEN_MAP[currentScreen].el).classList.remove('active');
+  document.getElementById(SCREEN_MAP[id].el).classList.add('active');
+  currentScreen = id;
+
+  const navTarget = SCREEN_MAP[id].nav;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
+  if (navTarget) {
+    const ni = document.querySelector(`.nav-item[data-screen="${navTarget}"]`);
+    if (ni) ni.classList.add('on');
+  }
+
+  document.getElementById('main-nav').style.display = id === 'landing' ? 'none' : 'flex';
+  window.scrollTo(0,0);
+}
+
+// ── INIT NAV ────────────────────────────────────────────
+document.getElementById('main-nav').style.display = 'none';
+
+// ── SEGMENT BAR ─────────────────────────────────────────
+(function(){
+  const wrap = document.getElementById('segs');
+  for (let i=0;i<14;i++){
+    const d=document.createElement('div');
+    d.className='seg'+(i<9?' on':i<11?' dim':'');
+    wrap.appendChild(d);
+  }
+})();
+
+// ── MBS TABS ────────────────────────────────────────────
+const MBS = {
+  Mind:[
+    {icon:'🧠',name:'Mental Conditioning',sub:'Focus & resilience'},
+    {icon:'👥',name:'Find Your Tribe',sub:'Community & belonging'},
+  ],
+  Body:[
+    {icon:'🏋️',name:'Bespoke Training',sub:'Form-perfect programmes'},
+    {icon:'🔄',name:'Recovery & Mobility',sub:'Move without pain'},
+  ],
+  Soul:[
+    {icon:'🥗',name:'Food & Fuel',sub:'Eat for performance'},
+    {icon:'🧘',name:'Meditation',sub:'Stress, sleep & calm'},
+  ],
+};
+
+function setMbs(tab, btn) {
+  document.querySelectorAll('.mbs-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  const grid = document.getElementById('mbs-grid');
+  grid.innerHTML = MBS[tab].map(c=>`
+    <div class="mc">
+      <div class="mc-icon">${c.icon}</div>
+      <div class="mc-name">${c.name}</div>
+      <div class="mc-sub">${c.sub}</div>
+    </div>`).join('');
+}
+setMbs('Body', document.querySelectorAll('.mbs-tab')[1]);
+
+// ── TIER SELECT ──────────────────────────────────────────
+function selectTier(el) {
+  document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── SPORT / MOVEMENT SELECT ──────────────────────────────
+function selectSport(el) {
+  document.querySelectorAll('.sport-item').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function selectMov(el) {
+  document.querySelectorAll('.mov-item').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── READINESS SLIDERS ───────────────────────────────────
+function updateSlider(el, id) {
+  document.getElementById(id).textContent = parseFloat(el.value).toFixed(1);
+}
+
+function recalcReadiness() {
+  const sleep = parseFloat(document.getElementById('sleep-val').textContent);
+  const sore  = parseFloat(document.getElementById('sore-val').textContent);
+  const mood  = parseFloat(document.getElementById('mood-val').textContent);
+  const score = Math.round(((sleep*0.4 + (10-sore)*0.3 + mood*0.3)) * 10) / 10;
+  const capped = Math.min(10, Math.max(0, score));
+
+  document.getElementById('readiness-score').textContent = capped.toFixed(1);
+
+  const circ = 326.7;
+  const offset = circ * (1 - capped/10);
+  const ring = document.getElementById('readiness-ring');
+  ring.style.strokeDashoffset = offset;
+
+  const pill = document.getElementById('zone-pill');
+  const target = document.getElementById('session-target');
+
+  if (capped >= 7.5) {
+    ring.setAttribute('stroke','var(--teal)');
+    pill.className='pill pill-green'; pill.textContent='Train hard today';
+    target.textContent='Target: 380–450 AU · ~65 min · RPE 7/10';
+  } else if (capped >= 6) {
+    ring.setAttribute('stroke','var(--amber)');
+    pill.className='pill pill-amber'; pill.textContent='Train, but modulate';
+    target.textContent='Target: 250–320 AU · Drop heaviest sets 20%';
+  } else if (capped >= 4) {
+    ring.setAttribute('stroke','var(--amber)');
+    pill.className='pill pill-amber'; pill.textContent='Active recovery today';
+    target.textContent='Target: 80–150 AU · Mobility or light cardio only';
+  } else {
+    ring.setAttribute('stroke','var(--red)');
+    pill.className='pill pill-red'; pill.textContent='Rest today';
+    target.textContent='No training target · Prioritise sleep and nutrition';
+  }
+}
+
+// ── ACWR SCREEN ──────────────────────────────────────────
+let acwrSessions = 5;
+let acwrRpe = 7;
+const CHRONIC_AVG = 540; // AU per session baseline
+
+function updateAcwr(el, type) {
+  if (type === 'sessions') {
+    acwrSessions = +el.value;
+    document.getElementById('sessions-val').textContent = acwrSessions;
+  } else {
+    acwrRpe = +el.value;
+    document.getElementById('rpe-sim-val').textContent = acwrRpe;
+  }
+  const acuteAvg = acwrSessions > 0 ? (acwrRpe * 60) : 0;
+  const ratio = acuteAvg / CHRONIC_AVG;
+  const rounded = Math.round(ratio * 10) / 10;
+
+  document.getElementById('acwr-display').textContent = rounded.toFixed(1);
+  const total = acwrSessions * acwrRpe * 60;
+  document.getElementById('weekly-au-total').textContent = total.toLocaleString() + ' AU';
+
+  // Zone
+  const pill = document.getElementById('acwr-zone-pill');
+  const plain = document.getElementById('acwr-plain');
+  const ring = document.getElementById('acwr-display');
+  const pct = Math.round((ratio - 1) * 100);
+  const absPct = Math.abs(pct);
+
+  if (ratio < 0.8) {
+    pill.className = 'pill pill-blue'; pill.textContent = 'Under-training';
+    ring.style.color = 'var(--blue)';
+    plain.textContent = "You're training " + absPct + "% below your usual level. Consider adding a session this week.";
+  } else if (ratio <= 1.3) {
+    pill.className = 'pill pill-green'; pill.textContent = 'Optimal';
+    ring.style.color = 'var(--teal)';
+    plain.textContent = pct >= 0
+      ? "You're training " + absPct + "% above your usual level — the sweet spot."
+      : "You're training " + absPct + "% below your usual level — within the optimal range.";
+  } else if (ratio <= 1.5) {
+    pill.className = 'pill pill-amber'; pill.textContent = 'Caution';
+    ring.style.color = 'var(--amber)';
+    plain.textContent = "You're training " + absPct + "% harder than your body is used to. Keep today's session controlled.";
+  } else {
+    pill.className = 'pill pill-red'; pill.textContent = 'Danger';
+    ring.style.color = 'var(--red)';
+    plain.textContent = "You're training " + absPct + "% harder than your body is used to. Injury risk is elevated. Rest or very light activity only.";
+  }
+
+  // Marker position on zone band
+  const maxRatio = 2.0;
+  const pctPos = Math.min(100, Math.max(0, (ratio / maxRatio) * 100));
+  document.getElementById('acwr-marker').style.left = pctPos + '%';
+  document.getElementById('acwr-marker-label').style.left = pctPos + '%';
+  document.getElementById('acwr-marker-label').textContent = rounded.toFixed(1);
+}
+
+// ── RPE SCREEN ────────────────────────────────────────────
+let selectedRPE = null;
+let sessionDuration = 60;
+
+const RPE_LABELS = {
+  1:'Very light — warm-up or gentle walk',
+  2:'Light — easy, could go much longer',
+  3:'Moderate-light — comfortable pace',
+  4:'Moderate — somewhat hard, good rhythm',
+  5:'Moderate-hard — noticeably challenging',
+  6:'Hard — focused effort required',
+  7:'Very hard — can only say a few words',
+  8:'Very hard+ — tough to maintain form',
+  9:'Near max — very short burst only',
+  10:'Max — absolute all-out effort',
+};
+
+const RPE_COLORS = {
+  1:'var(--green)',2:'var(--green)',3:'var(--green)',
+  4:'var(--teal)',5:'var(--teal)',6:'var(--teal)',
+  7:'var(--amber)',8:'var(--amber)',
+  9:'var(--red)',10:'var(--red)',
+};
+
+(function buildRpeGrid() {
+  const grid = document.getElementById('rpe-grid');
+  if (!grid) return;
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('div');
+    btn.style.cssText = `
+      padding:10px 4px; text-align:center; border-radius:var(--r10);
+      border:1px solid var(--ln1); background:var(--bg3);
+      cursor:pointer; transition:all .15s; font-family:'Courier New',monospace;
+      font-size:16px; font-weight:700; color:var(--tx3);
+    `;
+    btn.textContent = i;
+    btn.dataset.rpe = i;
+    btn.onclick = function() { selectRPE(i, this); };
+    grid.appendChild(btn);
+  }
+})();
+
+function selectRPE(val, el) {
+  selectedRPE = val;
+  document.querySelectorAll('#rpe-grid div').forEach(b => {
+    b.style.background = 'var(--bg3)';
+    b.style.borderColor = 'var(--ln1)';
+    b.style.color = 'var(--tx3)';
+  });
+  el.style.background = RPE_COLORS[val].replace(')', ',0.15)').replace('var(', 'rgba(0,0,0,0)');
+  el.style.borderColor = RPE_COLORS[val];
+  el.style.color = RPE_COLORS[val];
+  // Use teal-dim trick via inline
+  el.style.background = 'var(--bg2)';
+  el.style.borderColor = RPE_COLORS[val];
+  el.style.color = RPE_COLORS[val];
+
+  document.getElementById('rpe-description').textContent = val + '/10 — ' + RPE_LABELS[val];
+  document.getElementById('rpe-description').style.color = RPE_COLORS[val];
+  calcAU();
+}
+
+function updateDuration(el) {
+  sessionDuration = +el.value;
+  document.getElementById('duration-display').textContent = sessionDuration + ' min';
+  calcAU();
+}
+
+function calcAU() {
+  if (!selectedRPE) return;
+  const au = selectedRPE * sessionDuration;
+  document.getElementById('au-formula').textContent = selectedRPE + ' × ' + sessionDuration + ' min';
+  document.getElementById('au-result').textContent = au.toLocaleString();
+  document.getElementById('au-result').style.color = RPE_COLORS[selectedRPE];
+
+  let ctx = '';
+  if (au < 150)       ctx = 'Light recovery session. Minimal ACWR impact.';
+  else if (au < 300)  ctx = 'Easy session. Keeps your ACWR stable.';
+  else if (au < 500)  ctx = 'Moderate session. Within your usual training band.';
+  else if (au < 700)  ctx = 'Hard session. This will raise your acute load.';
+  else                ctx = 'Very high load session. Monitor your ACWR closely.';
+  document.getElementById('au-context').textContent = ctx;
+
+  const newAcwr = Math.round(((au / 60 * 5) / CHRONIC_AVG) * 100) / 100;
+  document.getElementById('au-acwr-impact').textContent =
+    'Estimated new ACWR after this session: ' + newAcwr.toFixed(2);
+
+  const btn = document.getElementById('log-session-btn');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
+function logSession() {
+  if (!selectedRPE) return;
+  const au = selectedRPE * sessionDuration;
+  const btn = document.getElementById('log-session-btn');
+  btn.textContent = 'Session logged — ' + au.toLocaleString() + ' AU';
+  btn.style.background = 'var(--green)';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Log this session';
+    btn.style.background = 'var(--teal)';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    goScreen('acwr');
+  }, 1800);
+}
+
+// ── WEARABLES SCREEN ─────────────────────────────────────
+function connectWearable(card, name) {
+  const btn = card.querySelector('.connect-btn');
+  if (btn.textContent === 'Connected') return;
+  btn.textContent = 'Connecting...';
+  btn.style.color = 'var(--teal)';
+  setTimeout(() => {
+    btn.textContent = 'Connected';
+    btn.style.background = 'var(--teal-dim)';
+    btn.style.borderColor = 'var(--teal-bdr)';
+    btn.style.color = 'var(--teal)';
+    card.style.borderColor = 'rgba(0,224,181,.3)';
+    const meta = card.querySelector('div:last-child');
+    if (meta) {
+      meta.innerHTML = '<span style="color:var(--green)">✓ Connected</span> · Syncing HRV, RHR, sleep stages';
+    }
+  }, 1200);
+}
+
+// ── PROGRESS SCREEN — Wearables + ACWR tabs ──────────────
+// Hook the Wearables tab in progress to go to wearables screen
+const origGoScreen = window.goScreen;
+
+const coachResponses = {
+  'How do I improve range of motion?': 'For squat range of motion specifically: ankle dorsiflexion is usually the limiter. Add 3×30s wall ankle stretches before each session plus daily calf foam rolling. Hip flexor mobility (couch stretch, 2min/side) will help depth. Expect meaningful improvement in 3–4 weeks of consistency.',
+  "What should I train today?": "With your ACWR at 1.1 and readiness at 7.8 — today is a good day to push. I'd suggest your squat day: 4×5 at ~80% 1RM, focusing on depth. Your Range of Motion score is the main thing to address — warm up with ankle circles and hip flexor stretches before loading.",
+  'Explain my ACWR': 'Your ACWR (Acute:Chronic Workload Ratio) is 1.1. This compares your last 7 days of training load to your rolling 28-day average. 1.1 means you\'re training about 10% above your chronic baseline — the sweet spot. The danger zone is above 1.5 (too much, too fast) or below 0.8 (detraining).',
+  "Plan this week's sessions": 'Based on your current load and readiness: Monday — squat focus (today, good day). Wednesday — upper body push/pull, moderate intensity. Friday — deadlift variation, controlled. Sunday — active recovery or complete rest. This gives you 3 sessions with adequate recovery between, keeping ACWR in the 1.0–1.2 range.',
+};
+
+function sendCoachMsg(text) {
+  const input = document.getElementById('chat-input');
+  const msg = text || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const hist = document.getElementById('chat-history');
+
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg';
+  userDiv.innerHTML = `<div class="msg-label" style="text-align:right">You</div><div class="msg-user">${msg}</div>`;
+  hist.appendChild(userDiv);
+
+  const reply = coachResponses[msg] || "That's a great question. Based on your current data — readiness 7.8, ACWR 1.1, Formm Score 72 — I'd approach it this way: prioritise your Range of Motion work (your lowest metric at 71) in every warm-up. Consistent ankle and hip mobility before your main lifts will compound over weeks.";
+
+  setTimeout(() => {
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'msg';
+    aiDiv.innerHTML = `<div class="msg-label">Coach</div><div class="msg-ai">${reply}</div>`;
+    hist.appendChild(aiDiv);
+    hist.scrollIntoView({behavior:'smooth', block:'end'});
+  }, 600);
+}
+</script>
+</body>
+</html>
