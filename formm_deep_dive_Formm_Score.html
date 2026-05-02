@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm Score — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Cabinet+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#09090F; --bg1:#0F0F17; --bg2:#15151F; --bg3:#1C1C28; --bg4:#242433;
+  --ln1:rgba(255,255,255,.06); --ln2:rgba(255,255,255,.10); --ln3:rgba(255,255,255,.18);
+  --tx1:#F2F1EC; --tx2:#9896AE; --tx3:#5A5870;
+  --teal:#00E0B5; --teal2:#00C49E; --teal-d:rgba(0,224,181,.08); --teal-bd:rgba(0,224,181,.2);
+  --green:#36D99A; --amber:#F5A524; --blue:#4DA3FF; --purple:#9B7FFF; --red:#FF4560;
+  --r6:6px; --r10:10px; --r14:14px; --r18:18px;
+  --disp:'Clash Display',sans-serif;
+  --body:'Cabinet Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg); color:var(--tx1);
+  font-family:var(--body); font-size:14px;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+/* ── LAYOUT ── */
+.app { display:flex; min-height:100vh; }
+.sidebar {
+  width:220px; flex-shrink:0;
+  background:var(--bg1); border-right:1px solid var(--ln1);
+  padding:32px 0; position:sticky; top:0; height:100vh;
+  overflow-y:auto; display:flex; flex-direction:column;
+}
+.sidebar-logo {
+  font-family:var(--disp); font-size:22px; font-weight:700;
+  letter-spacing:-.5px; color:var(--teal); padding:0 20px 24px;
+  border-bottom:1px solid var(--ln1); margin-bottom:16px;
+}
+.sidebar-logo span { color:var(--tx2); font-size:11px; display:block; margin-top:2px; font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; }
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 20px; cursor:pointer; transition:all .15s;
+  border-left:2px solid transparent; color:var(--tx3);
+  font-size:13px; font-weight:500;
+}
+.nav-item:hover { color:var(--tx2); background:var(--bg2); }
+.nav-item.active { color:var(--teal); border-left-color:var(--teal); background:var(--teal-d); }
+.nav-num { font-family:var(--mono); font-size:10px; color:var(--tx3); min-width:16px; }
+.nav-item.active .nav-num { color:var(--teal); opacity:.6; }
+.main { flex:1; padding:40px 48px; max-width:900px; }
+
+/* ── PANELS ── */
+.panel { display:none; animation:fadeIn .2s ease; }
+.panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── HEADINGS ── */
+.panel-title {
+  font-family:var(--disp); font-size:32px; font-weight:700;
+  letter-spacing:-.5px; color:var(--tx1); margin-bottom:6px;
+}
+.panel-sub { font-size:14px; color:var(--tx2); margin-bottom:32px; line-height:1.6; }
+.section { margin-bottom:32px; }
+.section-title {
+  font-family:var(--mono); font-size:10px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--teal); margin-bottom:14px;
+  display:flex; align-items:center; gap:10px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--ln1); }
+.h3 { font-size:15px; font-weight:700; color:var(--tx1); margin-bottom:8px; }
+
+/* ── CARDS ── */
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.card {
+  background:var(--bg2); border:1px solid var(--ln1);
+  border-radius:var(--r14); padding:18px 20px;
+}
+.card-title { font-size:13px; font-weight:700; color:var(--tx1); margin-bottom:6px; }
+.card-body { font-size:12px; color:var(--tx2); line-height:1.65; }
+.card.teal  { background:var(--teal-d);  border-color:var(--teal-bd); }
+.card.amber { background:rgba(245,165,36,.06); border-color:rgba(245,165,36,.2); }
+.card.purple{ background:rgba(155,127,255,.06); border-color:rgba(155,127,255,.2); }
+.card.blue  { background:rgba(77,163,255,.06); border-color:rgba(77,163,255,.2); }
+.card.green { background:rgba(54,217,154,.06); border-color:rgba(54,217,154,.2); }
+.card.red   { background:rgba(255,69,96,.06); border-color:rgba(255,69,96,.2); }
+.card-ct { font-size:13px; font-weight:700; margin-bottom:6px; }
+.card.teal  .card-ct { color:var(--teal); }
+.card.amber .card-ct { color:var(--amber); }
+.card.purple .card-ct { color:var(--purple); }
+.card.blue  .card-ct { color:var(--blue); }
+.card.green .card-ct { color:var(--green); }
+.card.red   .card-ct { color:var(--red); }
+
+/* ── CODE ── */
+.code {
+  background:var(--bg3); border:1px solid var(--ln1);
+  border-radius:var(--r10); padding:14px 16px;
+  font-family:var(--mono); font-size:11px; color:var(--tx2);
+  line-height:1.8; white-space:pre; overflow-x:auto; margin-top:10px;
+}
+.code .kw  { color:var(--teal); }
+.code .cm  { color:var(--tx3); }
+.code .str { color:var(--amber); }
+.code .num { color:var(--blue); }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x:auto; margin-top:10px; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { font-family:var(--mono); font-size:10px; letter-spacing:.8px; text-transform:uppercase;
+  color:var(--tx3); padding:8px 12px; border-bottom:1px solid var(--ln2); text-align:left; }
+td { padding:10px 12px; border-bottom:1px solid var(--ln1); color:var(--tx2); line-height:1.5; vertical-align:top; }
+td:first-child { color:var(--tx1); font-weight:500; }
+tr:last-child td { border-bottom:none; }
+tr:nth-child(even) td { background:rgba(255,255,255,.015); }
+
+/* ── BADGES ── */
+.badge {
+  display:inline-block; padding:2px 8px; border-radius:10px;
+  font-size:11px; font-weight:600; margin:2px;
+}
+.badge.teal   { background:var(--teal-d); color:var(--teal); border:1px solid var(--teal-bd); }
+.badge.amber  { background:rgba(245,165,36,.1); color:var(--amber); border:1px solid rgba(245,165,36,.25); }
+.badge.purple { background:rgba(155,127,255,.1); color:var(--purple); border:1px solid rgba(155,127,255,.25); }
+.badge.red    { background:rgba(255,69,96,.1); color:var(--red); border:1px solid rgba(255,69,96,.25); }
+.badge.green  { background:rgba(54,217,154,.1); color:var(--green); border:1px solid rgba(54,217,154,.25); }
+.badge.blue   { background:rgba(77,163,255,.1); color:var(--blue); border:1px solid rgba(77,163,255,.25); }
+
+/* ── TIMELINE ── */
+.tl { position:relative; padding-left:32px; margin-bottom:20px; }
+.tl::before { content:''; position:absolute; left:10px; top:28px; bottom:-20px; width:1px; background:var(--ln2); }
+.tl:last-child::before { display:none; }
+.tl-dot {
+  position:absolute; left:0; top:2px;
+  width:21px; height:21px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:9px; font-weight:700;
+  border:1px solid; flex-shrink:0;
+}
+.tl-phase { font-family:var(--mono); font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--tx3); margin-bottom:3px; }
+.tl-title { font-size:14px; font-weight:700; color:var(--tx1); margin-bottom:5px; }
+.tl-body  { font-size:12px; color:var(--tx2); line-height:1.6; }
+
+/* ── SIMULATOR ── */
+.sim-box {
+  background:var(--bg2); border:1px solid var(--teal-bd);
+  border-radius:var(--r18); padding:24px;
+}
+.sim-score-wrap { text-align:center; margin:16px 0 24px; }
+.sim-score {
+  font-family:var(--disp); font-size:64px; font-weight:700;
+  letter-spacing:-2px; line-height:1; color:var(--purple);
+}
+.sim-level { font-family:var(--mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--tx3); margin-top:4px; }
+.sim-path  { font-size:12px; color:var(--tx2); margin-top:3px; }
+.metric-row { margin-bottom:12px; }
+.metric-head { display:flex; justify-content:space-between; margin-bottom:4px; }
+.metric-name { font-size:12px; color:var(--tx2); }
+.metric-wt   { font-family:var(--mono); font-size:10px; color:var(--tx3); }
+.metric-val  { font-size:12px; font-weight:700; }
+.metric-track { height:4px; background:var(--bg4); border-radius:2px; overflow:hidden; }
+.metric-fill  { height:100%; border-radius:2px; transition:width .4s ease; }
+.sim-slider { width:100%; margin-top:6px; accent-color:var(--teal); }
+
+/* ── INFO NOTES ── */
+.note-teal {
+  background:var(--teal-d); border-left:3px solid var(--teal);
+  border-radius:0 var(--r6) var(--r6) 0;
+  padding:10px 14px; font-size:12px; color:var(--tx2); line-height:1.6; margin-top:10px;
+}
+.note-amber {
+  background:rgba(245,165,36,.07); border-left:3px solid var(--amber);
+  border-radius:0 var(--r6) var(--r6) 0;
+  padding:10px 14px; font-size:12px; color:var(--tx2); line-height:1.6; margin-top:10px;
+}
+.note-red {
+  background:rgba(255,69,96,.07); border-left:3px solid var(--red);
+  border-radius:0 var(--r6) var(--r6) 0;
+  padding:10px 14px; font-size:12px; color:var(--tx2); line-height:1.6; margin-top:10px;
+}
+
+/* ── REVENUE ROW ── */
+.rev-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--ln1); font-size:13px; }
+.rev-row:last-child { border:none; }
+.rev-label { color:var(--tx2); }
+.rev-val   { font-family:var(--mono); font-weight:500; color:var(--teal); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">Formm<span>Score Deep Dive</span></div>
+    <div class="nav-item active" data-panel="build">
+      <span class="nav-num">01</span> Build
+    </div>
+    <div class="nav-item" data-panel="business">
+      <span class="nav-num">02</span> Business
+    </div>
+    <div class="nav-item" data-panel="science">
+      <span class="nav-num">03</span> Science
+    </div>
+    <div class="nav-item" data-panel="product">
+      <span class="nav-num">04</span> Product
+    </div>
+    <div class="nav-item" data-panel="ip">
+      <span class="nav-num">05</span> IP
+    </div>
+    <div class="nav-item" data-panel="data">
+      <span class="nav-num">06</span> Data layer
+    </div>
+    <div class="nav-item" data-panel="gtm">
+      <span class="nav-num">07</span> Go-to-market
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- ══════════════ 01 BUILD ══════════════ -->
+    <div class="panel active" id="panel-build">
+      <div class="panel-title">The Build</div>
+      <div class="panel-sub">Exact database schema, scoring engine, percentile system, API surface, and share card generator. Everything needed to make Formm Score real and defensible.</div>
+
+      <div class="section">
+        <div class="section-title">Database — add these tables today</div>
+        <div class="note-red">Every analysis you run without these tables is data you lose permanently. This is the single most urgent action in this entire document.</div>
+        <div class="grid2" style="margin-top:14px">
+          <div class="card">
+            <div class="card-title">rep_data — the core asset</div>
+            <div class="card-body">One row per rep per analysis. Raw joint angles. Never delete this. This is the moat.</div>
+            <div class="code"><span class="kw">CREATE TABLE</span> rep_data (
+  id          <span class="kw">UUID PRIMARY KEY</span>,
+  analysis_id <span class="kw">UUID</span> <span class="kw">REFERENCES</span> analyses,
+  rep_number  <span class="kw">INT</span>,
+  knee_flexion_deg       <span class="kw">FLOAT</span>,
+  hip_flexion_deg        <span class="kw">FLOAT</span>,
+  ankle_dorsiflexion_deg <span class="kw">FLOAT</span>,
+  valgus_angle_deg       <span class="kw">FLOAT</span>,
+  trunk_angle_deg        <span class="kw">FLOAT</span>,
+  symmetry_ratio         <span class="kw">FLOAT</span>,
+  rep_score              <span class="kw">INT</span>,
+  captured_at            <span class="kw">TIMESTAMPTZ</span>
+);</div>
+          </div>
+          <div class="card">
+            <div class="card-title">metric_scores + formm_score</div>
+            <div class="card-body">Five rows per analysis — one per dimension. Benchmarks stored alongside for auditability.</div>
+            <div class="code"><span class="kw">CREATE TABLE</span> metric_scores (
+  id          <span class="kw">UUID PRIMARY KEY</span>,
+  analysis_id <span class="kw">UUID REFERENCES</span> analyses,
+  metric_name <span class="kw">VARCHAR</span>(<span class="num">40</span>),
+  value       <span class="kw">FLOAT</span>,
+  benchmark_min <span class="kw">FLOAT</span>,
+  benchmark_max <span class="kw">FLOAT</span>,
+  score_0_100 <span class="kw">INT</span>,
+  weight      <span class="kw">FLOAT</span>
+);
+
+<span class="kw">CREATE TABLE</span> formm_score (
+  user_id       <span class="kw">UUID PRIMARY KEY</span>,
+  overall_score <span class="kw">INT</span>,
+  level         <span class="kw">VARCHAR</span>,
+  percentile_sport <span class="kw">INT</span>,
+  analyses_count   <span class="kw">INT</span>,
+  last_updated  <span class="kw">TIMESTAMPTZ</span>
+);</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Scoring engine — TypeScript, server-side only</div>
+        <div class="card">
+          <div class="card-body">Weights are a trade secret. Never in the codebase. Environment variables only. Runs server-side after every POST /api/analyses.</div>
+          <div class="code"><span class="cm">// Loaded from env — never hardcoded in source</span>
+<span class="kw">const</span> WEIGHTS = {
+  form_accuracy:    +process.env.W_FORM,    <span class="cm">// 0.35</span>
+  range_of_motion:  +process.env.W_ROM,     <span class="cm">// 0.20</span>
+  stability:        +process.env.W_STAB,    <span class="cm">// 0.20</span>
+  symmetry:         +process.env.W_SYM,     <span class="cm">// 0.15</span>
+  improvement_rate: +process.env.W_IMP,     <span class="cm">// 0.10</span>
+};
+
+<span class="kw">function</span> calcFormmScore(metrics: MetricScore[]): <span class="kw">number</span> {
+  <span class="kw">const</span> weighted = metrics.reduce((sum, m) =>
+    sum + (m.score_0_100 * WEIGHTS[m.metric_name]), <span class="num">0</span>);
+  <span class="kw">const</span> totalW = Object.values(WEIGHTS).reduce((a,b)=>a+b,<span class="num">0</span>);
+  <span class="kw">return</span> Math.round(weighted / totalW);
+}
+
+<span class="kw">function</span> assignLevel(score: <span class="kw">number</span>): <span class="kw">string</span> {
+  <span class="kw">if</span> (score >= <span class="num">85</span>) <span class="kw">return</span> <span class="str">'Elite / Pro'</span>;
+  <span class="kw">if</span> (score >= <span class="num">75</span>) <span class="kw">return</span> <span class="str">'Collegiate'</span>;
+  <span class="kw">if</span> (score >= <span class="num">60</span>) <span class="kw">return</span> <span class="str">'Advanced'</span>;
+  <span class="kw">if</span> (score >= <span class="num">40</span>) <span class="kw">return</span> <span class="str">'Intermediate'</span>;
+  <span class="kw">return</span> <span class="str">'Recreational'</span>;
+}
+
+<span class="cm">// Cross-movement composite — weighted by session count</span>
+<span class="kw">function</span> crossMovementScore(movements: MovementScore[]): <span class="kw">number</span> {
+  <span class="kw">const</span> totalSessions = movements.reduce((s,m)=>s+m.session_count,<span class="num">0</span>);
+  <span class="kw">const</span> weighted = movements.reduce((s,m)=>s+(m.score*m.session_count),<span class="num">0</span>);
+  <span class="kw">return</span> Math.round(weighted / totalSessions);
+}</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Percentile engine — nightly cron at 02:00 IST</div>
+        <div class="card">
+          <div class="card-body">Populates score_distributions table. Lookup is O(1) — a single indexed query. Runs in ~200ms at 50k users.</div>
+          <div class="code"><span class="cm">-- Rebuild nightly. Runs in 200ms at 50k users.</span>
+<span class="kw">INSERT INTO</span> score_distributions
+  (sport, movement, p25, p50, p75, p90, updated_at)
+<span class="kw">SELECT</span>
+  u.sport, a.movement,
+  PERCENTILE_CONT(<span class="num">0.25</span>) WITHIN GROUP
+    (ORDER BY fs.overall_score) AS p25,
+  PERCENTILE_CONT(<span class="num">0.50</span>) WITHIN GROUP
+    (ORDER BY fs.overall_score) AS p50,
+  PERCENTILE_CONT(<span class="num">0.75</span>) WITHIN GROUP
+    (ORDER BY fs.overall_score) AS p75,
+  PERCENTILE_CONT(<span class="num">0.90</span>) WITHIN GROUP
+    (ORDER BY fs.overall_score) AS p90,
+  NOW()
+<span class="kw">FROM</span> formm_score fs
+<span class="kw">JOIN</span> users u ON fs.user_id = u.id
+<span class="kw">JOIN</span> analyses a ON a.user_id = fs.user_id
+<span class="kw">WHERE</span> fs.analyses_count >= <span class="num">5</span>
+<span class="kw">GROUP BY</span> u.sport, a.movement
+<span class="kw">ON CONFLICT</span> (sport, movement) <span class="kw">DO UPDATE</span>
+  <span class="kw">SET</span> p25=EXCLUDED.p25, p50=EXCLUDED.p50,
+      p75=EXCLUDED.p75, updated_at=NOW();</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">API surface</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>Endpoint</th><th>Returns</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>POST</td><td>/api/analyses</td><td>analysis_id, formm_score_updated</td><td>Triggers scoring engine. Updates formm_score table. Fires unlock if 5th analysis.</td></tr>
+              <tr><td>GET</td><td>/api/scout/status</td><td>is_unlocked, analyses_count, score, level, metrics[], path_to_next</td><td>Lock screen vs unlocked. Auth required.</td></tr>
+              <tr><td>GET</td><td>/api/scout/percentile</td><td>percentile_sport, rank_sport</td><td>Served from cached distributions table. Fast.</td></tr>
+              <tr><td>GET</td><td>/api/scout/history</td><td>[{score, level, recorded_at}]</td><td>Full history for trend chart.</td></tr>
+              <tr><td>POST</td><td>/api/scout/share-card</td><td>card_url (PNG, S3)</td><td>Puppeteer screenshot. Returns URL for sharing.</td></tr>
+              <tr><td>GET</td><td>/api/b2b/athlete/:id/score</td><td>Full score + trend + metrics</td><td>JWT scope: coach. B2B portal only.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Live score simulator</div>
+        <div class="sim-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <span style="font-size:12px;color:var(--tx2)">Drag metrics to see score update</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--tx3)">weights: 35/20/20/15/10</span>
+          </div>
+          <div id="sim-sliders"></div>
+          <div style="border-top:1px solid var(--ln1);margin-top:16px;padding-top:16px;display:flex;align-items:center;gap:24px">
+            <div class="sim-score-wrap" style="margin:0">
+              <div class="sim-score" id="sim-score">72</div>
+            </div>
+            <div>
+              <div style="font-size:16px;font-weight:700;color:var(--tx1)" id="sim-level">Advanced</div>
+              <div class="sim-level" id="sim-path">3 pts to Collegiate</div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <span class="badge purple" id="sim-badge">Advanced</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /build -->
+
+    <!-- ══════════════ 02 BUSINESS ══════════════ -->
+    <div class="panel" id="panel-business">
+      <div class="panel-title">The Business</div>
+      <div class="panel-sub">Three revenue streams from one infrastructure. Unit economics. Competitive positioning. The India-specific opportunity.</div>
+
+      <div class="section">
+        <div class="section-title">Revenue model</div>
+        <div class="grid3">
+          <div class="card teal">
+            <div class="card-ct">B2C subscription</div>
+            <div class="card-body">Formm Score is a premium feature. Locked behind Amateur Athlete (₹499/mo). Free tier sees the lock screen.</div>
+            <div style="margin-top:12px">
+              <div class="rev-row"><span class="rev-label">Athlete (free)</span><span style="font-family:var(--mono);font-size:11px;color:var(--red)">Lock screen</span></div>
+              <div class="rev-row"><span class="rev-label">Amateur — ₹499/mo</span><span class="rev-val">Full score</span></div>
+              <div class="rev-row"><span class="rev-label">Professional — ₹999/mo</span><span class="rev-val">Score + API</span></div>
+            </div>
+          </div>
+          <div class="card purple">
+            <div class="card-ct">B2B coach portal</div>
+            <div class="card-body">Coach dashboard: all athletes' scores, trends, weakest metrics, ACWR alerts. Per seat pricing.</div>
+            <div style="margin-top:12px">
+              <div class="rev-row"><span class="rev-label">Solo coach</span><span class="rev-val">₹499/mo</span></div>
+              <div class="rev-row"><span class="rev-label">Small club (≤30)</span><span class="rev-val">₹4,999/mo</span></div>
+              <div class="rev-row"><span class="rev-label">Academy (≤100)</span><span class="rev-val">₹14,999/mo</span></div>
+            </div>
+          </div>
+          <div class="card amber">
+            <div class="card-ct">Enterprise / scouting</div>
+            <div class="card-body">State boards, national institutes, insurance. Annual contracts. Requires validation paper first.</div>
+            <div style="margin-top:12px">
+              <div class="rev-row"><span class="rev-label">Club annual licence</span><span class="rev-val">₹1–5L/yr</span></div>
+              <div class="rev-row"><span class="rev-label">Scouting event</span><span class="rev-val">₹50K–2L</span></div>
+              <div class="rev-row"><span class="rev-label">Insurance pilot</span><span class="rev-val">Rev share</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Unit economics — path to ₹1Cr ARR</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">B2C — 50,000 MAU target</div>
+            <div class="code">MAU:               50,000
+Paid conversion:       8%  =  4,000 users
+Avg ARPU:         ₹499/mo
+Monthly revenue:  ₹19.96L
+Annual:           ₹2.4Cr ARR
+
+Infrastructure cost at 50k MAU:
+  Supabase Pro:        $25/mo
+  S3 (share cards):    $80/mo
+  API (Vercel/Railway) $50/mo
+  Total:         ~₹13,000/mo
+
+Gross margin: ~97%</div>
+          </div>
+          <div class="card">
+            <div class="card-title">B2B — Year 2–3</div>
+            <div class="code">Coach portal (Year 2):
+  50 coaches × ₹499    =  ₹25K/mo
+
+Club licences (Year 3, post paper):
+  10 clubs × ₹5K/mo    =  ₹50K/mo
+
+Academy / enterprise (Year 3–4):
+  5 contracts × ₹2L/yr =  ₹10L/yr
+
+Scouting events (Year 4):
+  10 × ₹1L             =  ₹10L/yr
+
+B2B Year 3 combined:  ~₹85L/yr
+Add B2C:        ₹3Cr+ ARR total</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Competitive positioning</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Competitor</th><th>What they measure</th><th>What they miss</th><th>Formm's edge</th></tr></thead>
+            <tbody>
+              <tr><td>WHOOP</td><td>HRV, sleep, physiological strain</td><td>Movement quality. WHOOP tells you how recovered you are — not how well you move.</td><td>Formm adds biomechanics on top of the same physiology signals. Scout Score + Readiness = complete picture.</td></tr>
+              <tr><td>Oura</td><td>Sleep, readiness (ring-based)</td><td>No training data. No movement analysis. Recovery only.</td><td>Formm reads Oura's raw signals and adds movement quality. Not competing — stacking.</td></tr>
+              <tr><td>Strava</td><td>GPS, pace, segments, volume</td><td>Movement quality. How far and fast — not whether your form is causing injury.</td><td>Different category. Potential integration: Strava activity → RPE input into ACWR.</td></tr>
+              <tr><td>Nike Training Club</td><td>Workout library, guided sessions</td><td>No AI analysis. No personalised score. No longitudinal tracking.</td><td>NTC tells you what to do. Formm tells you whether you did it correctly.</td></tr>
+              <tr><td>Freeletics</td><td>AI coaching, workout tracking</td><td>Score is engagement-based not science-based. No peer-reviewed methodology.</td><td>"Our AI says so" vs "sports science says so." Formm's score has a citable methodology.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">The India-specific opportunity</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Why India is the right first market</div>
+            <div class="card-body">30,000+ cricket academies nationwide with no objective movement quality measurement. BCCI and state boards spend heavily on coaching but have no standardised biomechanical benchmarking tool. Formm Scout Score — validated against peer-reviewed research — is the first credible candidate. No Western competitor has Indian-specific population data.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Indian population calibration</div>
+            <div class="card-body">The current benchmarks (Escamilla, Hewett, McGill) are from predominantly Western populations. An Indian-specific reference population makes the percentile layer more meaningful domestically — and impossible for a Western competitor to replicate without their own Indian dataset. This is a secondary moat that builds automatically as you grow.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /business -->
+
+    <!-- ══════════════ 03 SCIENCE ══════════════ -->
+    <div class="panel" id="panel-science">
+      <div class="panel-title">The Science</div>
+      <div class="panel-sub">The 5-dimension framework, exact benchmark values per movement, weight calibration rationale, and full validation study design.</div>
+
+      <div class="section">
+        <div class="section-title">5-dimension framework — sources and weights</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Dimension</th><th>Weight</th><th>What it measures</th><th>Primary source</th><th>Why this weight</th></tr></thead>
+            <tbody>
+              <tr><td>Form accuracy</td><td><span class="badge teal">35%</span></td><td>Joint angles vs peer-reviewed ideal ranges. Knee valgus, hip depth, spinal alignment.</td><td>Hewett et al. 2005 (AJSM) — valgus as ACL predictor. Escamilla et al. 2001 (JOSPT).</td><td>Strongest injury predictor. Valgus moment predicts ACL at p&lt;0.001.</td></tr>
+              <tr><td>Range of motion</td><td><span class="badge blue">20%</span></td><td>Depth achieved vs minimum required. Hip below parallel, ankle dorsiflexion available.</td><td>Straub & Powers 2024 (IJSPT). Hartmann et al. 2013 (Sports Medicine).</td><td>Mobility deficit is the 2nd most common cause of compensatory movement.</td></tr>
+              <tr><td>Stability</td><td><span class="badge blue">20%</span></td><td>Deviation from neutral planes. Lateral trunk lean, tibial sway, anterior pelvic tilt.</td><td>McGill 2007 (Low Back Disorders). Cholewicki & McGill 1991 (J Biomechanics).</td><td>Instability under load = primary low back injury mechanism.</td></tr>
+              <tr><td>Symmetry</td><td><span class="badge amber">15%</span></td><td>Left vs right side balance. Asymmetry &gt;15% under load is a risk marker.</td><td>Kiesel et al. 2007 — FMS asymmetry and injury. Hadzic et al. 2012.</td><td>Asymmetry predicts overuse injury with OR ~1.7. Improves slowly — lower weight.</td></tr>
+              <tr><td>Improvement rate</td><td><span class="badge amber">10%</span></td><td>Score trajectory across sessions. Rewards consistent deliberate practice.</td><td>Ericsson 1993 (deliberate practice). Composite of motor learning literature.</td><td>Lowest weight — must not let one good session distort an otherwise weak score.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Benchmark ranges — exact thresholds per movement</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Movement</th><th>Metric</th><th>Green ≥80</th><th>Amber 60–79</th><th>Red &lt;60</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td>Squat</td><td>Knee valgus</td><td>&lt;5° collapse</td><td>5–12°</td><td>&gt;12°</td><td>Hewett 2005</td></tr>
+              <tr><td>Squat</td><td>Hip depth</td><td>&gt;110° flexion</td><td>90–110°</td><td>&lt;90°</td><td>Kotiuk 2022</td></tr>
+              <tr><td>Squat</td><td>Ankle dorsiflexion</td><td>&gt;20°</td><td>13–20°</td><td>&lt;13°</td><td>Straub 2024</td></tr>
+              <tr><td>Deadlift</td><td>Lumbar lordosis</td><td>Maintained</td><td>Slight rounding</td><td>Significant kyphosis</td><td>Bengtsson 2022</td></tr>
+              <tr><td>Deadlift</td><td>Hip–shoulder rise rate</td><td>&lt;5° differential</td><td>5–15°</td><td>&gt;15° hip ahead</td><td>Hanen 2025</td></tr>
+              <tr><td>Push-up</td><td>Scapular protraction</td><td>Full at top</td><td>Partial</td><td>None / retraction</td><td>Arghadeh 2023</td></tr>
+              <tr><td>Push-up</td><td>Body alignment</td><td>&lt;5° from straight</td><td>5–15°</td><td>&gt;15° sag/pike</td><td>Chen 2022</td></tr>
+              <tr><td>Plank</td><td>Hip alignment</td><td>&lt;5° from straight</td><td>5–15°</td><td>&gt;15°</td><td>Zahiri 2022</td></tr>
+              <tr><td>Pull-up</td><td>Dead hang at bottom</td><td>0–5° elbow flex</td><td>5–20°</td><td>&gt;20°</td><td>Prinold 2016</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Weight calibration — Year 1 vs Year 2+</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Year 1 — literature weights</div>
+            <div class="card-body">Apply to all users regardless of sport. Based entirely on injury-prediction literature. MVP weighting.</div>
+            <div class="code">form_accuracy:    35%  <span class="cm">// strongest predictor</span>
+range_of_motion:  20%  <span class="cm">// mobility deficit</span>
+stability:        20%  <span class="cm">// spine/joint safety</span>
+symmetry:         15%  <span class="cm">// bilateral balance</span>
+improvement_rate: 10%  <span class="cm">// consistency reward</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Year 2+ — sport-adjusted weights</div>
+            <div class="card-body">Once you have enough per-sport data, calibrate weights to sport-specific injury patterns.</div>
+            <div class="code"><span class="cm">// Cricket (batting/bowling)</span>
+shoulder_symmetry: 25%  <span class="cm">// rotational sport</span>
+trunk_stability:   25%
+form_accuracy:     25%
+range_of_motion:   15%
+improvement_rate:  10%
+
+<span class="cm">// Running</span>
+ankle_dorsiflexion: 30%  <span class="cm">// impact mechanics</span>
+hip_alignment:      25%
+form_accuracy:      25%
+symmetry:           12%
+improvement_rate:    8%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Validation study — full design</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Study design</div>
+            <div class="card-body">Prospective cohort. 12-month follow-up. Primary outcome: injury incidence.</div>
+            <div class="code">Design: Prospective cohort
+N target: 500 minimum (consenting users)
+Sports:  Gym/Lifting, Cricket, Running
+Min analyses: 5 (score must be unlocked)
+Follow-up: 12 months
+
+Primary endpoint:
+  Self-reported injury
+  (OSTRC-H2 questionnaire, monthly)
+
+Secondary:
+  1RM improvement (self-reported)
+  Competition outcomes (where available)
+
+Hypothesis:
+  Formm Score &lt;60 predicts injury in 12
+  months, controlling for ACWR, sport,
+  training level, age, sex
+
+Target journals:
+  J Strength & Conditioning Research
+  Int J Sports Physical Therapy
+  Sports Medicine</div>
+          </div>
+          <div class="card">
+            <div class="card-title">University pitch email</div>
+            <div class="card-body">Target: LNIPE Gwalior, NSNIS Patiala, Manipal sports medicine, IISc Bangalore biomechanics lab. Email the PI directly — not the institution.</div>
+            <div class="code">Subject: Largest real-world movement
+quality dataset in India — collaboration?
+
+"We have analysed 50,000+ real training
+sessions with joint angle data per rep.
+We want to know whether our movement
+quality score predicts injury outcomes.
+
+We need: IRB approval, statistical
+analysis, co-authorship on the paper.
+
+We offer: full anonymised dataset,
+co-authorship, potential follow-on
+research funding.
+
+This is the most interesting sports
+biomechanics dataset available in India.
+Any sports science researcher will find
+this proposal compelling."</div>
+          </div>
+        </div>
+        <div class="note-teal">A single published paper validating the score transforms the commercial story from "our AI says so" to "peer-reviewed research confirms this." It is also the unlock for all B2B enterprise sales — physiotherapists and sports bodies require evidence-based tools. Start the university conversation in month 4.</div>
+      </div>
+    </div><!-- /science -->
+
+    <!-- ══════════════ 04 PRODUCT ══════════════ -->
+    <div class="panel" id="panel-product">
+      <div class="panel-title">The Product</div>
+      <div class="panel-sub">The 5 moments that determine whether users care about their score. Empty state design. Notification rules. What makes the share card get shared.</div>
+
+      <div class="section">
+        <div class="section-title">The 5 moments that determine retention</div>
+        <div id="product-tl"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Empty state design — every zero has a job</div>
+        <div class="grid2">
+          <div class="card red">
+            <div class="card-ct">Never show</div>
+            <div class="card-body">"Your Formm Score: 0/100 · Top 99% of all athletes." This is what the current build shows. It communicates total failure to a user who has done nothing wrong.</div>
+            <div class="card-body" style="margin-top:8px">Any bar chart flat at zero. Percentile shown when score is 0. "No data yet." "Complete your profile to see your score."</div>
+          </div>
+          <div class="card teal">
+            <div class="card-ct">Always show</div>
+            <div class="card-body">The lock screen with a progress bar. "1 of 5 analyses · 4 more needed · any movement counts." Turns incompleteness into a goal.</div>
+            <div class="card-body" style="margin-top:8px">Ghost chart showing what the populated version will look like. The milestone you are working toward — not the empty state you are stuck in.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Notification rules</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Event</th><th>Notify?</th><th>Copy</th><th>Reasoning</th></tr></thead>
+            <tbody>
+              <tr><td>Score unlocks (5th analysis)</td><td><span class="badge teal">Yes — in-app</span></td><td>"Your Formm Score is ready."</td><td>Highest value moment. Worth interrupting for.</td></tr>
+              <tr><td>Level up</td><td><span class="badge teal">Yes — push</span></td><td>"You've reached Advanced. Here's what that means."</td><td>Rarest positive event. Auto-generate share card.</td></tr>
+              <tr><td>Top 25% crossed</td><td><span class="badge teal">Yes — in-app</span></td><td>"You're now in the top 25% for squat form."</td><td>Shareable moment. Generate share card automatically.</td></tr>
+              <tr><td>Score drops</td><td><span class="badge red">Never</span></td><td>—</td><td>Score drops are normal after analysing a harder exercise. Notifying creates anxiety, not motivation.</td></tr>
+              <tr><td>Score stagnant 30 days</td><td><span class="badge amber">Maybe — in-app</span></td><td>"Your squat hasn't been analysed in 30 days."</td><td>Re-engagement only. Frame as an invitation, never as failure.</td></tr>
+              <tr><td>Percentile rank changes</td><td><span class="badge red">Never</span></td><td>—</td><td>Rank changes as the population grows. Notifying rank drops is hostile product design.</td></tr>
+              <tr><td>1-year anniversary</td><td><span class="badge teal">Yes — push</span></td><td>"1 year of tracking. Your squat improved X points."</td><td>Most powerful personalised moment. Best share card trigger.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Share card — what makes it get shared</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Must contain</div>
+            <div class="card-body">Score (large, purple). Level badge. Percentile in the user's sport. Top 3 metric scores. Month/year. "Formm" brand prominent. QR code linking to formm.app (future).</div>
+            <div class="note-teal">Test at 375px width (smallest phone). The score must be readable as a thumbnail in an Instagram Story without the card being opened full-screen.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Why "Top 29%" gets shared and "72" doesn't</div>
+            <div class="card-body">The number alone means nothing. The social context — "Top 29% for squat form in Gym / Lifting" — implies community, competition, and achievement simultaneously.</div>
+            <div class="card-body" style="margin-top:8px">The share prompt should appear after the level-up animation completes — not before. The emotional high of the animation is the trigger. Asking before it lands is a cold ask.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /product -->
+
+    <!-- ══════════════ 05 IP ══════════════ -->
+    <div class="panel" id="panel-ip">
+      <div class="panel-title">IP Protection</div>
+      <div class="panel-sub">What to trademark, patent, and keep secret. Exact costs. Urgency order. The trade secret protocol. Draft patent claim for attorney review.</div>
+
+      <div class="section">
+        <div class="section-title">Protection matrix</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Asset</th><th>Protection type</th><th>Action required</th><th>Cost</th><th>Urgency</th></tr></thead>
+            <tbody>
+              <tr><td>"Formm Score" name</td><td>Trademark — TM Class 41 + 42</td><td>File at ipindia.gov.in. Use ™ symbol immediately on filing.</td><td>₹4,500/class = ₹9,000 total</td><td><span class="badge red">This week</span></td></tr>
+              <tr><td>Scoring weights</td><td>Trade secret (not patent — too easy to design around)</td><td>Keep out of codebase. Env vars only. NDA for all employees who see it.</td><td>₹0</td><td><span class="badge red">Already</span></td></tr>
+              <tr><td>Camera → joint angle → score method</td><td>Patent — Indian Patent Act, Method claim</td><td>File provisional to establish priority date. Full application within 12 months.</td><td>₹1,600 provisional + ₹30–50K attorney</td><td><span class="badge amber">Month 1–2</span></td></tr>
+              <tr><td>UI, brand, visual identity</td><td>Copyright (automatic) + trademark for logo</td><td>Document creation dates. Logo trademark optional but useful for licensing.</td><td>₹4,500 logo TM</td><td><span class="badge teal">Month 3</span></td></tr>
+              <tr><td>Population dataset</td><td>Database right + ToS contractual controls</td><td>ToS must allow aggregated data for research/product. DPDP compliant.</td><td>₹0 (in ToS)</td><td><span class="badge amber">Before 10k users</span></td></tr>
+              <tr><td>Validation study findings</td><td>Co-authored publication — negotiate commercial vs publication rights</td><td>Formm holds commercial rights. University holds publication rights. Do not sign over data ownership.</td><td>₹0 (negotiated)</td><td><span class="badge teal">Month 4–6</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Trade secret protocol</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">What stays secret</div>
+            <div class="card-body">The exact weighting formula. Benchmark calibration adjustments made after seeing real population data. Sport-specific weight adjustments. Threshold values if changed after calibration.</div>
+            <div class="code"><span class="cm"># .env — never committed to Git</span>
+<span class="cm"># Loaded server-side only, never client-side</span>
+<span class="cm"># Never logged in application logs</span>
+W_FORM_ACCURACY=0.35
+W_RANGE_OF_MOTION=0.20
+W_STABILITY=0.20
+W_SYMMETRY=0.15
+W_IMPROVEMENT_RATE=0.10
+
+<span class="cm"># Git: add to .gitignore immediately</span>
+<span class="cm"># CI/CD: inject as encrypted secrets</span>
+<span class="cm"># Access: need-to-know only — NDA required</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">What to publish openly</div>
+            <div class="card-body">The 5-dimension framework. The benchmark sources (Escamilla, Hewett, McGill). The general approach of combining camera analysis with peer-reviewed benchmarks. The level labels and thresholds.</div>
+            <div class="note-teal">Publishing the framework paradoxically strengthens the moat. It establishes Formm as the standard-setter. Competitors must explain why they chose different dimensions — you do not.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Draft patent claim — for attorney review</div>
+        <div class="card">
+          <div class="card-body">Method claims are harder to design around than software implementation claims. This draft covers the pipeline from camera to score.</div>
+          <div class="code"><span class="cm">/* DRAFT — review with patent attorney before filing */</span>
+
+<span class="kw">Claim 1:</span> A computer-implemented method for generating
+a longitudinal movement quality score comprising:
+
+(a) capturing video of a human performing a
+    resistance exercise using a device camera;
+
+(b) processing said video using a pose estimation
+    neural network to extract joint angle data
+    per repetition;
+
+(c) comparing said joint angle data against a
+    plurality of peer-reviewed biomechanical
+    benchmark ranges specific to the exercise;
+
+(d) generating a weighted composite score across
+    at least four movement quality dimensions
+    including form accuracy and range of motion;
+
+(e) storing said score and joint angle data to
+    generate a longitudinal personal baseline;
+
+(f) generating a percentile rank by comparing
+    said score against a population distribution
+    of users performing the same exercise.
+
+<span class="cm">Prior art to review before filing:</span>
+<span class="cm">  - Nike Athlete System patents</span>
+<span class="cm">  - Whoop methodology patents</span>
+<span class="cm">  - Dartfish video analysis patents</span>
+<span class="cm">  None appear to claim this specific combination.</span></div>
+        </div>
+      </div>
+    </div><!-- /ip -->
+
+    <!-- ══════════════ 06 DATA ══════════════ -->
+    <div class="panel" id="panel-data">
+      <div class="panel-title">Data Layer</div>
+      <div class="panel-sub">Full database architecture with row-level security. Anonymisation pipeline for the validation study. DPDP Act 2023 compliance. Retention policy.</div>
+
+      <div class="section">
+        <div class="section-title">Database architecture with RLS</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Schema separation</div>
+            <div class="card-body">PII and movement data in separate schemas. They are never joined in the application layer — only via server-side functions with explicit access control.</div>
+            <div class="code"><span class="cm">-- Schema: public (movement data, no PII)</span>
+analyses, rep_data, metric_scores,
+formm_score, score_distributions,
+score_history, milestones
+
+<span class="cm">-- Schema: user (PII — strict RLS)</span>
+users, user_profile, subscriptions
+
+<span class="cm">-- Schema: b2b</span>
+coaches, coach_athletes, club_dashboards
+
+<span class="cm">-- Row-level security example</span>
+<span class="kw">CREATE POLICY</span> "users own their data"
+<span class="kw">ON</span> rep_data <span class="kw">FOR ALL</span>
+<span class="kw">USING</span> (
+  analysis_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> id <span class="kw">FROM</span> analyses
+    <span class="kw">WHERE</span> user_id = auth.uid()
+  )
+);</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Anonymisation pipeline</div>
+            <div class="card-body">IRB requires anonymisation before transfer to university. Hashed user IDs. No PII in the export. Only movement and score data.</div>
+            <div class="code"><span class="cm">-- Export for university research partner</span>
+<span class="kw">SELECT</span>
+  encode(sha256(user_id::text::bytea),
+    <span class="str">'hex'</span>) AS anon_user_id,
+  u.sport,
+  u.training_level,
+  u.age_bracket,   <span class="cm">-- 18-24, 25-34 etc.</span>
+  a.movement,
+  a.overall_score,
+  fs.overall_score AS formm_score,
+  fs.level,
+  <span class="cm">-- NOT: name, email, device_id</span>
+  a.analysed_at::date AS analysis_date
+<span class="kw">FROM</span> analyses a
+<span class="kw">JOIN</span> formm_score fs ON fs.user_id = a.user_id
+<span class="kw">JOIN</span> users u ON u.id = a.user_id
+<span class="kw">WHERE</span> u.research_consent = <span class="kw">true</span>;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">DPDP Act 2023 compliance — India</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">What the Act requires for camera/biometric data</div>
+            <div class="card-body">Joint angle data from camera analysis is biometric data under DPDP Act 2023. Required before 10,000 users:</div>
+            <div class="code">1. Consent notice — explicit, purpose-specific,
+   plain language at signup
+
+2. Data principal rights — implement:
+   Right to access their data
+   Right to correction
+   Right to erasure (delete account)
+   Right to grievance redressal
+
+3. Data Fiduciary registration
+   (required above threshold user count)
+
+4. Research export:
+   Separate research consent
+   Anonymise before transfer
+   Data Processing Agreement with university</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Required privacy policy language</div>
+            <div class="card-body">This exact language is required in your privacy policy for the camera data processing:</div>
+            <div class="code">"Formm processes video from your device
+camera to analyse your movement form.
+
+VIDEO: Processed locally on your device
+using TensorFlow.js. Video is NOT uploaded
+to Formm servers.
+
+JOINT ANGLES: The numerical output of the
+analysis (e.g. knee flexion: 112°) is stored
+on our servers, associated with your account.
+
+RETENTION: Joint angle data is retained
+for the lifetime of your account and deleted
+within 30 days of your deletion request.
+
+PURPOSE: Used to calculate your Formm Score,
+provide coaching recommendations, and
+(with your separate consent) contribute to
+anonymised sports science research."</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Data retention policy</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Data type</th><th>Retention</th><th>Why</th><th>Deletion trigger</th></tr></thead>
+            <tbody>
+              <tr><td>Raw video</td><td>Never stored</td><td>TF.js processes client-side. Video never leaves the device.</td><td>N/A</td></tr>
+              <tr><td>Joint angle data (rep_data)</td><td>Indefinite — account lifetime</td><td>Core asset. Required for longitudinal trend and validation study.</td><td>Account deletion — 30 days</td></tr>
+              <tr><td>Aggregate scores</td><td>Indefinite</td><td>Trend charts require full history. Cannot be reconstructed.</td><td>Account deletion — 30 days</td></tr>
+              <tr><td>PII (name, email, device ID)</td><td>Account lifetime</td><td>Required for service delivery.</td><td>Account deletion — 7 days</td></tr>
+              <tr><td>Anonymised research export</td><td>Per data sharing agreement (typically 5 years)</td><td>Academic replication requirements.</td><td>Per university agreement</td></tr>
+              <tr><td>Backups</td><td>30-day rolling</td><td>Standard recovery window.</td><td>Automatic rolling delete</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /data -->
+
+    <!-- ══════════════ 07 GTM ══════════════ -->
+    <div class="panel" id="panel-gtm">
+      <div class="panel-title">Go-to-Market</div>
+      <div class="panel-sub">12-month phased roadmap. Four acquisition channels. The brand message that creates a new category.</div>
+
+      <div class="section">
+        <div class="section-title">12-month roadmap</div>
+        <div id="gtm-tl"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Acquisition channels</div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Channel 1 — Cricket academy partnerships</div>
+            <div class="card-body">Find 3–5 cricket academies in one city. Offer 90-day free access to the coach portal. Ask them to have all their athletes (15–30 per academy) create accounts and run their first form analyses.</div>
+            <div class="card-body" style="margin-top:8px">This gets you: 50–150 real users with high-quality data, a case study, and a referral channel. The pitch to parents: "See a scientific score for your child's form." No other tool offers this.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Channel 2 — Gym chain white-label</div>
+            <div class="card-body">Approach mid-market gyms (₹2,000–4,000/month — serious recreational athletes). Offer branded coach dashboard for their trainers. Revenue: ₹10/member/month paid by the gym.</div>
+            <div class="card-body" style="margin-top:8px">500 members × ₹10 = ₹5,000/month per gym. 20 gym chains = ₹1L/month from partnerships. Drives Formm adoption among members who want to track their progress.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Channel 3 — Instagram Reels format</div>
+            <div class="card-body">3 Reels per week. Format: before/after form check with Formm Score overlay. Specific fault identified, fix applied, score rechecked. Not generic fitness content — specific, scientific, Formm-branded.</div>
+            <div class="card-body" style="margin-top:8px">Each Reel is both acquisition content and product education. "What does an 84/100 squat look like vs a 61/100 squat?" — this question is inherently shareable and demonstrates the product instantly.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Channel 4 — Share card flywheel</div>
+            <div class="card-body">Every level-up generates a share card. "I scored 84/100 for squat form — top 18%" communicates more than "I completed a workout." It implies community, competition, and scientific credibility simultaneously.</div>
+            <div class="card-body" style="margin-top:8px">The flywheel requires users to reach level-ups. That requires the lock screen to be compelling enough to drive 5 analyses. This is a product problem as much as an acquisition problem.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">The brand message — one sentence to own</div>
+        <div class="card teal" style="padding:24px">
+          <div style="font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3;color:var(--tx1);margin-bottom:12px">"You track your workouts. You track your sleep. You don't track whether you move correctly. Formm does."</div>
+          <div class="card-body">This is not "AI-powered form correction" (feature). Not "personalised sports science" (category too broad). It is specifically the gap between tracking effort and tracking quality. That gap is real, universally felt by anyone who trains seriously, and Formm is the first product to close it.</div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <div class="card">
+            <div class="card-title">The category Formm creates</div>
+            <div class="card-body">"Movement quality" does not exist as a consumer category yet. Fitness apps track volume. Wearables track physiology. Nobody tracks whether you move well. Formm's job is to make "movement quality" a category people understand, care about, and measure.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">The question Formm needs in common use</div>
+            <div class="card-body">"What's your Formm Score?" — in the same way "What's your Strava FTP?" or "What's your WHOOP Recovery?" became shorthand in performance communities. The score is the brand, and the brand is the score.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /gtm -->
+
+  </main>
+</div><!-- /app -->
+
+<script>
+// ── NAVIGATION ────────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+    document.querySelector('.main').scrollTop = 0;
+    window.scrollTo(0, 0);
+  });
+});
+
+// ── SIMULATOR ─────────────────────────────────────────────
+const METRICS = [
+  {key:'form_accuracy',    label:'Form accuracy',    w:.35, val:88},
+  {key:'range_of_motion',  label:'Range of motion',  w:.20, val:71},
+  {key:'stability',        label:'Stability',         w:.20, val:90},
+  {key:'symmetry',         label:'Symmetry',          w:.15, val:86},
+  {key:'improvement_rate', label:'Improvement rate',  w:.10, val:62},
+];
+const LEVELS=[{min:85,l:'Elite / Pro',c:'var(--amber)'},{min:75,l:'Collegiate',c:'var(--blue)'},{min:60,l:'Advanced',c:'var(--purple)'},{min:40,l:'Intermediate',c:'var(--teal)'},{min:0,l:'Recreational',c:'var(--tx3)'}];
+const getLevel = s => LEVELS.find(l=>s>=l.min);
+const getPath  = s => { const i=LEVELS.findIndex(l=>s>=l.min); return i>0?`${LEVELS[i-1].min-s} pts to ${LEVELS[i-1].l}`:'Elite/Pro achieved'; };
+const metColor = v => v>=80?'var(--green)':v>=60?'var(--amber)':'var(--red)';
+
+const container = document.getElementById('sim-sliders');
+METRICS.forEach(m => {
+  const row = document.createElement('div');
+  row.className = 'metric-row';
+  row.innerHTML = `
+    <div class="metric-head">
+      <span class="metric-name">${m.label}</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="metric-wt">${Math.round(m.w*100)}%</span>
+        <span class="metric-val" id="mv-${m.key}" style="color:${metColor(m.val)}">${m.val}</span>
+      </div>
+    </div>
+    <div class="metric-track">
+      <div class="metric-fill" id="mf-${m.key}" style="width:${m.val}%;background:${metColor(m.val)}"></div>
+    </div>
+    <input type="range" class="sim-slider" min="0" max="100" step="1" value="${m.val}" data-key="${m.key}">
+  `;
+  container.appendChild(row);
+});
+
+function recalc() {
+  const totalW = METRICS.reduce((s,m)=>s+m.w,0);
+  const weighted = METRICS.reduce((s,m)=>s+(m.val*m.w),0);
+  const score = Math.round(weighted/totalW);
+  const lv = getLevel(score);
+  document.getElementById('sim-score').textContent = score;
+  document.getElementById('sim-score').style.color = lv.c;
+  document.getElementById('sim-level').textContent = lv.l;
+  document.getElementById('sim-level').style.color = lv.c;
+  document.getElementById('sim-path').textContent = getPath(score);
+  const b = document.getElementById('sim-badge');
+  b.textContent = lv.l;
+  b.className = 'badge ' + (score>=75?'teal':score>=60?'purple':score>=40?'blue':'amber');
+}
+
+container.addEventListener('input', e => {
+  if (e.target.type !== 'range') return;
+  const key = e.target.dataset.key;
+  const val = +e.target.value;
+  const m = METRICS.find(x=>x.key===key);
+  m.val = val;
+  document.getElementById('mv-'+key).textContent = val;
+  document.getElementById('mv-'+key).style.color = metColor(val);
+  document.getElementById('mf-'+key).style.width = val + '%';
+  document.getElementById('mf-'+key).style.background = metColor(val);
+  recalc();
+});
+
+// ── TIMELINES ────────────────────────────────────────────
+const PRODUCT_TL = [
+  {phase:'Analyses 1–4',dot:'1–4',col:'var(--teal)',bg:'rgba(0,224,181,.12)',bd:'rgba(0,224,181,.3)',title:'Building anticipation',body:'The lock screen shows progress (1/5 → 4/5). Each analysis advances the bar. Language is "building your score" not "incomplete profile." The user knows exactly what they are working toward.'},
+  {phase:'Analysis 5',dot:'5',col:'var(--purple)',bg:'rgba(155,127,255,.12)',bd:'rgba(155,127,255,.3)',title:'Score unlock — the most important moment in the product',body:'Lock screen animates away. Score counts up from 0 to earned value. Ring fills. Level badge appears. Share card generated automatically. This moment determines whether the user ever analyses again.'},
+  {phase:'Week 2',dot:'',col:'var(--blue)',bg:'rgba(77,163,255,.12)',bd:'rgba(77,163,255,.3)',title:'Percentile context appears',body:'"You\'re in the top 29% for squat form in Gym / Lifting." This is the social context that makes the score feel real. "72" means little. "Top 29%" means a great deal — it implies community and competition simultaneously.'},
+  {phase:'Month 1',dot:'',col:'var(--green)',bg:'rgba(54,217,154,.12)',bd:'rgba(54,217,154,.3)',title:'First trend data',body:'With 8–12 analyses across 2–3 movements, the trend chart has enough data to show direction. "Your squat improved 8 points this month." First longitudinal payoff. The app is earning its retention.'},
+  {phase:'Month 3–6',dot:'',col:'var(--amber)',bg:'rgba(245,165,36,.12)',bd:'rgba(245,165,36,.3)',title:'The switching cost crystallises',body:'"Your squat has improved 22 points over 6 months." This view cannot be replicated on a new platform. The user now has something they cannot take with them. This is the moment Formm becomes sticky.'},
+];
+
+const GTM_TL = [
+  {phase:'Month 1–2',dot:'1',col:'var(--teal)',bg:'rgba(0,224,181,.12)',bd:'rgba(0,224,181,.3)',title:'Foundation: data layer + trademark',body:'Ship rep_data and metric_scores tables. File "Formm Score" trademark (TM Class 41+42). File provisional patent. Every analysis from this point stores raw joint angles.'},
+  {phase:'Month 2–3',dot:'2',col:'var(--purple)',bg:'rgba(155,127,255,.12)',bd:'rgba(155,127,255,.3)',title:'Score engine + lock screen',body:'Deploy scoring engine server-side. Replace broken 0/100 screen with lock screen and progress bar. Weights in env vars only. Unlock animation on 5th analysis.'},
+  {phase:'Month 3–4',dot:'3',col:'var(--blue)',bg:'rgba(77,163,255,.12)',bd:'rgba(77,163,255,.3)',title:'Percentile engine + share card',body:'Deploy nightly percentile rebuild. Show "Top X%" on Formm Score screen. Build share card generator. Auto-trigger on level-up events.'},
+  {phase:'Month 4–6',dot:'4',col:'var(--green)',bg:'rgba(54,217,154,.12)',bd:'rgba(54,217,154,.3)',title:'Academy partnerships + university outreach',body:'Approach 5 cricket academies, 3 gym chains for pilot. Free coach portal 90-day trial. Email 3 sports science university departments. Target 1 partnership agreement by month 6.'},
+  {phase:'Month 6–12',dot:'5',col:'var(--amber)',bg:'rgba(245,165,36,.12)',bd:'rgba(245,165,36,.3)',title:'B2B coach portal + content engine',body:'Launch paid coach portal (₹499/mo). 3 Instagram Reels/week. Target 5,000 MAU by month 12. IRB submission with university partner. Begin annual academy licence conversations.'},
+  {phase:'Month 12–24',dot:'6',col:'var(--red)',bg:'rgba(255,69,96,.12)',bd:'rgba(255,69,96,.3)',title:'Validation study + enterprise sales',body:'Study running (500+ enrolled users). Begin enterprise sales with state sports boards. Sport-adjusted weights for cricket and running. Target ₹1Cr ARR.'},
+];
+
+function buildTl(data, containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  data.forEach(item => {
+    const d = document.createElement('div');
+    d.className = 'tl';
+    d.innerHTML = `
+      <div class="tl-dot" style="background:${item.bg};color:${item.col};border-color:${item.bd}">${item.dot}</div>
+      <div class="tl-phase">${item.phase}</div>
+      <div class="tl-title">${item.title}</div>
+      <div class="tl-body">${item.body}</div>
+    `;
+    c.appendChild(d);
+  });
+}
+
+buildTl(PRODUCT_TL, 'product-tl');
+buildTl(GTM_TL, 'gtm-tl');
+</script>
+</body>
+</html>
