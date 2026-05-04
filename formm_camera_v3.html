@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Camera Angle Lab</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080C;--bg1:#0F0F17;--bg2:#15151F;--bg3:#1C1C28;--bg4:#242433;--bg5:#2D2D40;
+  --ln1:rgba(255,255,255,.06);--ln2:rgba(255,255,255,.10);--ln3:rgba(255,255,255,.18);
+  --tx1:#F2F1EC;--tx2:#9896AE;--tx3:#5A5870;
+  --teal:#00E0B5;--teal2:#00C49E;
+  --green:#36D99A;--amber:#F5A524;--blue:#4DA3FF;--purple:#9B7FFF;--red:#FF4560;
+  --mono:'Courier New',monospace;
+}
+html,body{height:100%;background:var(--bg);color:var(--tx1);font-family:-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+
+/* ── LAYOUT ── */
+.shell{display:flex;height:100vh;width:100vw}
+.left-panel{width:200px;flex-shrink:0;background:var(--bg1);border-right:1px solid var(--ln1);display:flex;flex-direction:column;padding:0}
+.center-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.right-panel{width:280px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--ln1);display:flex;flex-direction:column;overflow-y:auto}
+
+/* ── LEFT PANEL ── */
+.brand{padding:18px 16px 14px;border-bottom:1px solid var(--ln1)}
+.brand-name{font-size:20px;font-weight:700;color:var(--teal);letter-spacing:-.5px}
+.brand-sub{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px}
+.panel-label{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;padding:12px 16px 6px}
+.ex-btn{display:flex;align-items:center;gap:10px;padding:9px 16px;border:none;background:none;color:var(--tx2);font-size:12px;font-weight:500;width:100%;text-align:left;cursor:pointer;transition:all .15s;border-left:2px solid transparent;position:relative}
+.ex-btn:hover{background:var(--bg2);color:var(--tx1)}
+.ex-btn.on{color:var(--teal);border-left-color:var(--teal);background:rgba(0,224,181,.06)}
+.ex-badge{margin-left:auto;font-size:9px;font-family:var(--mono);padding:1px 6px;border-radius:8px;background:var(--bg4);color:var(--tx3)}
+.ex-btn.on .ex-badge{background:rgba(0,224,181,.12);color:var(--teal)}
+.mode-section{margin-top:auto;padding:12px 16px;border-top:1px solid var(--ln1)}
+.mode-label{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+.mode-btn{display:block;width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--ln2);background:transparent;color:var(--tx2);font-size:11px;text-align:center;cursor:pointer;margin-bottom:5px;transition:all .15s;font-family:inherit}
+.mode-btn:hover{border-color:var(--ln3);color:var(--tx1)}
+.mode-btn.on{background:var(--teal);border-color:var(--teal);color:var(--bg);font-weight:600}
+
+/* ── CENTER ── */
+.canvas-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--ln1);flex-shrink:0}
+.canvas-title{font-size:11px;color:var(--tx2);font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase}
+.canvas-badges{display:flex;gap:6px;align-items:center}
+.view-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;border:1px solid;font-family:var(--mono)}
+.canvas-area{flex:1;position:relative;overflow:hidden}
+#main-canvas{display:block;width:100%;height:100%}
+.angle-overlay{position:absolute;bottom:0;left:0;right:0;padding:14px 18px;background:linear-gradient(transparent,rgba(8,8,12,.85))}
+.angle-row{display:flex;align-items:center;gap:12px}
+.angle-lbl{font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:.8px;min-width:64px}
+.angle-row input[type=range]{flex:1;accent-color:var(--teal);height:4px}
+.angle-val{font-size:12px;font-weight:600;font-family:var(--mono);min-width:72px;text-align:right;color:var(--teal)}
+.dual-hint{font-size:10px;color:var(--tx3);text-align:center;margin-top:6px}
+
+/* ── RIGHT PANEL ── */
+.score-header{padding:16px;border-bottom:1px solid var(--ln1)}
+.score-row{display:flex;align-items:baseline;gap:8px}
+.score-num{font-size:48px;font-weight:700;line-height:1;font-family:var(--mono);transition:color .4s}
+.score-info{display:flex;flex-direction:column;gap:2px}
+.score-level{font-size:14px;font-weight:600;transition:color .4s}
+.score-sub{font-size:11px;color:var(--tx2)}
+.score-bar-wrap{margin-top:10px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .6s ease,background .4s}
+
+.metrics-section{padding:14px 16px}
+.metrics-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.metric-item{margin-bottom:10px}
+.metric-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.metric-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.metric-name{font-size:11px;color:var(--tx2);flex:1}
+.metric-src{font-size:9px;font-family:var(--mono);padding:1px 5px;border-radius:6px;font-weight:600}
+.metric-score-num{font-size:11px;font-weight:600;min-width:24px;text-align:right}
+.metric-bar-bg{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.metric-bar-fg{height:100%;border-radius:2px;transition:width .5s ease,background .4s}
+
+.coverage-section{padding:12px 16px;border-top:1px solid var(--ln1)}
+.coverage-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.plane-row{display:flex;gap:6px;margin-bottom:6px}
+.plane-chip{flex:1;padding:8px 10px;border-radius:8px;border:1px solid;text-align:center}
+.plane-chip-label{font-size:9px;font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.plane-chip-val{font-size:14px;font-weight:700;font-family:var(--mono)}
+
+.note-section{padding:12px 16px;border-top:1px solid var(--ln1)}
+.note-box{padding:10px 12px;border-radius:0 8px 8px 0;border-left:2px solid;font-size:11px;line-height:1.7;transition:border-color .3s,background .3s,color .3s}
+
+.zone-section{padding:12px 16px;border-top:1px solid var(--ln1)}
+.zone-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.zones-grid{display:flex;flex-direction:column;gap:4px}
+.zone-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;border:1px solid var(--ln1);transition:all .2s}
+.zone-row.active{border-color:var(--teal);background:rgba(0,224,181,.06)}
+.zone-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.zone-info{flex:1}
+.zone-name{font-size:11px;font-weight:600;margin-bottom:1px}
+.zone-range{font-size:10px;color:var(--tx3);font-family:var(--mono)}
+.zone-pct{font-size:10px;color:var(--tx3);font-family:var(--mono)}
+
+@media(max-width:900px){
+  .left-panel{width:160px}
+  .right-panel{width:240px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── LEFT ── -->
+<div class="left-panel">
+  <div class="brand">
+    <div class="brand-name">Formm</div>
+    <div class="brand-sub">Camera angle lab</div>
+  </div>
+  <div class="panel-label">Exercise</div>
+  <button class="ex-btn on" data-ex="squat">Squat<span class="ex-badge">6 metrics</span></button>
+  <button class="ex-btn" data-ex="deadlift">Deadlift<span class="ex-badge">6 metrics</span></button>
+  <button class="ex-btn" data-ex="pushup">Push-up<span class="ex-badge">6 metrics</span></button>
+  <button class="ex-btn" data-ex="plank">Plank<span class="ex-badge">6 metrics</span></button>
+  <button class="ex-btn" data-ex="pullup">Pull-up<span class="ex-badge">6 metrics</span></button>
+  <div class="mode-section">
+    <div class="mode-label">Mode</div>
+    <button class="mode-btn on" data-mode="single">Single angle</button>
+    <button class="mode-btn" data-mode="dual">Dual angle</button>
+  </div>
+</div>
+
+<!-- ── CENTER ── -->
+<div class="center-panel">
+  <div class="canvas-header">
+    <span class="canvas-title">Top-down arena · camera orbits athlete</span>
+    <div class="canvas-badges">
+      <span class="view-badge" id="badge-a"></span>
+      <span class="view-badge" id="badge-b" style="display:none"></span>
+    </div>
+  </div>
+  <div class="canvas-area">
+    <canvas id="main-canvas"></canvas>
+    <div class="angle-overlay">
+      <div class="angle-row">
+        <span class="angle-lbl" id="lbl-a">Camera A</span>
+        <input type="range" min="0" max="359" step="1" value="270" id="sliderA">
+        <span class="angle-val" id="val-a">Side · 270°</span>
+      </div>
+      <div class="angle-row" id="row-b" style="display:none;margin-top:8px">
+        <span class="angle-lbl">Camera B</span>
+        <input type="range" min="0" max="359" step="1" value="0" id="sliderB">
+        <span class="angle-val" id="val-b">Front · 0°</span>
+      </div>
+      <div class="dual-hint" id="dual-hint" style="display:none">Both cameras combined → complete Formm Score</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RIGHT ── -->
+<div class="right-panel">
+  <div class="score-header">
+    <div class="score-row">
+      <span class="score-num" id="score-num">--</span>
+      <div class="score-info">
+        <span class="score-level" id="score-level">--</span>
+        <span class="score-sub" id="score-sub">-- of 6 metrics</span>
+      </div>
+    </div>
+    <div class="score-bar-wrap"><div class="score-bar-fill" id="score-bar"></div></div>
+  </div>
+
+  <div class="metrics-section">
+    <div class="metrics-title">Metrics breakdown</div>
+    <div id="metric-list"></div>
+  </div>
+
+  <div class="coverage-section">
+    <div class="coverage-title">Plane coverage</div>
+    <div class="plane-row">
+      <div class="plane-chip" id="chip-sag">
+        <div class="plane-chip-label">Sagittal</div>
+        <div class="plane-chip-val" id="chip-sag-val">0/3</div>
+      </div>
+      <div class="plane-chip" id="chip-front">
+        <div class="plane-chip-label">Frontal</div>
+        <div class="plane-chip-val" id="chip-front-val">0/2</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-section">
+    <div class="note-box" id="note-box">--</div>
+  </div>
+
+  <div class="zone-section">
+    <div class="zone-title">Angle zones</div>
+    <div class="zones-grid" id="zones-grid"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const EXES = {
+  squat:{label:'Squat',
+    skeleton:'squat',
+    metrics:[
+      {id:'depth',    name:'Hip depth',          plane:'sag',  side:true, front:false, s:{s:88,f:null,o:70}, w:.18},
+      {id:'lumbar',   name:'Lumbar position',     plane:'sag',  side:true, front:false, s:{s:91,f:null,o:74}, w:.15},
+      {id:'ankle',    name:'Ankle dorsiflexion',  plane:'sag',  side:true, front:false, s:{s:79,f:null,o:64}, w:.07},
+      {id:'valgus',   name:'Knee valgus',          plane:'front',side:false,front:true,  s:{s:null,f:74,o:60}, w:.22},
+      {id:'symmetry', name:'Bilateral symmetry',   plane:'front',side:false,front:true,  s:{s:null,f:86,o:70}, w:.13},
+      {id:'stability',name:'Stability',            plane:'both', side:true, front:true,  s:{s:84,f:82,o:80}, w:.15},
+    ],
+    notes:{s:'Side captured depth, lumbar, and ankle. Knee valgus — the strongest single injury predictor — is only visible from the front.',f:'Front captured valgus and symmetry. Depth and lumbar mechanics are missing. Add a side view.',o:'Oblique view: all metrics present but each at ~65% confidence. Values marked ~.',d:'Complete analysis. All 6 dimensions from both views.'}
+  },
+  deadlift:{label:'Deadlift',skeleton:'deadlift',
+    metrics:[
+      {id:'lumbar',  name:'Lumbar lordosis',     plane:'sag',  side:true, front:false, s:{s:88,f:null,o:72}, w:.20},
+      {id:'hinge',   name:'Hip hinge quality',   plane:'sag',  side:true, front:false, s:{s:83,f:null,o:68}, w:.18},
+      {id:'trunk',   name:'Trunk to floor',      plane:'sag',  side:true, front:false, s:{s:90,f:null,o:76}, w:.15},
+      {id:'bar',     name:'Bar path',             plane:'sag',  side:true, front:false, s:{s:85,f:null,o:72}, w:.12},
+      {id:'lateral', name:'Lateral lean',         plane:'front',side:false,front:true,  s:{s:null,f:86,o:70}, w:.18},
+      {id:'symmetry',name:'Bilateral symmetry',  plane:'front',side:false,front:true,  s:{s:null,f:82,o:68}, w:.17},
+    ],
+    notes:{s:'Side: lumbar, hip hinge, trunk, bar path captured. Lateral lean invisible — common under heavy loads. Add front view.',f:'Front: lateral lean and symmetry captured. Primary deadlift mechanics missing. Add side view.',o:'Oblique overview (~). Lumbar and hip hinge values are significantly more precise from a true side view.',d:'Complete deadlift analysis. All mechanics and bilateral symmetry measured.'}
+  },
+  pushup:{label:'Push-up',skeleton:'pushup',
+    metrics:[
+      {id:'align',   name:'Body alignment',      plane:'sag',  side:true, front:false, s:{s:90,f:null,o:78}, w:.22},
+      {id:'elbow',   name:'Elbow angle',          plane:'sag',  side:true, front:false, s:{s:86,f:null,o:74}, w:.18},
+      {id:'scapular',name:'Scapular protraction', plane:'sag',  side:true, front:false, s:{s:72,f:null,o:62}, w:.20},
+      {id:'flare',   name:'Elbow flare',          plane:'sag',  side:true, front:false, s:{s:83,f:null,o:74}, w:.15},
+      {id:'symmetry',name:'Shoulder symmetry',    plane:'front',side:false,front:true,  s:{s:null,f:88,o:74}, w:.12},
+      {id:'core',    name:'Core stability',       plane:'sag',  side:true, front:false, s:{s:88,f:null,o:76}, w:.13},
+    ],
+    notes:{s:'Side captures all primary mechanics. Shoulder symmetry needs a front view for bilateral comparison.',f:'Front: shoulder symmetry captured. Side view needed for alignment and scapular protraction — the most commonly missed faults.',o:'Oblique works reasonably for push-up (~). Alignment is still visible at this angle.',d:'Complete push-up analysis. All mechanics and bilateral symmetry captured.'}
+  },
+  plank:{label:'Plank',skeleton:'plank',
+    metrics:[
+      {id:'hip',     name:'Hip alignment',        plane:'sag',  side:true, front:false, s:{s:91,f:null,o:80}, w:.30},
+      {id:'pelvic',  name:'Pelvic tilt',           plane:'sag',  side:true, front:false, s:{s:87,f:null,o:74}, w:.25},
+      {id:'cervical',name:'Neck position',         plane:'sag',  side:true, front:false, s:{s:83,f:null,o:72}, w:.15},
+      {id:'shoulder',name:'Shoulder position',     plane:'sag',  side:true, front:false, s:{s:86,f:null,o:74}, w:.12},
+      {id:'rotation',name:'Rotation deviation',    plane:'front',side:false,front:true,  s:{s:null,f:83,o:68}, w:.08},
+      {id:'stability',name:'Stability',            plane:'both', side:true, front:true,  s:{s:88,f:85,o:82}, w:.10},
+    ],
+    notes:{s:'Side captures 90% of plank faults. Hip sag and pelvic tilt are only visible from the side — these are the primary errors.',f:'Front: rotational deviation captured. Side view needed for hip alignment and pelvic tilt — the most common faults.',o:'Oblique works well for plank (~). Hip alignment is still clearly visible at this angle.',d:'Complete plank analysis. Hip mechanics and rotational symmetry both measured.'}
+  },
+  pullup:{label:'Pull-up',skeleton:'pullup',
+    metrics:[
+      {id:'elbow',   name:'Elbow range',           plane:'front',side:false,front:true,  s:{s:null,f:82,o:74}, w:.22},
+      {id:'hang',    name:'Dead hang check',        plane:'front',side:false,front:true,  s:{s:null,f:79,o:72}, w:.18},
+      {id:'shoulder',name:'Shoulder symmetry',      plane:'front',side:false,front:true,  s:{s:null,f:86,o:76}, w:.20},
+      {id:'core',    name:'Core / hollow body',     plane:'sag',  side:true, front:false, s:{s:88,f:null,o:74}, w:.18},
+      {id:'scapular',name:'Scapular initiation',    plane:'sag',  side:true, front:false, s:{s:80,f:null,o:68}, w:.14},
+      {id:'stability',name:'Stability',             plane:'both', side:true, front:true,  s:{s:82,f:80,o:76}, w:.08},
+    ],
+    notes:{s:'For pull-up, front is actually the better single angle — elbow range, dead hang, and symmetry all need frontal view.',f:'Good angle for pull-up. Elbow range, dead hang, shoulder symmetry captured. Add side for core hollow body.',o:'Oblique works for pull-up (~). Elbow path and symmetry are partially visible.',d:'Complete pull-up analysis. Elbow mechanics, symmetry, and core all measured.'}
+  }
+};
+
+const ZONES=[
+  {id:'front',   label:'Front',   range:'0–25° / 335–360°', col:'#4DA3FF',  check:b=>b==='FRONT'},
+  {id:'oblique', label:'Oblique', range:'25–55°',             col:'#F5A524',  check:b=>b==='OBLIQUE'},
+  {id:'side',    label:'Side',    range:'55–125°',            col:'#00E0B5',  check:b=>b==='SIDE'},
+  {id:'oblique2',label:'Oblique', range:'125–155°',           col:'#F5A524',  check:b=>b==='OBLIQUE'},
+  {id:'back',    label:'Back',    range:'155–205°',           col:'#FF4560',  check:b=>b==='BACK'},
+];
+
+let currentEx='squat', mode='single', animating=false, animFrame=null;
+let kpPhase=0;
+
+function bucket(deg){
+  const d=((deg%360)+360)%360;
+  const dist=Math.min(d,360-d);
+  if(dist<25)return'FRONT';
+  if(dist<55)return'OBLIQUE';
+  if(Math.abs(d-180)<25)return'BACK';
+  if(Math.abs(d-180)<55)return'OBLIQUE';
+  return'SIDE';
+}
+
+function bucketShort(b){return{FRONT:'Front',SIDE:'Side',OBLIQUE:'Oblique',BACK:'Back'}[b]}
+function bucketColor(b){return{FRONT:'#4DA3FF',SIDE:'#00E0B5',OBLIQUE:'#F5A524',BACK:'#FF4560'}[b]}
+
+function scoreColor(s){return s>=80?'#36D99A':s>=60?'#F5A524':'#FF4560'}
+function getLevel(s){if(s>=85)return'Elite / Pro';if(s>=75)return'Collegiate';if(s>=60)return'Advanced';if(s>=40)return'Intermediate';return'Recreational';}
+
+const SKELETONS={
+  squat:{
+    j:[[0,-.26],[-.12,-.12],[.12,-.12],[-.2,0],[.2,0],[-.12,.24],[.12,.24],[-.14,.46],[.14,.46]],
+    b:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,8]]
+  },
+  deadlift:{
+    j:[[0,-.30],[-.1,-.14],[.1,-.14],[-.24,.0],[.24,.0],[-.1,.22],[.1,.22],[-.12,.46],[.12,.46]],
+    b:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,8]]
+  },
+  pushup:{
+    j:[[0,-.26],[-.08,-.14],[.08,-.14],[-.36,-.06],[.36,-.06],[-.52,.06],[.52,.06],[0,.12],[0,.12]],
+    b:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,8]]
+  },
+  plank:{
+    j:[[0,-.28],[-.08,-.16],[.08,-.16],[-.26,-.04],[.26,-.04],[-.44,.10],[.44,.10],[-.42,.30],[.42,.30]],
+    b:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,8]]
+  },
+  pullup:{
+    j:[[0,-.36],[-.10,-.20],[.10,-.20],[-.44,-.12],[.44,-.12],[-.5,.06],[.5,.06],[-.10,.24],[.10,.24]],
+    b:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,8]]
+  }
+};
+
+function getRows(exKey,bA,bB,isDual){
+  return EXES[exKey].metrics.map(m=>{
+    const getV=b=>{
+      if(b==='SIDE'&&m.side&&m.s.s)return{v:m.s.s,conf:1,src:'side'};
+      if(b==='FRONT'&&m.front&&m.s.f)return{v:m.s.f,conf:1,src:'front'};
+      if((b==='OBLIQUE'||b==='BACK')&&m.s.o)return{v:m.s.o,conf:0.64,src:'oblique'};
+      return null;
+    };
+    const rA=getV(bA);
+    if(isDual){
+      const rB=getV(bB);
+      if(rA&&rB)return{m,v:Math.round((rA.v+rB.v)/2),conf:1,from:'both'};
+      if(rA)return{m,v:rA.v,conf:rA.conf,from:'A'};
+      if(rB)return{m,v:rB.v,conf:rB.conf,from:'B'};
+    } else if(rA){return{m,v:rA.v,conf:rA.conf,from:'A'};}
+    return{m,v:null,conf:0,from:'none'};
+  });
+}
+
+function calcScore(rows){
+  let ws=0,wt=0;
+  rows.forEach(r=>{if(r.v){ws+=r.v*r.m.w;wt+=r.m.w;}});
+  return wt>0?Math.round(ws/wt):0;
+}
+
+/* ── CANVAS DRAW ── */
+function draw(){
+  const canvas=document.getElementById('main-canvas');
+  const W=canvas.offsetWidth,H=canvas.offsetHeight;
+  if(!W||!H)return;
+  const dpr=window.devicePixelRatio||1;
+  if(canvas.width!==W*dpr){canvas.width=W*dpr;canvas.height=H*dpr;}
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const cx=W/2,cy=H/2,R=Math.min(W,H)*0.34;
+
+  /* grid rings */
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  [1,.62,.35].forEach(r=>{ctx.beginPath();ctx.arc(cx,cy,R*r,0,Math.PI*2);ctx.stroke();});
+
+  /* grid lines */
+  ctx.setLineDash([2,6]);ctx.strokeStyle='rgba(255,255,255,.04)';
+  for(let a=0;a<360;a+=45){
+    const rad=a*Math.PI/180;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(rad)*R*1.1,cy+Math.sin(rad)*R*1.1);ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  /* compass labels */
+  const angles=[[0,'0° front'],[90,'90°'],[180,'180° back'],[270,'270°']];
+  ctx.font='10px '+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle='rgba(90,88,112,.7)';ctx.textAlign='center';
+  angles.forEach(([a,lbl])=>{
+    const rad=(a-90)*Math.PI/180;
+    const rx=cx+Math.cos(rad)*(R*1.14),ry=cy+Math.sin(rad)*(R*1.14)+4;
+    ctx.fillText(lbl,rx,ry);
+  });
+
+  /* athlete skeleton */
+  const sk=SKELETONS[EXES[currentEx].skeleton]||SKELETONS.squat;
+  const ps=R*.48;
+
+  /* bones */
+  ctx.strokeStyle='rgba(0,224,181,.28)';ctx.lineWidth=2.5;ctx.lineCap='round';
+  sk.b.forEach(([a,b])=>{
+    ctx.beginPath();
+    ctx.moveTo(cx+sk.j[a][0]*ps,cy+sk.j[a][1]*ps);
+    ctx.lineTo(cx+sk.j[b][0]*ps,cy+sk.j[b][1]*ps);
+    ctx.stroke();
+  });
+
+  /* keypoints with pulse */
+  kpPhase=(kpPhase+0.03)%Math.PI;
+  sk.j.forEach(([jx,jy],i)=>{
+    const isHead=i===0;
+    const pulse=isHead?0:Math.sin(kpPhase+i*0.7)*0.15;
+    const r=isHead?6:3.5+pulse;
+    ctx.beginPath();ctx.arc(cx+jx*ps,cy+jy*ps,r,0,Math.PI*2);
+    ctx.fillStyle=isHead?'#00E0B5':'rgba(155,127,255,.85)';ctx.fill();
+    if(isHead){ctx.strokeStyle='rgba(0,224,181,.3)';ctx.lineWidth=1;ctx.stroke();}
+  });
+
+  /* cameras */
+  const degA=+document.getElementById('sliderA').value;
+  const isDual=mode==='dual';
+  const degB=isDual?+document.getElementById('sliderB').value:null;
+
+  function drawCamera(angleDeg,color,label,isB){
+    const rad=(angleDeg-90)*Math.PI/180;
+    const camX=cx+Math.cos(rad)*R,camY=cy+Math.sin(rad)*R;
+    const fov=34*Math.PI/180;
+
+    /* FOV cone */
+    const a1=rad-fov,a2=rad+fov;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R*.88,a1,a2);ctx.closePath();
+    ctx.fillStyle=isB?'rgba(77,163,255,.07)':'rgba(0,224,181,.07)';ctx.fill();
+    ctx.strokeStyle=isB?'rgba(77,163,255,.2)':'rgba(0,224,181,.2)';ctx.lineWidth=1;ctx.stroke();
+
+    /* aim line */
+    ctx.setLineDash([4,4]);ctx.strokeStyle=color;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(camX,camY);ctx.stroke();
+    ctx.setLineDash([]);
+
+    /* camera body */
+    ctx.beginPath();ctx.arc(camX,camY,13,0,Math.PI*2);
+    ctx.fillStyle='rgba(9,9,15,.9)';ctx.fill();
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+
+    ctx.font='500 11px '+getComputedStyle(document.body).fontFamily;
+    ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(label,camX,camY+4);
+
+    /* view label */
+    const b=bucket(angleDeg);
+    const loffR=R+30;
+    ctx.font='11px '+getComputedStyle(document.body).fontFamily;
+    ctx.fillStyle=bucketColor(b);ctx.textAlign='center';
+    ctx.fillText(bucketShort(b),cx+Math.cos(rad)*loffR,cy+Math.sin(rad)*loffR+4);
+    ctx.textAlign='left';
+  }
+
+  drawCamera(degA,'#00E0B5','A',false);
+  if(isDual)drawCamera(degB,'#4DA3FF','B',true);
+}
+
+/* ── UPDATE RIGHT PANEL ── */
+function updatePanel(){
+  const degA=+document.getElementById('sliderA').value;
+  const isDual=mode==='dual';
+  const degB=isDual?+document.getElementById('sliderB').value:null;
+  const bA=bucket(degA),bB=isDual?bucket(degB):null;
+
+  /* badges */
+  const ba=document.getElementById('badge-a');
+  ba.textContent=bucketShort(bA)+' · '+degA+'°';
+  ba.style.cssText=`font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;border:1px solid ${bucketColor(bA)};color:${bucketColor(bA)};background:${bucketColor(bA)}18;font-family:var(--mono)`;
+  const bb=document.getElementById('badge-b');
+  if(isDual){
+    bb.style.display='';
+    bb.textContent=bucketShort(bB)+' · '+degB+'°';
+    bb.style.cssText=`font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;border:1px solid #4DA3FF;color:#4DA3FF;background:#4DA3FF18;font-family:var(--mono)`;
+  } else {bb.style.display='none';}
+
+  /* slider labels */
+  document.getElementById('val-a').textContent=bucketShort(bA)+' · '+degA+'°';
+  if(isDual)document.getElementById('val-b').textContent=bucketShort(bB)+' · '+degB+'°';
+
+  /* rows */
+  const rows=getRows(currentEx,bA,bB,isDual);
+  const score=calcScore(rows);
+  const captured=rows.filter(r=>r.v).length;
+
+  /* score */
+  const sc=document.getElementById('score-num');
+  sc.textContent=score||'--';sc.style.color=score?scoreColor(score):'var(--tx3)';
+  const sl=document.getElementById('score-level');
+  sl.textContent=score?getLevel(score):'Awaiting data';sl.style.color=score?scoreColor(score):'var(--tx3)';
+  document.getElementById('score-sub').textContent=captured+' of 6 metrics · '+Math.round(captured/6*100)+'% coverage';
+  const sb=document.getElementById('score-bar');
+  sb.style.width=(score||0)+'%';sb.style.background=score?scoreColor(score):'var(--bg4)';
+
+  /* metrics */
+  const ml=document.getElementById('metric-list');ml.innerHTML='';
+  rows.forEach(r=>{
+    const col=r.v?scoreColor(r.v):'var(--tx3)';
+    const approx=r.conf<0.8&&r.v;
+    const srcColor=r.from==='both'?'#00E0B5':r.from==='B'?'#4DA3FF':'#00E0B5';
+    const srcBg=r.from==='both'?'rgba(0,224,181,.12)':r.from==='B'?'rgba(77,163,255,.12)':'rgba(0,224,181,.12)';
+    const srcLabel=r.from==='both'?'A+B':r.from==='A'?'A':r.from==='B'?'B':'—';
+    const d=document.createElement('div');d.className='metric-item';
+    d.innerHTML=`
+      <div class="metric-head">
+        <div class="metric-dot" style="background:${r.v?col:'var(--bg5)'}"></div>
+        <span class="metric-name">${r.m.name}</span>
+        <span class="metric-src" style="color:${r.v?srcColor:'var(--tx3)'};background:${r.v?srcBg:'var(--bg4)'}">${srcLabel}</span>
+        <span class="metric-score-num" style="color:${col}">${r.v?r.v+(approx?'~':''):'—'}</span>
+      </div>
+      <div class="metric-bar-bg"><div class="metric-bar-fg" style="width:${r.v?r.v:0}%;background:${col};opacity:${r.v?0.4+r.conf*0.6:0.2}"></div></div>
+    `;
+    ml.appendChild(d);
+  });
+
+  /* plane coverage */
+  const sagOk=rows.filter(r=>r.m.plane==='sag'&&r.v).length;
+  const sagTot=rows.filter(r=>r.m.plane==='sag').length;
+  const frtOk=rows.filter(r=>r.m.plane==='front'&&r.v).length;
+  const frtTot=rows.filter(r=>r.m.plane==='front').length;
+  const bothOk=rows.filter(r=>r.m.plane==='both'&&r.v).length;
+  const bothTot=rows.filter(r=>r.m.plane==='both').length;
+  const totalSag=sagOk+bothOk,totalSagMax=sagTot+bothTot;
+  const totalFrt=frtOk+bothOk,totalFrtMax=frtTot+bothTot;
+
+  const csa=document.getElementById('chip-sag'),csav=document.getElementById('chip-sag-val');
+  csav.textContent=totalSag+'/'+totalSagMax;
+  const sagFull=totalSag===totalSagMax;
+  csa.style.cssText=`flex:1;padding:8px 10px;border-radius:8px;border:1px solid ${sagFull?'var(--teal)':'var(--ln2)'};text-align:center;background:${sagFull?'rgba(0,224,181,.08)':'transparent'}`;
+  csa.querySelector('.plane-chip-label').style.color=sagFull?'var(--teal)':'var(--tx3)';
+  csav.style.color=sagFull?'var(--teal)':'var(--tx2)';
+
+  const cfa=document.getElementById('chip-front'),cfav=document.getElementById('chip-front-val');
+  cfav.textContent=totalFrt+'/'+totalFrtMax;
+  const frtFull=totalFrt===totalFrtMax;
+  cfa.style.cssText=`flex:1;padding:8px 10px;border-radius:8px;border:1px solid ${frtFull?'#4DA3FF':'var(--ln2)'};text-align:center;background:${frtFull?'rgba(77,163,255,.08)':'transparent'}`;
+  cfa.querySelector('.plane-chip-label').style.color=frtFull?'#4DA3FF':'var(--tx3)';
+  cfav.style.color=frtFull?'#4DA3FF':'var(--tx2)';
+
+  /* note */
+  const ex=EXES[currentEx];
+  const noteKey=isDual?'d':bA==='SIDE'?'s':bA==='FRONT'?'f':'o';
+  const nc={s:'#4DA3FF',f:'var(--teal)',o:'#F5A524',d:'var(--teal)'}[noteKey];
+  const nb={s:'rgba(77,163,255,.08)',f:'rgba(0,224,181,.07)',o:'rgba(245,165,36,.1)',d:'rgba(0,224,181,.07)'}[noteKey];
+  const note=document.getElementById('note-box');
+  note.textContent=ex.notes[noteKey]||'';
+  note.style.cssText=`padding:10px 12px;border-radius:0 8px 8px 0;border-left:2px solid ${nc};font-size:11px;line-height:1.7;color:${nc};background:${nb}`;
+
+  /* zones */
+  const zg=document.getElementById('zones-grid');zg.innerHTML='';
+  ZONES.forEach(z=>{
+    const active=z.check(bA)||(isDual&&z.check(bB));
+    const d=document.createElement('div');d.className='zone-row'+(active?' active':'');
+    d.innerHTML=`
+      <div class="zone-dot" style="background:${z.col};opacity:${active?1:.4}"></div>
+      <div class="zone-info">
+        <div class="zone-name" style="font-size:11px;font-weight:${active?600:400};color:${active?z.col:'var(--tx2)'}">${z.label}</div>
+        <div class="zone-range">${z.range}</div>
+      </div>
+      <div class="zone-pct">${z.label==='Side'?'optimal':(z.label==='Front'?'frontal':(z.label==='Back'?'unusable':'~approx'))}</div>
+    `;
+    zg.appendChild(d);
+  });
+}
+
+let lastRAF=0;
+function loop(ts){
+  if(ts-lastRAF>16){draw();lastRAF=ts;}
+  requestAnimationFrame(loop);
+}
+
+function fullUpdate(){draw();updatePanel();}
+
+/* ── ANIMATION ── */
+let autoDeg=270,autoDir=1,autoActive=true;
+function autoStep(){
+  if(!autoActive){requestAnimationFrame(autoStep);return;}
+  autoDeg+=autoDir*0.8;
+  if(autoDeg>=360)autoDeg=0;
+  document.getElementById('sliderA').value=Math.round(autoDeg);
+  fullUpdate();
+  requestAnimationFrame(autoStep);
+}
+
+/* ── EVENTS ── */
+document.getElementById('sliderA').addEventListener('mousedown',()=>{autoActive=false;});
+document.getElementById('sliderA').addEventListener('touchstart',()=>{autoActive=false;});
+document.getElementById('sliderA').addEventListener('input',fullUpdate);
+document.getElementById('sliderB').addEventListener('input',fullUpdate);
+
+document.querySelectorAll('.mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');mode=btn.dataset.mode;
+    const dual=mode==='dual';
+    document.getElementById('row-b').style.display=dual?'flex':'none';
+    document.getElementById('dual-hint').style.display=dual?'block':'none';
+    document.getElementById('lbl-a').textContent=dual?'Camera A':'Camera A';
+    if(dual){document.getElementById('sliderA').value=270;document.getElementById('sliderB').value=0;}
+    autoActive=false;fullUpdate();
+  });
+});
+
+document.querySelectorAll('.ex-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');currentEx=btn.dataset.ex;fullUpdate();
+  });
+});
+
+window.addEventListener('resize',()=>{
+  const c=document.getElementById('main-canvas');
+  c.width=0;c.height=0;
+  setTimeout(fullUpdate,50);
+});
+
+setTimeout(()=>{fullUpdate();autoStep();},80);
+</script>
+</body>
+</html>
