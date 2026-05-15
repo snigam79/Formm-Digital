@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Formm — Fix Your Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg0:#08080C; --bg1:#0F0F17; --bg2:#15151F;
+  --bg3:#1C1C28; --bg4:#242433; --bg5:#2D2D40;
+  --ln1:rgba(255,255,255,0.06); --ln2:rgba(255,255,255,0.10); --ln3:rgba(255,255,255,0.18);
+  --tx1:#F2F1EC; --tx2:#9896AE; --tx3:#5A5870;
+  --teal:#00E0B5; --teal2:#00C49E;
+  --teal-dim:rgba(0,224,181,0.08); --teal-bdr:rgba(0,224,181,0.20);
+  --green:#36D99A; --green-d:rgba(54,217,154,0.10);
+  --amber:#F5A524; --amber-d:rgba(245,165,36,0.10);
+  --r6:6px; --r10:10px; --r14:14px; --r18:18px; --r24:24px;
+  --disp:'Clash Display',sans-serif;
+  --body:'Cabinet Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  min-height:100%;
+  background:var(--bg0);
+  font-family:var(--body);
+  color:var(--tx1);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── LAYOUT ─── */
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  background:
+    radial-gradient(ellipse 900px 600px at 10% -10%, rgba(0,224,181,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 600px 500px at 90% 100%, rgba(155,127,255,0.03) 0%, transparent 60%),
+    var(--bg0);
+}
+
+/* ─── TOPNAV ─── */
+.topnav {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+  border-bottom: 1px solid var(--ln1);
+  background: rgba(8,8,12,0.85);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: var(--disp);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--tx1);
+}
+.logo .teal { color: var(--teal); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-link {
+  padding: 6px 14px;
+  border-radius: var(--r6);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--tx2);
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+}
+.nav-link:hover { color: var(--tx1); background: var(--bg2); }
+.nav-link.active { color: var(--teal); background: var(--teal-dim); }
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.try-btn {
+  height: 36px; padding: 0 20px;
+  border: 1.5px solid var(--ln3); border-radius: var(--r6);
+  background: transparent; color: var(--tx1);
+  font-family: var(--disp); font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+  cursor: pointer; transition: all 0.15s;
+}
+.try-btn:hover { background: var(--teal); border-color: var(--teal); color: var(--bg0); }
+.login-btn {
+  height: 36px; padding: 0 16px;
+  border: none; border-radius: var(--r6);
+  background: var(--teal); color: var(--bg0);
+  font-family: var(--disp); font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+  cursor: pointer; transition: all 0.15s;
+}
+.login-btn:hover { background: var(--teal2); }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  grid-row: 2;
+  border-right: 1px solid var(--ln1);
+  padding: 32px 0;
+  background: var(--bg1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+.sidebar-section {
+  padding: 0 16px;
+  margin-bottom: 8px;
+}
+.sidebar-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tx3);
+  padding: 0 12px;
+  margin-bottom: 6px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--r10);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--tx2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sidebar-item:hover { background: var(--bg3); color: var(--tx1); }
+.sidebar-item.active { background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal-bdr); }
+.sidebar-item .si-icon { font-size: 16px; flex-shrink: 0; }
+.sidebar-item .si-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--bg4);
+  color: var(--tx3);
+}
+.sidebar-item.active .si-badge { background: var(--teal-dim); color: var(--teal); }
+.sidebar-divider { height: 1px; background: var(--ln1); margin: 8px 16px; }
+
+/* ─── MAIN ─── */
+.main {
+  grid-row: 2;
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ─── HERO ─── */
+.hero-band {
+  background: var(--bg2);
+  border: 1px solid var(--ln1);
+  border-radius: var(--r24);
+  padding: 44px 52px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-band::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,224,181,0.35), transparent);
+}
+.hero-band::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 340px; height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,224,181,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--teal);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-family: var(--disp);
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.0;
+  color: var(--tx1);
+  margin-bottom: 16px;
+}
+.hero-title .accent { color: var(--teal); }
+.hero-desc {
+  font-size: 15px;
+  color: var(--tx2);
+  line-height: 1.65;
+  max-width: 440px;
+  margin-bottom: 28px;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  height: 44px; padding: 0 28px;
+  border: none; border-radius: var(--r10);
+  background: var(--teal); color: var(--bg0);
+  font-family: var(--disp); font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-primary:hover { background: var(--teal2); transform: translateY(-1px); }
+.btn-ghost {
+  height: 44px; padding: 0 24px;
+  border: 1.5px solid var(--ln2); border-radius: var(--r10);
+  background: transparent; color: var(--tx1);
+  font-family: var(--body); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+.hero-spec {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--tx3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 20px;
+}
+.hero-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 200px;
+  position: relative;
+  z-index: 1;
+}
+.stat-pill {
+  background: var(--bg3);
+  border: 1px solid var(--ln2);
+  border-radius: var(--r10);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.stat-pill .sp-val {
+  font-family: var(--disp);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--teal);
+}
+.stat-pill .sp-info { display: flex; flex-direction: column; gap: 2px; }
+.stat-pill .sp-label { font-size: 12px; font-weight: 600; color: var(--tx1); }
+.stat-pill .sp-sub { font-family: var(--mono); font-size: 9px; color: var(--tx3); letter-spacing: 0.5px; }
+.stat-pill.amber .sp-val { color: var(--amber); }
+.stat-pill.green .sp-val { color: var(--green); }
+
+/* ─── TIERS ─── */
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-bottom: 14px;
+}
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.tier-card {
+  background: var(--bg2);
+  border: 1px solid var(--ln1);
+  border-radius: var(--r18);
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.tier-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.15s;
+}
+.tier-card:hover { border-color: var(--ln2); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+.tier-card:hover::before { background: var(--teal); }
+.tier-card.active { border-color: var(--teal-bdr); background: linear-gradient(180deg, rgba(0,224,181,0.07) 0%, var(--bg2) 100%); }
+.tier-card.active::before { background: var(--teal); }
+.tier-icon { font-size: 28px; }
+.tier-name {
+  font-family: var(--disp);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--tx2);
+  transition: color 0.15s;
+}
+.tier-card.active .tier-name, .tier-card:hover .tier-name { color: var(--teal); }
+.tier-desc { font-size: 12.5px; color: var(--tx3); line-height: 1.5; }
+.tier-features {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+  width: 100%;
+}
+.tf {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--tx2);
+}
+.tf::before {
+  content: '✓';
+  font-size: 10px;
+  color: var(--teal);
+  font-weight: 700;
+}
+
+/* ─── BESPOKE + BIG CARDS row ─── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.bespoke-card {
+  background: var(--bg2);
+  border: 1px solid var(--ln1);
+  border-radius: var(--r18);
+  padding: 24px;
+}
+.bespoke-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--bg3);
+  border: 1px solid var(--ln1);
+  border-radius: var(--r10);
+  overflow: hidden;
+  margin-top: 12px;
+}
+.bespoke-item {
+  padding: 16px 8px;
+  text-align: center;
+  font-family: var(--body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx2);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 1px solid var(--ln1);
+}
+.bespoke-item:last-child { border-right: none; }
+.bespoke-item:hover { background: var(--bg4); color: var(--teal); }
+.bespoke-item .bi-icon { font-size: 20px; margin-bottom: 6px; }
+.category-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.big-card {
+  border-radius: var(--r14);
+  height: 80px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: transform 0.15s;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+}
+.big-card:hover { transform: scale(1.015); }
+.big-card.training {
+  background: linear-gradient(135deg, #0D1E0E 0%, #091209 100%);
+  border: 1px solid rgba(54,217,154,0.18);
+}
+.big-card.nutrition {
+  background: linear-gradient(135deg, #1E160A 0%, #0F0A04 100%);
+  border: 1px solid rgba(245,165,36,0.18);
+}
+.big-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+}
+.big-card.training::after { background: linear-gradient(90deg, transparent, rgba(54,217,154,0.35), transparent); }
+.big-card.nutrition::after { background: linear-gradient(90deg, transparent, rgba(245,165,36,0.35), transparent); }
+.bc-left { display: flex; flex-direction: column; gap: 2px; }
+.bc-name { font-family: var(--disp); font-size: 18px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; }
+.big-card.training .bc-name { color: var(--green); }
+.big-card.nutrition .bc-name { color: var(--amber); }
+.bc-sub { font-size: 11px; color: var(--tx3); }
+.bc-icon { font-size: 28px; opacity: 0.6; }
+
+/* ─── FOOTER ─── */
+.footer {
+  border-top: 1px solid var(--ln1);
+  padding: 24px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.fl { font-size: 11px; color: var(--tx3); cursor: pointer; padding: 3px 8px; transition: color 0.15s; }
+.fl:hover { color: var(--tx1); }
+.fsep { font-size: 11px; color: var(--tx3); }
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--tx3);
+  letter-spacing: 1px;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.a0 { animation: up 0.42s 0.00s both; }
+.a1 { animation: up 0.42s 0.07s both; }
+.a2 { animation: up 0.42s 0.13s both; }
+.a3 { animation: up 0.42s 0.19s both; }
+.a4 { animation: up 0.42s 0.25s both; }
+.a5 { animation: up 0.42s 0.31s both; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- TOPNAV -->
+  <nav class="topnav a0">
+    <div class="logo"><span class="teal">F</span>ormm</div>
+    <div class="nav-links">
+      <div class="nav-link active">Home</div>
+      <div class="nav-link">Training</div>
+      <div class="nav-link">Nutrition</div>
+      <div class="nav-link">Community</div>
+      <div class="nav-link">Stats</div>
+    </div>
+    <div class="nav-actions">
+      <button class="try-btn">Try Demo</button>
+      <button class="login-btn">Get Started →</button>
+    </div>
+  </nav>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Discover</div>
+      <div class="sidebar-item active">
+        <span class="si-icon">🏠</span> Overview
+        <span class="si-badge">New</span>
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">📹</span> Fix Your Form
+        <span class="si-badge">Live</span>
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">📊</span> Analysis
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Bespoke</div>
+      <div class="sidebar-item">
+        <span class="si-icon">🏋️</span> Training Programs
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">👨‍🏫</span> Coaching
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">📈</span> Progress Tracking
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">🥗</span> Nutrition
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Athlete Tier</div>
+      <div class="sidebar-item">
+        <span class="si-icon">🏅</span> Athlete
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">🎽</span> Amateur Athlete
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">🏆</span> Professional
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Account</div>
+      <div class="sidebar-item">
+        <span class="si-icon">❓</span> Help & FAQ
+      </div>
+      <div class="sidebar-item">
+        <span class="si-icon">⚙️</span> Settings
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero-band a1">
+      <div>
+        <div class="hero-tag">Movement Intelligence</div>
+        <div class="hero-title">Fix Your <span class="accent">Form</span>.<br>Train Smarter.</div>
+        <div class="hero-desc">AI-powered sports science analysis that identifies movement faults, prevents injury, and builds bespoke programmes around your body — in real time.</div>
+        <div class="hero-actions">
+          <button class="btn-primary">📹 Start Live Analysis</button>
+          <button class="btn-ghost">📁 Upload a Video</button>
+          <button class="btn-ghost">📊 View Stats</button>
+        </div>
+        <div class="hero-spec">Sports Science Specialists · Movement Intelligence Platform</div>
+      </div>
+      <div class="hero-visual">
+        <div class="stat-pill">
+          <span class="sp-val">94%</span>
+          <div class="sp-info">
+            <span class="sp-label">Form Score</span>
+            <span class="sp-sub">This Session</span>
+          </div>
+        </div>
+        <div class="stat-pill amber">
+          <span class="sp-val">38</span>
+          <div class="sp-info">
+            <span class="sp-label">Sessions</span>
+            <span class="sp-sub">This Month</span>
+          </div>
+        </div>
+        <div class="stat-pill green">
+          <span class="sp-val">12%</span>
+          <div class="sp-info">
+            <span class="sp-label">Injury Risk</span>
+            <span class="sp-sub">↓ Improved</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIERS -->
+    <div class="a2">
+      <div class="section-label">Choose Your Level</div>
+      <div class="tier-grid" id="tier-grid">
+        <div class="tier-card" data-id="ATHLETE" onclick="selectTier(this)">
+          <div class="tier-icon">🏅</div>
+          <div class="tier-name">Athlete</div>
+          <div class="tier-desc">For competitive athletes looking to optimise performance and reduce injury risk.</div>
+          <div class="tier-features">
+            <div class="tf">Real-time form analysis</div>
+            <div class="tf">Bespoke training plans</div>
+            <div class="tf">Weekly progress reports</div>
+          </div>
+        </div>
+        <div class="tier-card" data-id="AMATEUR" onclick="selectTier(this)">
+          <div class="tier-icon">🎽</div>
+          <div class="tier-name">Amateur Athlete</div>
+          <div class="tier-desc">For dedicated enthusiasts who train regularly and want to level up safely.</div>
+          <div class="tier-features">
+            <div class="tf">Form feedback & corrections</div>
+            <div class="tf">Goal-based programming</div>
+            <div class="tf">Nutrition guidance</div>
+          </div>
+        </div>
+        <div class="tier-card" data-id="PROFESSIONAL" onclick="selectTier(this)">
+          <div class="tier-icon">🏆</div>
+          <div class="tier-name">Professional</div>
+          <div class="tier-desc">Elite-level tools for pros and coaches managing high-performance athletes.</div>
+          <div class="tier-features">
+            <div class="tf">Multi-athlete dashboards</div>
+            <div class="tf">Advanced biomechanics</div>
+            <div class="tf">Dedicated sports scientist</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BESPOKE + CATEGORIES -->
+    <div class="two-col a3">
+      <div class="bespoke-card">
+        <div class="section-label">Bespoke Services</div>
+        <div class="bespoke-strip">
+          <div class="bespoke-item">
+            <div class="bi-icon">📋</div>Programs
+          </div>
+          <div class="bespoke-item">
+            <div class="bi-icon">👨‍🏫</div>Coaching
+          </div>
+          <div class="bespoke-item">
+            <div class="bi-icon">📈</div>Tracking
+          </div>
+        </div>
+      </div>
+      <div class="category-cards">
+        <div class="big-card training">
+          <div class="bc-left">
+            <div class="bc-name">Training</div>
+            <div class="bc-sub">Bespoke programmes tailored to your form & goals</div>
+          </div>
+          <div class="bc-icon">🏋️</div>
+        </div>
+        <div class="big-card nutrition">
+          <div class="bc-left">
+            <div class="bc-name">Nutrition</div>
+            <div class="bc-sub">Fuel your performance with precision diet plans</div>
+          </div>
+          <div class="bc-icon">🥗</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer a5">
+      <div class="footer-links">
+        <span class="fl">About Us</span><span class="fsep">|</span>
+        <span class="fl">Company</span><span class="fsep">|</span>
+        <span class="fl">Legal</span><span class="fsep">|</span>
+        <span class="fl">Contact Us</span><span class="fsep">|</span>
+        <span class="fl">FAQ</span><span class="fsep">|</span>
+        <span class="fl">Terms</span><span class="fsep">|</span>
+        <span class="fl">Privacy</span>
+      </div>
+      <div class="footer-copy">© 2025 Formm · Sports Science Specialists</div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function selectTier(el) {
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
