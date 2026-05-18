@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Phone Positioning Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050A;--bg1:#0D0D16;--bg2:#13131E;--bg3:#1A1A28;--bg4:#222232;
+  --ln1:rgba(255,255,255,.055);--ln2:rgba(255,255,255,.10);
+  --tx1:#F0EFE8;--tx2:#8E8CA6;--tx3:#52506A;
+  --teal:#00E0B5;--teal-d:rgba(0,224,181,.08);--teal-bd:rgba(0,224,181,.2);
+  --green:#2DD4A0;--amber:#F5A524;--red:#FF4560;
+  --disp:'Syne',sans-serif;--body:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html,body{height:100%;background:var(--bg);color:var(--tx1);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow:hidden}
+
+/* ── SHELL ── */
+.shell{display:flex;height:100vh;overflow:hidden}
+.left{width:320px;flex-shrink:0;background:var(--bg1);border-right:1px solid var(--ln1);display:flex;flex-direction:column;overflow-y:auto}
+.left::-webkit-scrollbar{display:none}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:24px;position:relative;overflow:hidden}
+.right{width:280px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--ln1);display:flex;flex-direction:column;overflow-y:auto}
+.right::-webkit-scrollbar{width:3px}
+.right::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+/* ── LEFT PANEL ── */
+.brand{padding:18px 18px 14px;border-bottom:1px solid var(--ln1)}
+.brand-name{font-family:var(--disp);font-size:20px;font-weight:800;color:var(--teal);letter-spacing:-.4px}
+.brand-sub{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px}
+.ex-section{padding:12px 18px;border-bottom:1px solid var(--ln1)}
+.section-lbl{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ex-btn{padding:8px 10px;border-radius:9px;border:1px solid var(--ln2);background:transparent;color:var(--tx2);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--body);text-align:center;transition:all .15s}
+.ex-btn:hover{border-color:var(--ln3,rgba(255,255,255,.18));color:var(--tx1)}
+.ex-btn.on{background:var(--teal);border-color:var(--teal);color:var(--bg);font-weight:700}
+
+/* Steps */
+.steps-section{padding:12px 18px;flex:1}
+.step-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--ln1);cursor:pointer;transition:background .15s}
+.step-item:last-child{border:none}
+.step-item.active .step-num{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+.step-item.done .step-num{background:rgba(45,212,160,.2);color:var(--green);border-color:rgba(45,212,160,.4)}
+.step-num{width:26px;height:26px;border-radius:50%;border:1px solid var(--ln2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);flex-shrink:0;margin-top:1px;transition:all .3s}
+.step-content{flex:1}
+.step-title{font-size:12px;font-weight:600;margin-bottom:2px;transition:color .2s}
+.step-item.active .step-title{color:var(--teal)}
+.step-item.done .step-title{color:var(--green)}
+.step-item .step-title{color:var(--tx2)}
+.step-desc{font-size:11px;color:var(--tx3);line-height:1.5}
+.step-item.active .step-desc{color:var(--tx2)}
+.step-status{font-size:10px;font-family:var(--mono);font-weight:600;margin-top:3px}
+.step-item.active .step-status{color:var(--amber)}
+.step-item.done .step-status{color:var(--green)}
+
+/* Demo controls */
+.demo-section{padding:12px 18px;border-top:1px solid var(--ln1)}
+.demo-lbl{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+.demo-btn{width:100%;padding:9px;border:none;border-radius:9px;background:var(--teal);color:var(--bg);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);margin-bottom:6px;transition:all .15s}
+.demo-btn:hover{background:var(--teal2,#00C49E)}
+.manual-row{display:flex;gap:5px}
+.manual-btn{flex:1;padding:7px;border:1px solid var(--ln2);border-radius:8px;background:transparent;color:var(--tx2);font-size:11px;cursor:pointer;font-family:var(--body);transition:all .15s}
+.manual-btn:hover{border-color:var(--teal);color:var(--teal)}
+
+/* ── CENTER ── */
+.arena{position:relative;width:480px;height:480px;flex-shrink:0}
+#arena-canvas{display:block;border-radius:16px;border:1.5px solid var(--ln1)}
+
+/* ── RIGHT PANEL ── */
+.indicator-bar{padding:14px 16px;border-bottom:1px solid var(--ln1)}
+.ib-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.ind-item{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ind-item:last-child{margin-bottom:0}
+.ind-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .3s,box-shadow .3s}
+.ind-dot.ok{background:var(--green);box-shadow:0 0 6px rgba(45,212,160,.5)}
+.ind-dot.warn{background:var(--amber);box-shadow:0 0 6px rgba(245,165,36,.4)}
+.ind-dot.bad{background:var(--red);box-shadow:0 0 6px rgba(255,69,96,.4)}
+.ind-info{flex:1}
+.ind-name{font-size:11px;color:var(--tx1);font-weight:500;margin-bottom:1px}
+.ind-val{font-size:10px;font-family:var(--mono);transition:color .3s}
+.ind-val.ok{color:var(--green)}
+.ind-val.warn{color:var(--amber)}
+.ind-val.bad{color:var(--red)}
+
+.voice-box{padding:12px 16px;border-bottom:1px solid var(--ln1)}
+.vb-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.voice-msg{background:var(--bg2);border-radius:12px;border:1px solid var(--ln1);padding:11px 13px;font-size:12px;color:var(--tx1);line-height:1.65;transition:all .3s;min-height:56px}
+.voice-msg.good{border-color:rgba(45,212,160,.25);background:rgba(45,212,160,.06)}
+.voice-msg.warn{border-color:rgba(245,165,36,.25);background:rgba(245,165,36,.06)}
+.voice-msg.bad{border-color:rgba(255,69,96,.2);background:rgba(255,69,96,.05)}
+.voice-msg strong{color:var(--teal);font-weight:600}
+
+.progress-section{padding:12px 16px;border-bottom:1px solid var(--ln1)}
+.ps-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.progress-steps{display:flex;gap:4px}
+.ps-step{flex:1;height:4px;border-radius:2px;background:var(--bg4);transition:background .4s}
+.ps-step.done{background:var(--green)}
+.ps-step.active{background:var(--amber);animation:psAnim 1s infinite}
+@keyframes psAnim{0%,100%{opacity:1}50%{opacity:.5}}
+
+.readout-section{padding:12px 16px}
+.rs-title{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.readout-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.readout-item{background:var(--bg2);border-radius:9px;padding:10px 11px;border:1px solid var(--ln1)}
+.ri-label{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:.5px;margin-bottom:4px}
+.ri-val{font-size:16px;font-weight:700;font-family:var(--mono);transition:color .3s}
+.ri-unit{font-size:10px;color:var(--tx3);margin-top:1px}
+
+.ready-banner{margin:12px 16px 0;background:rgba(45,212,160,.08);border:1px solid rgba(45,212,160,.3);border-radius:12px;padding:12px 14px;display:none}
+.rb-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:3px}
+.rb-body{font-size:11px;color:var(--tx2);line-height:1.5}
+.rb-count{font-family:var(--disp);font-size:36px;font-weight:800;color:var(--green);text-align:center;margin:8px 0 4px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── LEFT ── -->
+<div class="left">
+  <div class="brand">
+    <div class="brand-name">Formm</div>
+    <div class="brand-sub">Phone positioning guide</div>
+  </div>
+
+  <div class="ex-section">
+    <div class="section-lbl">Exercise</div>
+    <div class="ex-grid">
+      <button class="ex-btn on" data-ex="squat">🏋 Squat</button>
+      <button class="ex-btn" data-ex="deadlift">⬆ Deadlift</button>
+      <button class="ex-btn" data-ex="pushup">💪 Push-up</button>
+      <button class="ex-btn" data-ex="pullup">🤸 Pull-up</button>
+    </div>
+  </div>
+
+  <div class="steps-section">
+    <div class="section-lbl">Setup steps</div>
+    <div id="steps-list"></div>
+  </div>
+
+  <div class="demo-section">
+    <div class="demo-lbl">Demo controls</div>
+    <button class="demo-btn" onclick="runAutoDemo()">▶ Auto-guide me</button>
+    <div class="manual-row">
+      <button class="manual-btn" onclick="prevStep()">← Prev</button>
+      <button class="manual-btn" onclick="nextStep()">Next →</button>
+      <button class="manual-btn" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CENTER ── -->
+<div class="center">
+  <div class="arena">
+    <canvas id="arena-canvas" width="480" height="480"></canvas>
+  </div>
+</div>
+
+<!-- ── RIGHT ── -->
+<div class="right">
+
+  <div class="indicator-bar">
+    <div class="ib-title">Live indicators</div>
+    <div class="ind-item"><div class="ind-dot bad" id="id-dist"></div><div class="ind-info"><div class="ind-name">Distance</div><div class="ind-val bad" id="iv-dist">Too close</div></div></div>
+    <div class="ind-item"><div class="ind-dot bad" id="id-height"></div><div class="ind-info"><div class="ind-name">Height</div><div class="ind-val bad" id="iv-height">Too high</div></div></div>
+    <div class="ind-item"><div class="ind-dot bad" id="id-angle"></div><div class="ind-info"><div class="ind-name">Angle</div><div class="ind-val bad" id="iv-angle">Front-facing</div></div></div>
+    <div class="ind-item"><div class="ind-dot bad" id="id-stable"></div><div class="ind-info"><div class="ind-name">Stability</div><div class="ind-val bad" id="iv-stable">Moving</div></div></div>
+    <div class="ind-item"><div class="ind-dot bad" id="id-frame"></div><div class="ind-info"><div class="ind-name">Frame</div><div class="ind-val bad" id="iv-frame">Feet cut off</div></div></div>
+  </div>
+
+  <div class="voice-box">
+    <div class="vb-title">Guidance</div>
+    <div class="voice-msg bad" id="voice-msg">Move the phone <strong>further back</strong> until your full body is visible.</div>
+  </div>
+
+  <div class="progress-section">
+    <div class="ps-title">Setup progress</div>
+    <div class="progress-steps" id="progress-steps"></div>
+  </div>
+
+  <div class="readout-section">
+    <div class="rs-title">Live measurements</div>
+    <div class="readout-grid">
+      <div class="readout-item"><div class="ri-label">Distance</div><div class="ri-val bad" id="rd-dist">0.8m</div><div class="ri-unit">target 2.0–2.5m</div></div>
+      <div class="readout-item"><div class="ri-label">Height</div><div class="ri-val bad" id="rd-height">1.4m</div><div class="ri-unit">target 0.9m</div></div>
+      <div class="readout-item"><div class="ri-label">Angle</div><div class="ri-val bad" id="rd-angle">8°</div><div class="ri-unit">target 85–95°</div></div>
+      <div class="readout-item"><div class="ri-label">Stability</div><div class="ri-val bad" id="rd-stable">High</div><div class="ri-unit">target: still</div></div>
+    </div>
+  </div>
+
+  <div class="ready-banner" id="ready-banner">
+    <div class="rb-title">✓ Perfect setup</div>
+    <div class="rb-body">All 5 checks passed. Starting analysis in:</div>
+    <div class="rb-count" id="ready-count">3</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const C = document.getElementById('arena-canvas');
+const CTX = C.getContext('2d');
+const W = 480, H = 480;
+let tick = 0;
+let animID = null;
+let currentEx = 'squat';
+let currentStep = 0;
+let demoTimer = null;
+let demoRunning = false;
+let readyCountdown = null;
+
+// ── EXERCISE CONFIG ────────────────────────────────────────
+const EXERCISES = {
+  squat: {
+    label: 'Squat',
+    optAngle: 90,   // side view
+    optHeight: 0.9, // hip level (metres)
+    optDist: 2.2,
+    angleLabel: 'Side view (90°)',
+    steps: [
+      { title: 'Move the phone back',    desc: 'Place phone 2.0–2.5m away. Full body must be visible.',     check: 'dist' },
+      { title: 'Lower to hip height',    desc: 'Camera at hip level — roughly 0.9m from the floor.',         check: 'height' },
+      { title: 'Rotate to side view',    desc: 'Phone should face your side, not front. 90° from your body.', check: 'angle' },
+      { title: 'Find a stable surface',  desc: 'Prop against a wall, bench, or use a tripod. No wobble.',     check: 'stable' },
+      { title: 'Check full body in frame',desc: 'Head to ankles visible. Feet must be in frame.',             check: 'frame' },
+    ]
+  },
+  deadlift: {
+    label: 'Deadlift',
+    optAngle: 90,
+    optHeight: 0.8,
+    optDist: 2.4,
+    angleLabel: 'Side view (90°)',
+    steps: [
+      { title: 'Move the phone back',    desc: 'Place phone 2.0–2.5m away. More space than squat.',           check: 'dist' },
+      { title: 'Lower to knee height',   desc: 'Camera at 0.8m — just below knee. Captures bar path.',        check: 'height' },
+      { title: 'Rotate to side view',    desc: 'Side view captures lumbar position and hip hinge.',            check: 'angle' },
+      { title: 'Find a stable surface',  desc: 'Heavy lifts create floor vibration — must be very stable.',    check: 'stable' },
+      { title: 'Check full body in frame',desc: 'Bar path at floor must be visible. Wider frame needed.',      check: 'frame' },
+    ]
+  },
+  pushup: {
+    label: 'Push-up',
+    optAngle: 90,
+    optHeight: 0.3,
+    optDist: 1.8,
+    angleLabel: 'Side view (90°)',
+    steps: [
+      { title: 'Place phone at floor level', desc: 'Phone only 1.5–2m away. Movement is horizontal.',        check: 'dist' },
+      { title: 'Very low — 30cm height',    desc: 'Camera at 30cm from floor. Captures body alignment.',      check: 'height' },
+      { title: 'Rotate to side view',       desc: 'Side view is essential for body alignment and elbow angle.',check: 'angle' },
+      { title: 'Stable on the floor',       desc: 'Lay phone flat or prop against something at floor level.',  check: 'stable' },
+      { title: 'Wrists to ankles in frame', desc: 'Entire horizontal body must be visible in frame.',          check: 'frame' },
+    ]
+  },
+  pullup: {
+    label: 'Pull-up',
+    optAngle: 0,    // front view
+    optHeight: 2.2,
+    optDist: 2.5,
+    angleLabel: 'Front view (0°)',
+    steps: [
+      { title: 'Move the phone back',     desc: '2.0–2.5m away. Full vertical range of the pull must be visible.', check: 'dist' },
+      { title: 'Raise to chest height',   desc: 'Camera at 1.5–2.0m — chest level when standing.',           check: 'height' },
+      { title: 'Face the camera',         desc: 'Pull-up needs FRONT view — face the camera directly.',        check: 'angle' },
+      { title: 'Find a stable surface',   desc: 'Prop at chest height. Facing you directly.',                  check: 'stable' },
+      { title: 'Full hang to chin visible',desc: 'Dead hang at bottom to chin above bar at top — all in frame.',check: 'frame' },
+    ]
+  }
+};
+
+// ── STATE ─────────────────────────────────────────────────
+const STATE = {
+  dist:   { val: 0.8,  ok: false },
+  height: { val: 1.4,  ok: false },
+  angle:  { val: 8,    ok: false },
+  stable: { val: false,ok: false },
+  frame:  { val: false,ok: false },
+};
+
+// Animated phone position (in the top-down arena)
+const PHONE_POS = {
+  x: 430, y: 240,  // actual position
+  tx: 430, ty: 240, // target
+  rot: 5,           // actual rotation (degrees from front)
+  trot: 5,          // target rotation
+  height: 1.4,
+  theight: 1.4,
+  stable: false,
+  noise: 6,         // wobble amount
+};
+
+// ── STEP DEFINITIONS (per exercise) ──────────────────────
+function getSteps() { return EXERCISES[currentEx].steps; }
+function getEx()    { return EXERCISES[currentEx]; }
+
+// Target states per step
+const STEP_TARGETS = {
+  squat: [
+    { dist:2.2, height:1.4,  angle:8,  stable:false, frame:false },
+    { dist:2.2, height:0.9,  angle:8,  stable:false, frame:false },
+    { dist:2.2, height:0.9,  angle:90, stable:false, frame:false },
+    { dist:2.2, height:0.9,  angle:90, stable:true,  frame:false },
+    { dist:2.2, height:0.9,  angle:90, stable:true,  frame:true  },
+  ],
+  deadlift: [
+    { dist:2.4, height:0.9,  angle:8,  stable:false, frame:false },
+    { dist:2.4, height:0.8,  angle:8,  stable:false, frame:false },
+    { dist:2.4, height:0.8,  angle:90, stable:false, frame:false },
+    { dist:2.4, height:0.8,  angle:90, stable:true,  frame:false },
+    { dist:2.4, height:0.8,  angle:90, stable:true,  frame:true  },
+  ],
+  pushup: [
+    { dist:1.8, height:0.9,  angle:8,  stable:false, frame:false },
+    { dist:1.8, height:0.3,  angle:8,  stable:false, frame:false },
+    { dist:1.8, height:0.3,  angle:90, stable:false, frame:false },
+    { dist:1.8, height:0.3,  angle:90, stable:true,  frame:false },
+    { dist:1.8, height:0.3,  angle:90, stable:true,  frame:true  },
+  ],
+  pullup: [
+    { dist:2.5, height:1.5,  angle:85, stable:false, frame:false },
+    { dist:2.5, height:1.6,  angle:85, stable:false, frame:false },
+    { dist:2.5, height:1.6,  angle:0,  stable:false, frame:false },
+    { dist:2.5, height:1.6,  angle:0,  stable:true,  frame:false },
+    { dist:2.5, height:1.6,  angle:0,  stable:true,  frame:true  },
+  ],
+};
+
+// ── DRAW ARENA (TOP-DOWN VIEW) ────────────────────────────
+function drawArena() {
+  CTX.clearRect(0,0,W,H);
+
+  // Background
+  CTX.fillStyle = '#07070E';
+  CTX.fillRect(0,0,W,H);
+
+  // Subtle grid
+  CTX.strokeStyle = 'rgba(255,255,255,.03)';
+  CTX.lineWidth = 1;
+  for(let x=0;x<W;x+=40){CTX.beginPath();CTX.moveTo(x,0);CTX.lineTo(x,H);CTX.stroke();}
+  for(let y=0;y<H;y+=40){CTX.beginPath();CTX.moveTo(0,y);CTX.lineTo(W,y);CTX.stroke();}
+
+  const cx=W/2, cy=H/2;
+  const ex = getEx();
+  const optDist = ex.optDist;
+
+  // ── DISTANCE ZONES ──
+  // Green zone ring
+  const minR = distToPixels(1.8), maxR = distToPixels(2.8);
+  CTX.strokeStyle = 'rgba(45,212,160,.12)';
+  CTX.lineWidth = (maxR-minR);
+  CTX.beginPath();
+  CTX.arc(cx,cy,(minR+maxR)/2,0,Math.PI*2);
+  CTX.stroke();
+
+  // Zone labels
+  CTX.font = '9px JetBrains Mono';
+  CTX.fillStyle = 'rgba(45,212,160,.4)';
+  CTX.textAlign = 'center';
+  CTX.fillText('OPTIMAL ZONE', cx, cy - (minR+maxR)/2 + 5);
+
+  // Too close ring
+  CTX.strokeStyle = 'rgba(255,69,96,.08)';
+  CTX.lineWidth = minR;
+  CTX.beginPath();
+  CTX.arc(cx,cy,minR/2,0,Math.PI*2);
+  CTX.stroke();
+
+  // Too far label
+  CTX.fillStyle = 'rgba(255,69,96,.3)';
+  CTX.fillText('TOO CLOSE', cx, cy - minR/2 + 5);
+
+  // Compass
+  CTX.fillStyle = 'rgba(90,88,112,.5)';
+  CTX.font = '10px JetBrains Mono';
+  [[0,'0° front'],[90,'90° side'],[180,'180° back'],[270,'270° side']].forEach(([a,lbl])=>{
+    const rad = (a-90)*Math.PI/180;
+    const r2 = maxR + 28;
+    CTX.textAlign = 'center';
+    CTX.fillText(lbl, cx+Math.cos(rad)*r2, cy+Math.sin(rad)*r2+4);
+  });
+
+  // ── ATHLETE (top-down dot + direction) ──
+  const allOk = Object.values(STATE).every(s=>s.ok);
+  CTX.beginPath(); CTX.arc(cx,cy,18,0,Math.PI*2);
+  CTX.fillStyle = allOk ? 'rgba(45,212,160,.2)' : 'rgba(155,127,255,.15)';
+  CTX.fill();
+  CTX.strokeStyle = allOk ? 'rgba(45,212,160,.6)' : 'rgba(155,127,255,.5)';
+  CTX.lineWidth = 2; CTX.stroke();
+
+  // Athlete "facing" arrow
+  const facingDir = currentEx === 'pullup' ? 0 : 90; // front or side
+  const fRad = (facingDir-90)*Math.PI/180;
+  CTX.beginPath(); CTX.moveTo(cx,cy);
+  CTX.lineTo(cx+Math.cos(fRad)*28, cy+Math.sin(fRad)*28);
+  CTX.strokeStyle = 'rgba(155,127,255,.6)'; CTX.lineWidth=2.5; CTX.stroke();
+  CTX.font = '10px JetBrains Mono'; CTX.fillStyle='rgba(155,127,255,.6)'; CTX.textAlign='center';
+  CTX.fillText('YOU', cx, cy+4);
+
+  // ── PHONE ──
+  // Lerp phone toward target
+  PHONE_POS.x += (PHONE_POS.tx - PHONE_POS.x) * 0.06;
+  PHONE_POS.y += (PHONE_POS.ty - PHONE_POS.y) * 0.06;
+  PHONE_POS.rot += (PHONE_POS.trot - PHONE_POS.rot) * 0.05;
+  PHONE_POS.height += (PHONE_POS.theight - PHONE_POS.height) * 0.06;
+
+  const nx = PHONE_POS.x + (PHONE_POS.stable ? 0 : Math.sin(tick*0.13)*PHONE_POS.noise);
+  const ny = PHONE_POS.y + (PHONE_POS.stable ? 0 : Math.cos(tick*0.11)*PHONE_POS.noise*0.6);
+
+  // Status-based colour
+  const allGreen = Object.values(STATE).every(s=>s.ok);
+  const phoneCol = allGreen ? '#2DD4A0' : STATE.dist.ok && STATE.height.ok ? '#F5A524' : '#FF4560';
+
+  // Line from phone to athlete
+  CTX.setLineDash([4,4]);
+  CTX.strokeStyle = phoneCol.replace(')',',0.25)').includes('rgba') ? phoneCol : phoneCol+'40';
+  CTX.lineWidth = 1.5;
+  CTX.beginPath(); CTX.moveTo(nx,ny); CTX.lineTo(cx,cy); CTX.stroke();
+  CTX.setLineDash([]);
+
+  // FOV cone
+  const optAngle = getEx().optAngle;
+  const phoneAngle = PHONE_POS.rot; // degrees from front (0=front, 90=side)
+  // Convert to canvas angle: phone points toward athlete (cx,cy)
+  const phoneDir = Math.atan2(cy-ny, cx-nx); // angle toward athlete
+  const fovHalf = 28 * Math.PI/180;
+  CTX.beginPath(); CTX.moveTo(nx,ny);
+  CTX.arc(nx,ny, 60, phoneDir-fovHalf, phoneDir+fovHalf);
+  CTX.closePath();
+  CTX.fillStyle = phoneCol.replace('#','').length===6 ?
+    hexToRgba(phoneCol, 0.08) : 'rgba(45,212,160,.08)';
+  CTX.fill();
+  CTX.strokeStyle = phoneCol.replace('#','').length===6 ?
+    hexToRgba(phoneCol, 0.3) : 'rgba(45,212,160,.3)';
+  CTX.lineWidth = 1; CTX.stroke();
+
+  // Phone body
+  CTX.save();
+  CTX.translate(nx, ny);
+  // Phone always points toward athlete visually
+  CTX.rotate(phoneDir + Math.PI/2);
+  const pw=14, ph=24;
+  CTX.beginPath();
+  CTX.roundRect(-pw/2,-ph/2,pw,ph,3);
+  CTX.fillStyle = '#1A1A28'; CTX.fill();
+  CTX.strokeStyle = phoneCol; CTX.lineWidth=2; CTX.stroke();
+  // Lens
+  CTX.beginPath(); CTX.arc(0,-ph/2+5,3,0,Math.PI*2);
+  CTX.fillStyle=phoneCol; CTX.fill();
+  CTX.restore();
+
+  // ── ARROWS ── (directional guidance)
+  drawArrows(nx, ny, cx, cy, phoneCol);
+
+  // ── DISTANCE MEASUREMENT LINE ──
+  const measured = Math.sqrt((nx-cx)**2+(ny-cy)**2);
+  const actualM  = pixelsToMeters(measured);
+  CTX.strokeStyle='rgba(255,255,255,.12)';CTX.lineWidth=1;CTX.setLineDash([2,4]);
+  CTX.beginPath();CTX.moveTo(nx,ny);CTX.lineTo(cx,cy);CTX.stroke();
+  CTX.setLineDash([]);
+  CTX.font='10px JetBrains Mono';CTX.fillStyle='rgba(255,255,255,.4)';CTX.textAlign='center';
+  const mx=(nx+cx)/2, my=(ny+cy)/2;
+  CTX.fillText(actualM.toFixed(1)+'m', mx+8, my-6);
+
+  // ── HEIGHT INDICATOR (side bar) ──
+  drawHeightBar();
+
+  // ── ANGLE INDICATOR ──
+  drawAngleIndicator(nx,ny,cx,cy);
+
+  // Step overlay
+  drawStepOverlay();
+}
+
+function hexToRgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function distToPixels(m) {
+  return m * 72; // 1 metre = 72px
+}
+function pixelsToMeters(px) {
+  return px / 72;
+}
+
+function drawArrows(px,py,cx,cy,baseCol) {
+  const allOk = Object.values(STATE).every(s=>s.ok);
+  if(allOk) return;
+
+  const ex = getEx();
+  const actualDist = pixelsToMeters(Math.sqrt((px-cx)**2+(py-cy)**2));
+  const minDist=1.8, maxDist=2.8;
+
+  // Distance arrow — push phone further from athlete
+  if(!STATE.dist.ok) {
+    const dir = Math.atan2(py-cy,px-cx); // away from athlete
+    const arrowLen = 45;
+    const ax = px + Math.cos(dir)*arrowLen;
+    const ay = py + Math.sin(dir)*arrowLen;
+    drawArrow(px,py,ax,ay,'#FF4560',actualDist<minDist?'←BACK':'→CLOSER',actualDist<minDist);
+  }
+
+  // Height arrow
+  if(!STATE.height.ok) {
+    const targetH = ex.optHeight;
+    const currentH = PHONE_POS.height;
+    const up = currentH > targetH;
+    drawArrowVertical(px,py, up ? -40:40, '#F5A524', up?'↓ LOWER':'↑ RAISE');
+  }
+
+  // Angle arrow (rotation)
+  if(!STATE.angle.ok) {
+    const optAngle = ex.optAngle;
+    const curAngle = PHONE_POS.rot;
+    const diff = optAngle - curAngle;
+    const rotDir = diff > 0 ? 1 : -1;
+    drawRotationArrow(px,py,rotDir,'#F5A524',rotDir>0?'↻ ROTATE RIGHT':'↺ ROTATE LEFT');
+  }
+}
+
+function drawArrow(x1,y1,x2,y2,col,label,important) {
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  const ux=dx/len,uy=dy/len;
+  const hw=important?9:7,hl=important?14:10;
+
+  CTX.save();
+  // Pulsing glow for important
+  if(important){
+    CTX.shadowColor=col;CTX.shadowBlur=12+(Math.sin(tick*.1)*5);
+  }
+  CTX.strokeStyle=col;CTX.fillStyle=col;CTX.lineWidth=important?3:2;
+  CTX.beginPath();CTX.moveTo(x1+ux*10,y1+uy*10);CTX.lineTo(x2-ux*hl,y2-uy*hl);CTX.stroke();
+  // Arrowhead
+  const px2=x2-ux*hl, py2=y2-uy*hl;
+  const nx2=-uy,ny2=ux;
+  CTX.beginPath();
+  CTX.moveTo(x2,y2);
+  CTX.lineTo(px2+nx2*hw,py2+ny2*hw);
+  CTX.lineTo(px2-nx2*hw,py2-ny2*hw);
+  CTX.closePath();CTX.fill();
+  // Label
+  if(label){
+    CTX.font=`${important?'bold ':''} 9px JetBrains Mono`;
+    CTX.fillStyle=col;CTX.textAlign='center';
+    const mx=(x1+x2)/2+uy*14, my=(y1+y2)/2-ux*14;
+    CTX.fillText(label,mx,my);
+  }
+  CTX.restore();
+}
+
+function drawArrowVertical(x,y,dy,col,label) {
+  const x1=x+22,y1=y,x2=x+22,y2=y+dy;
+  drawArrow(x1,y1,x2,y2,col,label,true);
+}
+
+function drawRotationArrow(x,y,dir,col,label) {
+  CTX.save();CTX.translate(x,y);
+  CTX.strokeStyle=col;CTX.lineWidth=2.5;
+  const r=32;
+  CTX.beginPath();
+  if(dir>0){
+    CTX.arc(0,0,r,-Math.PI*0.3,Math.PI*0.3);
+  } else {
+    CTX.arc(0,0,r,Math.PI*0.7,Math.PI*1.3);
+  }
+  CTX.stroke();
+  // Arrowhead at end of arc
+  const endA = dir>0 ? Math.PI*0.3 : Math.PI*1.3;
+  const ex2=r*Math.cos(endA),ey2=r*Math.sin(endA);
+  const tang={x:-Math.sin(endA)*dir,y:Math.cos(endA)*dir};
+  CTX.fillStyle=col;
+  CTX.beginPath();
+  CTX.moveTo(ex2+tang.x*8,ey2+tang.y*8);
+  CTX.lineTo(ex2-tang.y*6,ey2+tang.x*6);
+  CTX.lineTo(ex2+tang.y*6,ey2-tang.x*6);
+  CTX.closePath();CTX.fill();
+  CTX.font='bold 9px JetBrains Mono';
+  CTX.fillStyle=col;CTX.textAlign='center';
+  CTX.fillText(label,0,r+18);
+  CTX.restore();
+}
+
+function drawHeightBar() {
+  const bx=W-22, by=60, bh=H-120;
+  // Track
+  CTX.fillStyle='rgba(255,255,255,.05)';
+  CTX.roundRect?.(bx-4,by,8,bh,4);
+  CTX.fillRect(bx-4,by,8,bh);
+
+  // Green zone
+  const ex=getEx();
+  const minH=0.2,maxH=2.5;
+  const range=maxH-minH;
+  const optH=ex.optHeight;
+  const zoneHalf=0.2;
+  const zy1=(optH-zoneHalf-minH)/range;
+  const zy2=(optH+zoneHalf-minH)/range;
+  CTX.fillStyle='rgba(45,212,160,.2)';
+  CTX.fillRect(bx-4, by+zy1*bh, 8, (zy2-zy1)*bh);
+
+  // Current position
+  const curH=PHONE_POS.height;
+  const curY=(curH-minH)/range;
+  const markerY=by+curY*bh;
+  const heightOk=Math.abs(curH-optH)<0.25;
+  CTX.fillStyle=heightOk?'var(--green)':'#F5A524';
+  CTX.beginPath();CTX.arc(bx,markerY,7,0,Math.PI*2);CTX.fill();
+
+  // Height label
+  CTX.font='9px JetBrains Mono';CTX.fillStyle='rgba(255,255,255,.4)';CTX.textAlign='right';
+  CTX.fillText(curH.toFixed(1)+'m',bx-10,markerY+4);
+  CTX.fillText('HEIGHT',bx,by-6);
+
+  // Arrow on height bar
+  if(!heightOk){
+    const tY=by+((optH-minH)/range)*bh;
+    CTX.strokeStyle='rgba(245,165,36,.7)';CTX.lineWidth=1.5;CTX.setLineDash([3,3]);
+    CTX.beginPath();CTX.moveTo(bx,markerY);CTX.lineTo(bx,tY);CTX.stroke();
+    CTX.setLineDash([]);
+    // Arrow tip
+    CTX.fillStyle='rgba(245,165,36,.9)';
+    const dir=tY>markerY?1:-1;
+    CTX.beginPath();CTX.moveTo(bx,tY);
+    CTX.lineTo(bx-5,tY-dir*8);CTX.lineTo(bx+5,tY-dir*8);
+    CTX.closePath();CTX.fill();
+  }
+}
+
+function drawAngleIndicator(px,py,cx,cy) {
+  const ex=getEx();
+  const optA=ex.optAngle;
+  const curA=PHONE_POS.rot;
+  const diff=Math.abs(curA-optA);
+  const col=diff<8?'#2DD4A0':diff<25?'#F5A524':'#FF4560';
+
+  // Small angle readout near phone
+  CTX.font='bold 10px JetBrains Mono';
+  CTX.fillStyle=col;CTX.textAlign='center';
+  CTX.fillText(Math.round(curA)+'°', px, py-32);
+}
+
+function drawStepOverlay() {
+  const steps=getSteps();
+  const step=steps[currentStep];
+  if(!step)return;
+
+  // Step title at top
+  CTX.font='bold 13px Inter';
+  CTX.fillStyle='rgba(255,255,255,.9)';
+  CTX.textAlign='center';
+  CTX.fillText(`Step ${currentStep+1} of ${steps.length}: ${step.title}`, W/2, 24);
+}
+
+// ── UPDATE STATE ──────────────────────────────────────────
+function updateState() {
+  const ex = getEx();
+  const actualDist = pixelsToMeters(Math.sqrt((PHONE_POS.x-W/2)**2+(PHONE_POS.y-H/2)**2));
+
+  STATE.dist.ok   = actualDist >= 1.8 && actualDist <= 2.8;
+  STATE.dist.val  = actualDist.toFixed(1)+'m';
+
+  STATE.height.ok  = Math.abs(PHONE_POS.height - ex.optHeight) < 0.25;
+  STATE.height.val = PHONE_POS.height.toFixed(1)+'m';
+
+  const angleDiff = Math.abs(PHONE_POS.rot - ex.optAngle);
+  STATE.angle.ok  = angleDiff < 10 || angleDiff > 170;
+  STATE.angle.val = PHONE_POS.rot.toFixed(0)+'°';
+
+  STATE.stable.ok  = PHONE_POS.stable;
+  STATE.frame.val  = PHONE_POS.stable && STATE.dist.ok && STATE.height.ok;
+  STATE.frame.ok   = currentStep >= 4 ? PHONE_POS.stable && STATE.dist.ok : false;
+}
+
+// ── UPDATE UI ─────────────────────────────────────────────
+function updateUI() {
+  const ex=getEx();
+  const allOk=Object.values(STATE).every(s=>s.ok);
+
+  // Indicator dots
+  const inds={
+    dist:   { ok:STATE.dist.ok,   val: STATE.dist.ok?'Good ('+STATE.dist.val+')'   : PHONE_POS.height<ex.optHeight-0.3?'Too close':'Adjust back' },
+    height: { ok:STATE.height.ok, val: STATE.height.ok?'Good ('+PHONE_POS.height.toFixed(1)+'m)' : PHONE_POS.height>ex.optHeight?'Too high':'Too low' },
+    angle:  { ok:STATE.angle.ok,  val: STATE.angle.ok?ex.angleLabel : Math.abs(PHONE_POS.rot-ex.optAngle)<45?'Adjust rotation':'Wrong angle' },
+    stable: { ok:STATE.stable.ok, val: STATE.stable.ok?'Stable':'Moving — find surface' },
+    frame:  { ok:STATE.frame.ok,  val: STATE.frame.ok?'All in frame':'Feet may be cut off' },
+  };
+  Object.entries(inds).forEach(([k,v])=>{
+    const dot=document.getElementById('id-'+k);
+    const val=document.getElementById('iv-'+k);
+    const st=v.ok?'ok':currentStep>=['dist','height','angle','stable','frame'].indexOf(k)?'warn':'bad';
+    dot.className='ind-dot '+(v.ok?'ok':'bad');
+    val.textContent=v.val;
+    val.className='ind-val '+(v.ok?'ok':'bad');
+  });
+
+  // Readouts
+  const rds=[
+    {id:'rd-dist',  v:pixelsToMeters(Math.sqrt((PHONE_POS.x-W/2)**2+(PHONE_POS.y-H/2)**2)).toFixed(1)+'m', ok:STATE.dist.ok},
+    {id:'rd-height',v:PHONE_POS.height.toFixed(1)+'m', ok:STATE.height.ok},
+    {id:'rd-angle', v:PHONE_POS.rot.toFixed(0)+'°', ok:STATE.angle.ok},
+    {id:'rd-stable',v:PHONE_POS.stable?'Still':'Moving', ok:STATE.stable.ok},
+  ];
+  rds.forEach(r=>{
+    const el=document.getElementById(r.id);
+    el.textContent=r.v;el.className='ri-val '+(r.ok?'ok':'bad');
+  });
+
+  // Voice guidance
+  const vmEl=document.getElementById('voice-msg');
+  let msg='',cls='bad';
+  const steps=getSteps();
+  if(allOk){
+    msg='<strong>✓ Perfect setup.</strong> All 5 checks passed. Starting analysis in 3 seconds.';
+    cls='good';
+  } else if(!STATE.dist.ok){
+    const d=pixelsToMeters(Math.sqrt((PHONE_POS.x-W/2)**2+(PHONE_POS.y-H/2)**2));
+    msg=d<1.8?`Move the phone <strong>further back</strong> — currently ${d.toFixed(1)}m, need 2.0–2.5m.`:`Move the phone <strong>closer</strong> — currently ${d.toFixed(1)}m.`;
+    cls='bad';
+  } else if(!STATE.height.ok){
+    const h=PHONE_POS.height;
+    const target=ex.optHeight;
+    msg=h>target?`<strong>Lower the phone</strong> to ${target}m (hip level). Currently at ${h.toFixed(1)}m.`:`<strong>Raise the phone</strong> to ${target}m. Currently at ${h.toFixed(1)}m.`;
+    cls='warn';
+  } else if(!STATE.angle.ok){
+    const diff=ex.optAngle-PHONE_POS.rot;
+    msg=ex.optAngle===0?`<strong>Face the camera directly.</strong> Rotate ${Math.abs(diff).toFixed(0)}° toward the phone.`:`<strong>Rotate to face your side.</strong> Turn ${diff>0?'right':'left'} ${Math.abs(diff).toFixed(0)}°.`;
+    cls='warn';
+  } else if(!STATE.stable.ok){
+    msg=`<strong>Hold still</strong> — prop the phone against a wall, bench or use a tripod.`;
+    cls='warn';
+  } else if(!STATE.frame.ok){
+    msg=`<strong>Check full body is in frame.</strong> Head to ankles must be visible — step back slightly.`;
+    cls='warn';
+  }
+  vmEl.innerHTML=msg;
+  vmEl.className='voice-msg '+cls;
+
+  // Progress steps
+  updateStepsList();
+
+  // Progress bar
+  const done=Object.values(STATE).filter(s=>s.ok).length;
+  const pSteps=document.getElementById('progress-steps');
+  pSteps.innerHTML='';
+  for(let i=0;i<5;i++){
+    const d=document.createElement('div');
+    d.className='ps-step'+(Object.values(STATE)[i]?.ok?' done':i===done?' active':'');
+    pSteps.appendChild(d);
+  }
+
+  // Ready banner
+  const rb=document.getElementById('ready-banner');
+  rb.style.display=allOk?'block':'none';
+}
+
+// ── STEP LIST ─────────────────────────────────────────────
+function updateStepsList() {
+  const steps=getSteps();
+  const checkKeys=['dist','height','angle','stable','frame'];
+  const list=document.getElementById('steps-list');
+  list.innerHTML='';
+  steps.forEach((step,i)=>{
+    const done=STATE[checkKeys[i]]?.ok;
+    const active=i===currentStep&&!done;
+    const div=document.createElement('div');
+    div.className=`step-item${active?' active':''}${done?' done':''}`;
+    div.onclick=()=>{currentStep=i;applyStep(i);};
+    div.innerHTML=`
+      <div class="step-num">${done?'✓':i+1}</div>
+      <div class="step-content">
+        <div class="step-title">${step.title}</div>
+        <div class="step-desc">${step.desc}</div>
+        ${active?`<div class="step-status">▶ Current step</div>`:''}
+        ${done?`<div class="step-status">✓ Done</div>`:''}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+// ── APPLY STEP TARGET ─────────────────────────────────────
+function applyStep(idx) {
+  const targets=STEP_TARGETS[currentEx];
+  if(!targets||!targets[idx])return;
+  const t=targets[idx];
+
+  // Set phone target position from distance
+  const angle=(currentEx==='pullup'?270:270); // phone always starts on right
+  const rad=(angle-90)*Math.PI/180;
+  const distPx=distToPixels(t.dist);
+  PHONE_POS.tx = W/2 + Math.cos(rad)*distPx;
+  PHONE_POS.ty = H/2 + Math.sin(rad)*distPx;
+  PHONE_POS.theight = t.height;
+  PHONE_POS.trot    = t.angle;
+  PHONE_POS.stable  = t.stable;
+  PHONE_POS.noise   = t.stable ? 0.5 : 6;
+
+  STATE.frame.ok = t.frame;
+}
+
+// ── NAV ───────────────────────────────────────────────────
+function nextStep() {
+  if(currentStep<getSteps().length-1) { currentStep++; applyStep(currentStep); }
+  else { applyStep(getSteps().length-1); } // ensure final state
+}
+function prevStep() {
+  if(currentStep>0){ currentStep--; applyStep(currentStep); }
+}
+function resetAll() {
+  currentStep=0;
+  clearTimeout(demoTimer);demoRunning=false;
+  clearTimeout(readyCountdown);
+  document.getElementById('ready-banner').style.display='none';
+  document.getElementById('ready-count').textContent='3';
+  PHONE_POS.x=430;PHONE_POS.y=240;
+  PHONE_POS.tx=430;PHONE_POS.ty=240;
+  PHONE_POS.trot=5;PHONE_POS.rot=5;
+  PHONE_POS.theight=1.4;PHONE_POS.height=1.4;
+  PHONE_POS.stable=false;PHONE_POS.noise=6;
+  STATE.frame.ok=false;
+  applyStep(0);
+}
+
+// ── AUTO DEMO ─────────────────────────────────────────────
+function runAutoDemo() {
+  resetAll();
+  demoRunning=true;
+  const totalSteps=getSteps().length;
+  let s=0;
+  function doStep(){
+    if(s>=totalSteps){
+      // All done — countdown
+      let c=3;
+      document.getElementById('ready-banner').style.display='block';
+      document.getElementById('ready-count').textContent=c;
+      readyCountdown=setInterval(()=>{
+        c--;
+        document.getElementById('ready-count').textContent=c;
+        if(c<=0){
+          clearInterval(readyCountdown);
+          document.getElementById('ready-count').textContent='✓';
+        }
+      },1000);
+      return;
+    }
+    currentStep=s;applyStep(s);s++;
+    demoTimer=setTimeout(doStep,2800);
+  }
+  demoTimer=setTimeout(doStep,400);
+}
+
+// ── EXERCISE SWITCH ───────────────────────────────────────
+document.querySelectorAll('.ex-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    currentEx=btn.dataset.ex;
+    resetAll();
+  });
+});
+
+// ── MAIN LOOP ─────────────────────────────────────────────
+function loop(){
+  tick++;
+  updateState();
+  drawArena();
+  updateUI();
+  animID=requestAnimationFrame(loop);
+}
+
+// ── INIT ──────────────────────────────────────────────────
+// Build initial progress steps
+for(let i=0;i<5;i++){const d=document.createElement('div');d.className='ps-step';document.getElementById('progress-steps').appendChild(d);}
+applyStep(0);
+loop();
+</script>
+</body>
+</html>
