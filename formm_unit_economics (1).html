@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Unit Economics</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0C0C14;--ink1:#14141F;--ink2:#1C1C2A;--ink3:#242435;--ink4:#2E2E42;
+  --fog1:rgba(255,255,255,.05);--fog2:rgba(255,255,255,.09);--fog3:rgba(255,255,255,.15);
+  --ash1:#8A88A4;--ash2:#5C5A74;--ash3:#3A3850;
+  --paper:#F0EEE6;
+  --lime:#B8FF3C;--lime-d:rgba(184,255,60,.1);--lime-bd:rgba(184,255,60,.25);
+  --teal:#00E0B5;--teal-d:rgba(0,224,181,.08);
+  --amber:#F5A524;--amber-d:rgba(245,165,36,.1);
+  --red:#FF4560;--red-d:rgba(255,69,96,.08);
+  --blue:#4DA3FF;--blue-d:rgba(77,163,255,.08);
+  --purple:#9B7FFF;
+  --disp:'Playfair Display',serif;--body:'Space Grotesk',sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{min-height:100vh;background:var(--ink);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:var(--ink1);border-right:1px solid var(--fog1);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar::-webkit-scrollbar{display:none}
+.main{flex:1;overflow-y:auto;min-width:0}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--ink4);border-radius:2px}
+
+/* ── SIDEBAR ── */
+.s-logo{padding:22px 20px 18px;border-bottom:1px solid var(--fog1)}
+.s-logo-name{font-family:var(--disp);font-size:22px;font-weight:800;color:var(--lime);letter-spacing:-.5px}
+.s-logo-sub{font-size:10px;color:var(--ash2);font-family:var(--mono);letter-spacing:1px;margin-top:3px;text-transform:uppercase}
+.s-section{padding:14px 20px 4px;font-size:9px;color:var(--ash3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;border:none;background:none;color:var(--ash1);font-size:12px;font-weight:500;width:100%;text-align:left;cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-family:var(--body)}
+.nav-item:hover{background:var(--fog1);color:var(--paper)}
+.nav-item.on{color:var(--lime);border-left-color:var(--lime);background:var(--lime-d)}
+.nav-item .n{margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--ash3);opacity:.7}
+.nav-item.on .n{color:var(--lime)}
+
+/* ── PAGE CHROME ── */
+.page-inner{padding:40px 48px 80px;max-width:860px}
+.panel{display:none;animation:fadeUp .2s ease both}
+.panel.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel-eyebrow{font-family:var(--mono);font-size:10px;color:var(--ash2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.panel-title{font-family:var(--disp);font-size:36px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:8px}
+.panel-lede{font-size:14px;color:var(--ash1);line-height:1.75;max-width:580px;margin-bottom:32px}
+
+/* ── SHARED COMPONENTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.card{background:var(--ink1);border:1px solid var(--fog1);border-radius:14px;padding:18px 20px}
+.card-sm{background:var(--ink2);border:1px solid var(--fog1);border-radius:12px;padding:14px 16px}
+.card-lime{background:var(--lime-d);border:1px solid var(--lime-bd);border-radius:14px;padding:18px 20px}
+.card-red{background:var(--red-d);border:1px solid rgba(255,69,96,.2);border-radius:14px;padding:18px 20px}
+.divider{height:1px;background:var(--fog1);margin:20px 0}
+.section-label{font-size:9px;color:var(--ash3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.big-num{font-family:var(--mono);font-size:42px;font-weight:500;line-height:1;transition:color .4s}
+.mid-num{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1;transition:color .4s}
+.sm-num{font-family:var(--mono);font-size:18px;font-weight:500;line-height:1}
+.label{font-size:11px;color:var(--ash1);margin-top:4px}
+.sublabel{font-size:10px;color:var(--ash2);font-family:var(--mono);margin-top:2px}
+.bar-track{height:5px;background:var(--ink4);border-radius:3px;overflow:hidden;margin-top:6px}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:8px;font-size:10px;font-weight:600;border:1px solid;font-family:var(--mono)}
+.pill-lime{color:var(--lime);background:var(--lime-d);border-color:var(--lime-bd)}
+.pill-amber{color:var(--amber);background:var(--amber-d);border-color:rgba(245,165,36,.25)}
+.pill-red{color:var(--red);background:var(--red-d);border-color:rgba(255,69,96,.2)}
+.pill-blue{color:var(--blue);background:var(--blue-d);border-color:rgba(77,163,255,.25)}
+.note{background:var(--ink2);border-left:2px solid var(--lime);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--ash1);line-height:1.7;margin-top:12px}
+.note strong{color:var(--lime)}
+.note-red{background:var(--red-d);border-left:2px solid var(--red);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--ash1);line-height:1.7;margin-top:12px}
+.note-red strong{color:var(--red)}
+.note-amber{background:var(--amber-d);border-left:2px solid var(--amber);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--ash1);line-height:1.7;margin-top:12px}
+.note-amber strong{color:var(--amber)}
+input[type=range]{accent-color:var(--lime);width:100%}
+.ctrl-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ctrl-row label{font-size:11px;color:var(--ash1);min-width:140px;flex-shrink:0}
+.ctrl-val{font-size:11px;font-family:var(--mono);color:var(--lime);min-width:52px;text-align:right}
+.scenario-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.sc-tab{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--fog2);background:transparent;color:var(--ash1);font-family:var(--body);font-weight:500;transition:all .15s}
+.sc-tab:hover{border-color:var(--fog3);color:var(--paper)}
+.sc-tab.on{background:var(--lime);border-color:var(--lime);color:var(--ink);font-weight:700}
+.verdict-card{border-radius:14px;padding:20px;border:1px solid;margin-bottom:20px}
+.verdict-card.pass{background:var(--lime-d);border-color:var(--lime-bd)}
+.verdict-card.warn{background:var(--amber-d);border-color:rgba(245,165,36,.25)}
+.verdict-card.fail{background:var(--red-d);border-color:rgba(255,69,96,.2)}
+.verdict-title{font-family:var(--disp);font-size:20px;font-weight:700;margin-bottom:6px}
+.verdict-card.pass .verdict-title{color:var(--lime)}
+.verdict-card.warn .verdict-title{color:var(--amber)}
+.verdict-card.fail .verdict-title{color:var(--red)}
+.verdict-body{font-size:13px;color:var(--ash1);line-height:1.7}
+.verdict-body strong{color:var(--paper)}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.comp-table th{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ash3);padding:7px 10px;border-bottom:1px solid var(--fog2);text-align:left;font-weight:400}
+.comp-table td{padding:9px 10px;border-bottom:1px solid var(--fog1);color:var(--ash1);line-height:1.5;vertical-align:top}
+.comp-table td:first-child{color:var(--paper);font-weight:500}
+.comp-table tr:last-child td{border:none}
+.waterfall{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+.wf-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;background:var(--ink2)}
+.wf-label{font-size:12px;flex:1}
+.wf-bar-wrap{flex:2;display:flex;align-items:center;gap:8px}
+.wf-bar{height:6px;border-radius:3px;transition:width .5s ease}
+.wf-val{font-size:12px;font-family:var(--mono);font-weight:500;min-width:68px;text-align:right}
+.wf-sub{font-size:10px;color:var(--ash2);font-family:var(--mono);min-width:48px;text-align:right}
+.channel-card{background:var(--ink1);border:1px solid var(--fog1);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.cc-header{padding:14px 16px;border-bottom:1px solid var(--fog1);display:flex;align-items:center;justify-content:space-between}
+.cc-title{font-size:13px;font-weight:600;color:var(--paper)}
+.cc-body{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.cc-stat{text-align:center}
+.cc-stat-val{font-family:var(--mono);font-size:18px;font-weight:500;line-height:1;margin-bottom:2px}
+.cc-stat-label{font-size:9px;color:var(--ash2);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase}
+.verdict-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--fog1)}
+.verdict-row:last-child{border:none}
+.verdict-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.verdict-content{flex:1}
+.verdict-item-title{font-size:12px;font-weight:600;color:var(--paper);margin-bottom:2px}
+.verdict-item-body{font-size:11px;color:var(--ash1);line-height:1.55}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="s-logo">
+    <div class="s-logo-name">Formm</div>
+    <div class="s-logo-sub">Unit economics</div>
+  </div>
+  <div class="s-section" style="margin-top:8px">Analysis</div>
+  <button class="nav-item on" data-p="p1">The VC question<span class="n">01</span></button>
+  <button class="nav-item" data-p="p2">CAC by channel<span class="n">02</span></button>
+  <button class="nav-item" data-p="p3">LTV model<span class="n">03</span></button>
+  <button class="nav-item" data-p="p4">LTV:CAC ratio<span class="n">04</span></button>
+  <button class="nav-item" data-p="p5">Payback period<span class="n">05</span></button>
+  <button class="nav-item" data-p="p6">Revenue scenarios<span class="n">06</span></button>
+  <button class="nav-item" data-p="p7">The B2B bridge<span class="n">07</span></button>
+  <button class="nav-item" data-p="p8">The honest verdict<span class="n">08</span></button>
+</div>
+
+<div class="main">
+<div class="page-inner">
+
+<!-- ════ 01 THE VC QUESTION ════ -->
+<div class="panel on" id="p1">
+  <div class="panel-eyebrow">01 · The VC Question</div>
+  <div class="panel-title">Do the unit economics work?</div>
+  <div class="panel-lede">The VC concern is real and deserves a serious answer. Here is the full analysis — not optimistic projections, but stress-tested numbers across three scenarios. The honest answer is: it depends entirely on which acquisition channels you use.</div>
+
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card-sm">
+      <div class="section-label">The concern</div>
+      <div style="font-size:13px;color:var(--paper);line-height:1.6;margin-bottom:8px">Consumer fitness CAC is brutally high. Most apps pay ₹8,000–20,000 per paying subscriber on paid channels. At ₹499/month that is a 16–40 month payback.</div>
+      <span class="pill pill-red">Legitimate concern</span>
+    </div>
+    <div class="card-sm">
+      <div class="section-label">The nuance</div>
+      <div style="font-size:13px;color:var(--paper);line-height:1.6;margin-bottom:8px">CAC is channel-specific. Gym partnerships, organic content, and B2B-driven B2C acquisition produce CAC of ₹200–800. The model works — if you choose the right channels.</div>
+      <span class="pill pill-amber">Channel-dependent</span>
+    </div>
+    <div class="card-sm">
+      <div class="section-label">The answer</div>
+      <div style="font-size:13px;color:var(--paper);line-height:1.6;margin-bottom:8px">At ₹499/month with 35% 12-month retention, LTV is ₹2,100. LTV:CAC ratio is 3–10× depending on channel. The economics work — with discipline on channel mix.</div>
+      <span class="pill pill-lime">Workable</span>
+    </div>
+  </div>
+
+  <div class="section-label">The consumer fitness graveyard — why the VC is right to be sceptical</div>
+  <table class="comp-table" style="margin-bottom:20px">
+    <thead><tr><th>App</th><th>Outcome</th><th>What went wrong</th></tr></thead>
+    <tbody>
+      <tr><td>Mirror (Lululemon)</td><td style="color:var(--red)">$500M acquisition → shutdown</td><td>CAC never recovered. Hardware + subscription = impossible payback.</td></tr>
+      <tr><td>Tempo</td><td style="color:var(--red)">Pivoted to B2B</td><td>Consumer fitness hardware CAC unsustainable at scale.</td></tr>
+      <tr><td>Aaptiv</td><td style="color:var(--amber)">Struggling</td><td>Audio workouts commoditised. No differentiation → high churn.</td></tr>
+      <tr><td>Freeletics</td><td style="color:var(--amber)">Survived, flat growth</td><td>Generic AI coaching claims. No proprietary data advantage.</td></tr>
+      <tr><td>Strava</td><td style="color:var(--lime)">Profitable</td><td>Built on organic sharing flywheel. CAC near zero for years.</td></tr>
+      <tr><td>Whoop</td><td style="color:var(--lime)">$3.6B valuation</td><td>Hardware reduces churn. Wearable = switching cost. No consumer CAC problem.</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>The pattern:</strong> The companies that survived built products where users generate acquisition for free (Strava) or where hardware creates switching costs (WHOOP). Formm has both — a shareable score and a data history that cannot be transferred. The category is not broken. The acquisition model is what matters.</div>
+</div>
+
+<!-- ════ 02 CAC BY CHANNEL ════ -->
+<div class="panel" id="p2">
+  <div class="panel-eyebrow">02 · CAC Analysis</div>
+  <div class="panel-title">CAC by acquisition channel</div>
+  <div class="panel-lede">CAC is not a single number — it depends entirely on which channel acquires the user. The VC's concern is about paid acquisition CAC. The strategy is to avoid paid acquisition until unit economics are proven.</div>
+
+  <div class="channel-card">
+    <div class="cc-header">
+      <span class="cc-title">📱 Paid acquisition — Meta / Google / YouTube</span>
+      <span class="pill pill-red">Avoid in Year 1</span>
+    </div>
+    <div class="cc-body">
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--red)">₹400</div><div class="cc-stat-label">Cost per install</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--red)">5%</div><div class="cc-stat-label">Paid conversion</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--red)">₹8,000</div><div class="cc-stat-label">CAC per subscriber</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--red)">16mo</div><div class="cc-stat-label">Payback period</div></div>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:var(--ash2);line-height:1.6">At ₹499/month ARPU, a ₹8,000 CAC requires 16 months of retention to break even — before churn. At 40% annual retention this is a loss-making channel. Do not touch until LTV is proven and ARPU is higher.</div>
+  </div>
+
+  <div class="channel-card">
+    <div class="cc-header">
+      <span class="cc-title">🏋 Gym partnerships — revenue share or flat fee</span>
+      <span class="pill pill-lime">Primary channel Year 1</span>
+    </div>
+    <div class="cc-body">
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹50</div><div class="cc-stat-label">Cost per member</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">25%</div><div class="cc-stat-label">Trial-to-paid</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹200</div><div class="cc-stat-label">Effective CAC</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">&lt;1mo</div><div class="cc-stat-label">Payback period</div></div>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:var(--ash2);line-height:1.6">Pay gym ₹10,000/month for exclusive access to members. 200 members × 25% conversion = 50 paying users at ₹200 CAC. Social proof from the gym community drives higher conversion than cold ads. This is the most efficient channel available.</div>
+  </div>
+
+  <div class="channel-card">
+    <div class="cc-header">
+      <span class="cc-title">📸 Instagram organic content — Reels + stories</span>
+      <span class="pill pill-lime">Primary channel Year 1</span>
+    </div>
+    <div class="cc-body">
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹0</div><div class="cc-stat-label">Media cost</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">3–8%</div><div class="cc-stat-label">View-to-install</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹80–300</div><div class="cc-stat-label">Effective CAC</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">&lt;1mo</div><div class="cc-stat-label">Payback period</div></div>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:var(--ash2);line-height:1.6">Content creation costs ~₹15,000/month (creator time). 3 Reels/week, each reaching 20,000–50,000 fitness accounts organically. The Formm Score visual is the hook — it demonstrates the product in 15 seconds. Best performing format: before/after form check with live score overlay.</div>
+  </div>
+
+  <div class="channel-card">
+    <div class="cc-header">
+      <span class="cc-title">🏏 B2B club licence → B2C users</span>
+      <span class="pill pill-lime">Highest efficiency</span>
+    </div>
+    <div class="cc-body">
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹0</div><div class="cc-stat-label">B2C CAC</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">30/sale</div><div class="cc-stat-label">Users per club</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹5K/mo</div><div class="cc-stat-label">Club revenue</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">Day 1</div><div class="cc-stat-label">Payback</div></div>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:var(--ash2);line-height:1.6">One club licence sale at ₹5,000/month acquires 20–40 individual users at zero marginal CAC. The B2B sale funds the product AND acquires the B2C users simultaneously. This is the structural answer to the VC's CAC concern — the institutional buyer funds the consumer acquisition.</div>
+  </div>
+
+  <div class="channel-card">
+    <div class="cc-header">
+      <span class="cc-title">🤝 Fitness influencer partnerships</span>
+      <span class="pill pill-amber">Supplementary Year 1</span>
+    </div>
+    <div class="cc-body">
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--amber)">₹30K</div><div class="cc-stat-label">Per partnership</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--amber)">1.5%</div><div class="cc-stat-label">Follower conversion</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--amber)">₹600</div><div class="cc-stat-label">Effective CAC</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--amber)">2mo</div><div class="cc-stat-label">Payback period</div></div>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:var(--ash2);line-height:1.6">Target: fitness coaches with 50K–200K followers who train seriously. Not celebrity fitness — niche, credible, technical. ₹30,000 for a genuine product review from someone with 100,000 followers converts 1,500 users at ₹600 blended CAC. Works when the influencer genuinely uses the product.</div>
+  </div>
+
+  <div class="channel-card">
+    <div class="cc-header">
+      <span class="cc-title">🔄 Share card organic loop</span>
+      <span class="pill pill-lime">Compounding over time</span>
+    </div>
+    <div class="cc-body">
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹0</div><div class="cc-stat-label">Cost per share</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">8%</div><div class="cc-stat-label">Share-to-install</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">₹0</div><div class="cc-stat-label">CAC</div></div>
+      <div class="cc-stat"><div class="cc-stat-val" style="color:var(--lime)">∞</div><div class="cc-stat-label">LTV:CAC</div></div>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:var(--ash2);line-height:1.6">Every level-up share card puts "Formm Score" in front of the user's gym network. "Top 29% for squat form" is more compelling to share than any generic workout completion. At 15% share rate and 8% share-to-install, a base of 1,000 users generates 12 new installs/week for free — compounding.</div>
+  </div>
+
+  <div class="note"><strong>The channel mix rule:</strong> Year 1 — 80% gym partnerships + organic content. Zero paid acquisition. Year 2 — add influencers and club licences. Year 3+ — test paid acquisition once LTV is measured and channel ROI is provable to investors.</div>
+</div>
+
+<!-- ════ 03 LTV MODEL ════ -->
+<div class="panel" id="p3">
+  <div class="panel-eyebrow">03 · LTV Model</div>
+  <div class="panel-title">Customer lifetime value</div>
+  <div class="panel-lede">LTV is the product of ARPU and retention. Both are controllable. The switching cost built into the Formm Score — the longitudinal data that cannot be transferred — is the retention mechanism no other fitness app has.</div>
+
+  <div class="scenario-tabs">
+    <button class="sc-tab on" data-sc="bear">Bear case</button>
+    <button class="sc-tab" data-sc="base">Base case</button>
+    <button class="sc-tab" data-sc="bull">Bull case</button>
+    <button class="sc-tab" data-sc="custom">Custom</button>
+  </div>
+
+  <div id="ltv-custom-controls" style="display:none;background:var(--ink1);border:1px solid var(--fog1);border-radius:12px;padding:16px;margin-bottom:16px">
+    <div class="section-label" style="margin-bottom:12px">Adjust inputs</div>
+    <div class="ctrl-row"><label>Monthly ARPU (₹)</label><input type="range" min="199" max="1499" step="50" value="499" id="ltv-arpu"><span class="ctrl-val" id="ltv-arpu-v">₹499</span></div>
+    <div class="ctrl-row"><label>Month 1 retention</label><input type="range" min="50" max="95" step="1" value="75" id="ltv-r1"><span class="ctrl-val" id="ltv-r1-v">75%</span></div>
+    <div class="ctrl-row"><label>Monthly churn after M1</label><input type="range" min="3" max="20" step="0.5" value="8" id="ltv-churn"><span class="ctrl-val" id="ltv-churn-v">8%</span></div>
+    <div class="ctrl-row"><label>Expansion revenue (mo 6+)</label><input type="range" min="0" max="30" step="1" value="0" id="ltv-exp"><span class="ctrl-val" id="ltv-exp-v">0%</span></div>
+  </div>
+
+  <div class="g4" style="margin-bottom:20px">
+    <div class="card-sm"><div class="section-label">Monthly ARPU</div><div class="big-num" id="ltv-arpu-display" style="color:var(--lime)">₹499</div><div class="label">avg revenue per user</div></div>
+    <div class="card-sm"><div class="section-label">12-month retention</div><div class="big-num" id="ltv-r12-display" style="color:var(--lime)">35%</div><div class="label">of cohort still active</div></div>
+    <div class="card-sm"><div class="section-label">Avg lifetime</div><div class="big-num" id="ltv-months-display" style="color:var(--lime)">8.2mo</div><div class="label">months retained</div></div>
+    <div class="card-sm"><div class="section-label">LTV</div><div class="big-num" id="ltv-ltv-display" style="color:var(--lime)">₹2,100</div><div class="label">gross LTV</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-label">Monthly cohort survival curve</div>
+    <div id="ltv-waterfall" class="waterfall"></div>
+  </div>
+
+  <div class="g3" style="margin-bottom:16px">
+    <div class="card-sm"><div class="section-label">Gross margin</div><div class="mid-num" style="color:var(--lime)">~92%</div><div class="label">Software COGS only</div><div class="sublabel">Server + infra: ₹45/user/mo</div></div>
+    <div class="card-sm"><div class="section-label">Net LTV</div><div class="mid-num" id="ltv-net-display" style="color:var(--lime)">₹1,932</div><div class="label">after 92% gross margin</div></div>
+    <div class="card-sm"><div class="section-label">LTV 24-month cap</div><div class="mid-num" id="ltv-24-display" style="color:var(--amber)">₹2,800</div><div class="label">ceiling for planning</div></div>
+  </div>
+
+  <div class="note"><strong>The retention lever:</strong> The switching cost is the key variable. A generic fitness app has 20–25% 12-month retention because there is no accumulated data. Formm's longitudinal movement history — joint angles per rep, Formm Score trends, 12 months of form data — is the switching cost. A user who has 40 squat analyses will not restart on a competitor. Target retention is 35–45% at 12 months. That is what makes the LTV work.</div>
+
+  <div class="note-amber" style="margin-top:8px"><strong>The honest risk:</strong> Retention in the first 90 days is the critical window. If users churn before completing 5 analyses (the Formm Score unlock), the switching cost never forms. The entire retention thesis depends on getting users to their first score. That is a product problem, not a marketing problem.</div>
+</div>
+
+<!-- ════ 04 LTV:CAC ════ -->
+<div class="panel" id="p4">
+  <div class="panel-eyebrow">04 · LTV:CAC Ratio</div>
+  <div class="panel-title">The ratio that decides everything</div>
+  <div class="panel-lede">Investors want LTV:CAC above 3×. SaaS benchmarks suggest 3× is acceptable, 5× is good, 8×+ is exceptional. The ratio depends entirely on which channel acquires the user.</div>
+
+  <div class="g4" style="margin-bottom:20px">
+    <div class="card-sm"><div class="section-label">LTV (base case)</div><div class="big-num" style="color:var(--lime)">₹2,100</div><div class="sublabel">gross, 8.2mo avg life</div></div>
+    <div class="card-sm"><div class="section-label">Best CAC</div><div class="big-num" style="color:var(--lime)">₹200</div><div class="sublabel">gym partnership</div></div>
+    <div class="card-sm"><div class="section-label">Best ratio</div><div class="big-num" style="color:var(--lime)">10.5×</div><div class="sublabel">gym channel</div></div>
+    <div class="card-sm"><div class="section-label">Worst ratio</div><div class="big-num" style="color:var(--red)">0.26×</div><div class="sublabel">paid acquisition</div></div>
+  </div>
+
+  <div class="section-label">LTV:CAC by channel</div>
+  <div id="ltv-cac-bars" style="margin-bottom:20px"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="section-label">Blended CAC — Year 1 channel mix</div>
+      <div style="margin-bottom:12px;font-size:12px;color:var(--ash1);line-height:1.7">Assuming: 50% gym partnerships, 30% organic content, 15% influencers, 5% share loop</div>
+      <div id="blended-cac-calc" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px"></div>
+      <div style="border-top:1px solid var(--fog2);padding-top:10px;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;color:var(--ash1)">Blended CAC</span>
+        <span style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--lime)" id="blended-cac-val">₹310</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px">
+        <span style="font-size:12px;color:var(--ash1)">Blended LTV:CAC</span>
+        <span style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--lime)" id="blended-ratio-val">6.8×</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-label">What the ratio tells you</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="verdict-row"><div class="verdict-dot" style="background:var(--red)"></div><div class="verdict-content"><div class="verdict-item-title" style="color:var(--red)">&lt;1× — Destroying value</div><div class="verdict-item-body">Spending more to acquire than you get back. Paid acquisition only channel produces this.</div></div></div>
+        <div class="verdict-row"><div class="verdict-dot" style="background:var(--amber)"></div><div class="verdict-content"><div class="verdict-item-title" style="color:var(--amber)">1–3× — Marginal</div><div class="verdict-item-body">Technically viable but no room for error. Cannot afford marketing inefficiency.</div></div></div>
+        <div class="verdict-row"><div class="verdict-dot" style="background:var(--lime)"></div><div class="verdict-content"><div class="verdict-item-title" style="color:var(--lime)">3–5× — Fundable</div><div class="verdict-item-body">Standard VC benchmark for consumer subscription. Acceptable for Series A conversation.</div></div></div>
+        <div class="verdict-row"><div class="verdict-dot" style="background:var(--lime)"></div><div class="verdict-content"><div class="verdict-item-title" style="color:var(--lime)">5–10× — Strong</div><div class="verdict-item-body">Where Formm sits with blended channel mix. Efficient growth with organic-heavy acquisition.</div></div></div>
+        <div class="verdict-row" style="border:none"><div class="verdict-dot" style="background:var(--teal)"></div><div class="verdict-content"><div class="verdict-item-title" style="color:var(--teal)">&gt;10× — Exceptional</div><div class="verdict-item-body">Where Formm sits on gym partnership and B2B-driven channels. Rare in consumer.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 05 PAYBACK ════ -->
+<div class="panel" id="p5">
+  <div class="panel-eyebrow">05 · Payback Period</div>
+  <div class="panel-title">How long to recover CAC</div>
+  <div class="panel-lede">Payback period is CAC divided by monthly net revenue per user. Under 12 months is considered healthy for consumer subscriptions. Under 6 months is exceptional.</div>
+
+  <div class="scenario-tabs">
+    <button class="sc-tab on" data-sc2="gym">Gym partner</button>
+    <button class="sc-tab" data-sc2="organic">Organic content</button>
+    <button class="sc-tab" data-sc2="influencer">Influencer</button>
+    <button class="sc-tab" data-sc2="paid">Paid acquisition</button>
+  </div>
+
+  <div id="payback-display" style="margin-bottom:20px"></div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-label">Cumulative revenue vs CAC — by channel</div>
+    <div style="position:relative;height:200px;margin-top:8px">
+      <canvas id="payback-chart" width="760" height="200" style="width:100%;height:200px"></canvas>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ash1)"><div style="width:16px;height:2px;background:var(--lime)"></div>Gym partner</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ash1)"><div style="width:16px;height:2px;background:var(--teal)"></div>Organic</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ash1)"><div style="width:16px;height:2px;background:var(--amber)"></div>Influencer</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ash1)"><div style="width:16px;height:2px;background:var(--red)"></div>Paid</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ash1)"><div style="width:16px;height:2px;border-top:2px dashed rgba(255,255,255,.3)"></div>Break-even</div>
+    </div>
+  </div>
+  <div class="note"><strong>The payback period conclusion:</strong> Gym partnerships and organic content both recover CAC within 1 month — even with conservative 35% retention. Influencer partnerships recover in 2 months. Only paid acquisition has a payback problem. The answer to the VC is: we will not use paid acquisition until we have proven retention at scale.</div>
+</div>
+
+<!-- ════ 06 REVENUE SCENARIOS ════ -->
+<div class="panel" id="p6">
+  <div class="panel-eyebrow">06 · Revenue Scenarios</div>
+  <div class="panel-title">Path to ₹1Cr and ₹10Cr ARR</div>
+  <div class="panel-lede">Three scenarios modelled across 36 months. All inputs are adjustable. The bear case assumes weak retention and gym-only acquisition. The bull case assumes the share card flywheel fires and B2B revenue starts in month 12.</div>
+
+  <div class="scenario-tabs">
+    <button class="sc-tab on" data-sc3="bear">Bear</button>
+    <button class="sc-tab" data-sc3="base">Base</button>
+    <button class="sc-tab" data-sc3="bull">Bull</button>
+  </div>
+
+  <div class="g4" style="margin-bottom:16px">
+    <div class="card-sm"><div class="section-label">Month 12 MRR</div><div class="big-num" id="rev-m12" style="color:var(--lime)">₹8.5L</div></div>
+    <div class="card-sm"><div class="section-label">Month 24 MRR</div><div class="big-num" id="rev-m24" style="color:var(--lime)">₹28L</div></div>
+    <div class="card-sm"><div class="section-label">Month 36 MRR</div><div class="big-num" id="rev-m36" style="color:var(--lime)">₹72L</div></div>
+    <div class="card-sm"><div class="section-label">Month 36 ARR</div><div class="big-num" id="rev-arr" style="color:var(--lime)">₹8.6Cr</div></div>
+  </div>
+
+  <div style="position:relative;height:220px;margin-bottom:16px;background:var(--ink1);border:1px solid var(--fog1);border-radius:14px;padding:16px">
+    <canvas id="rev-chart" width="760" height="188" style="width:100%;height:188px"></canvas>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-label">Key assumptions by scenario</div>
+    <table class="comp-table">
+      <thead><tr><th>Metric</th><th style="color:var(--red)">Bear</th><th style="color:var(--amber)">Base</th><th style="color:var(--lime)">Bull</th></tr></thead>
+      <tbody id="rev-assumptions"></tbody>
+    </table>
+  </div>
+  <div class="note-amber"><strong>The ₹1Cr ARR milestone:</strong> Base case hits ₹1Cr ARR in approximately month 14. Bear case hits it in month 20. Bull case in month 9. The milestone is achievable in all three scenarios — the question is timing, not viability.</div>
+</div>
+
+<!-- ════ 07 B2B BRIDGE ════ -->
+<div class="panel" id="p7">
+  <div class="panel-eyebrow">07 · The B2B Bridge</div>
+  <div class="panel-title">B2B as B2C acquisition engine</div>
+  <div class="panel-lede">The VC's suggestion to sell to physio clinics first is not wrong — it is premature. The B2B market requires clinical validation that takes 24 months. But the B2B bridge model — selling club licences that generate consumer users as a byproduct — is available now.</div>
+
+  <div class="g2" style="margin-bottom:20px">
+    <div>
+      <div class="section-label">Why physio clinics require waiting</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="card-sm" style="border-color:rgba(255,69,96,.2)"><div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:3px">Requires validation paper</div><div style="font-size:11px;color:var(--ash1);line-height:1.55">Physiotherapists need peer-reviewed evidence before using a clinical tool. That paper takes 24 months minimum. Selling before it exists means selling on vibes — and physiotherapists do not buy on vibes.</div></div>
+        <div class="card-sm" style="border-color:rgba(255,69,96,.2)"><div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:3px">Enterprise sales cycle = 6–12 months</div><div style="font-size:11px;color:var(--ash1);line-height:1.55">Institutional procurement is slow. A physio clinic decision involves the clinic owner, potentially a hospital system, and risk assessment. First revenue is 18–36 months away if you start today.</div></div>
+        <div class="card-sm" style="border-color:rgba(255,69,96,.2)"><div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:3px">No data without consumers first</div><div style="font-size:11px;color:var(--ash1);line-height:1.55">The validation study requires 500+ users with 12 months of data. That data comes from the consumer product. Physio-first means no data, means no study, means no clinical sale. The consumer market is the prerequisite, not the alternative.</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">The B2B bridge — available now</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="card-sm" style="border-color:var(--lime-bd)"><div style="font-size:12px;font-weight:600;color:var(--lime);margin-bottom:3px">Club licence → free B2C acquisition</div><div style="font-size:11px;color:var(--ash1);line-height:1.55">Sell a cricket academy a ₹5,000/month club licence. 30 players get Formm access included. That is 30 consumer users at ₹0 marginal CAC. The B2B sale funds the B2C acquisition.</div></div>
+        <div class="card-sm" style="border-color:var(--lime-bd)"><div style="font-size:12px;font-weight:600;color:var(--lime);margin-bottom:3px">Coach portal → referral network</div><div style="font-size:11px;color:var(--ash1);line-height:1.55">A coach with 10 athletes is 10 consumer users acquired through one B2B relationship. The coach becomes a distribution node. Every athlete who uses Formm at their coach's recommendation converts at 3–5× the rate of cold acquisition.</div></div>
+        <div class="card-sm" style="border-color:var(--lime-bd)"><div style="font-size:12px;font-weight:600;color:var(--lime);margin-bottom:3px">Gym chain white-label → scale</div><div style="font-size:11px;color:var(--ash1);line-height:1.55">Approach gym chains for a white-labelled version. ₹10/member/month from the gym. 500 members × ₹10 = ₹5,000/month per gym. 20 gyms = ₹1L/month with near-zero consumer CAC.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">The hybrid revenue model — B2C and B2B simultaneously</div>
+  <table class="comp-table" style="margin-bottom:16px">
+    <thead><tr><th>Revenue stream</th><th>Available</th><th>Monthly potential</th><th>CAC impact</th></tr></thead>
+    <tbody>
+      <tr><td>B2C subscription (₹499/mo)</td><td style="color:var(--lime)">Now</td><td>₹5–25L (by month 12)</td><td>Paid for by channels above</td></tr>
+      <tr><td>Club licence (₹5K/mo)</td><td style="color:var(--lime)">Now</td><td>₹50K–2L (10–40 clubs)</td><td>Generates free B2C users</td></tr>
+      <tr><td>Coach portal (₹499/mo)</td><td style="color:var(--lime)">Month 3</td><td>₹25K–1L (50–200 coaches)</td><td>Each coach = 5–15 B2C users</td></tr>
+      <tr><td>Gym white-label (₹10/member)</td><td style="color:var(--amber)">Month 6</td><td>₹50K–3L (5K–30K members)</td><td>Near-zero B2C CAC</td></tr>
+      <tr><td>Physio clinic portal</td><td style="color:var(--red)">Month 24+ (post-paper)</td><td>₹5K–15K/clinic/mo</td><td>High-value institutional sale</td></tr>
+      <tr><td>Insurance data licensing</td><td style="color:var(--red)">Month 36+</td><td>₹50–200/user/mo</td><td>Not acquisition — revenue on existing users</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><strong>The answer to the VC:</strong> "The physio clinic channel requires our validation study, which takes 24 months. But we are not purely consumer — we have three B2B revenue streams available now (club licences, coach portal, gym white-label) that simultaneously generate revenue AND acquire B2C users at near-zero CAC. The B2B and B2C are not in sequence — they are parallel, and each makes the other more efficient."</div>
+</div>
+
+<!-- ════ 08 VERDICT ════ -->
+<div class="panel" id="p8">
+  <div class="panel-eyebrow">08 · The Honest Verdict</div>
+  <div class="panel-title">Do the unit economics work?</div>
+  <div class="panel-lede">The complete analysis. No spin. The numbers that work, the numbers that do not, and what has to be true for the business to be viable.</div>
+
+  <div class="verdict-card pass" style="margin-bottom:14px">
+    <div class="verdict-title">✓ The economics work — with the right channel mix</div>
+    <div class="verdict-body">At blended CAC of <strong>₹310</strong> (50% gym partnerships, 30% organic), LTV of <strong>₹2,100</strong> (base case retention), and payback under <strong>1 month</strong>, the unit economics are strong. LTV:CAC of <strong>6.8×</strong> is well above the 3× VC benchmark. The business is viable — if you never rely primarily on paid acquisition in the early phase.</div>
+  </div>
+
+  <div class="verdict-card fail" style="margin-bottom:14px">
+    <div class="verdict-title">✗ The economics break on paid acquisition</div>
+    <div class="verdict-body">At paid CAC of <strong>₹8,000</strong> and LTV of <strong>₹2,100</strong>, LTV:CAC is <strong>0.26×</strong>. Every paid-acquired user destroys <strong>₹5,900</strong> of value. This is the scenario the VC is worried about — and rightly so. The discipline is to never let paid acquisition become the dominant channel before retention is proven and LTV is higher.</div>
+  </div>
+
+  <div class="verdict-card warn" style="margin-bottom:20px">
+    <div class="verdict-title">⚠ The retention cliff is the existential risk</div>
+    <div class="verdict-body">The entire LTV model depends on getting users to their <strong>5th analysis</strong> — the Formm Score unlock. If users churn before then, the switching cost never forms, 12-month retention stays at 20% instead of 35%, and LTV falls to <strong>₹1,200</strong>. At ₹1,200 LTV even gym partnership CAC (₹200) produces only <strong>6×</strong> — acceptable but thin. The product must get users to analysis 5 within the first 30 days. That is the single most important product metric in the business.</div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:12px">What has to be true for the business to work</div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
+    <div class="verdict-row"><div class="verdict-dot" style="background:var(--lime)"></div><div class="verdict-content"><div class="verdict-item-title">Blended CAC stays below ₹600</div><div class="verdict-item-body">Achievable with gym-heavy and organic-heavy channel mix. Discipline required — no paid acquisition at scale in Year 1.</div></div></div>
+    <div class="verdict-row"><div class="verdict-dot" style="background:var(--lime)"></div><div class="verdict-content"><div class="verdict-item-title">12-month retention above 30%</div><div class="verdict-item-body">Requires the switching cost to form — at least 5 analyses per user within 30 days. The Formm Score unlock is the retention mechanism. Everything depends on this metric.</div></div></div>
+    <div class="verdict-row"><div class="verdict-dot" style="background:var(--lime)"></div><div class="verdict-content"><div class="verdict-item-title">ARPU expansion to ₹699+ by month 18</div><div class="verdict-item-body">The ₹499 plan gets the economics to marginal viability. The ₹999 professional plan (with B2B API access) gets it to strong viability. Upsell is the LTV multiplier.</div></div></div>
+    <div class="verdict-row"><div class="verdict-dot" style="background:var(--amber)"></div><div class="verdict-content"><div class="verdict-item-title">B2B revenue by month 6</div><div class="verdict-item-body">Club licences and coach portal must contribute revenue before the consumer product is profitable on its own. 10 club licences = ₹50K/month. This funds the team while consumer retention is proven.</div></div></div>
+    <div class="verdict-row" style="border:none"><div class="verdict-dot" style="background:var(--amber)"></div><div class="verdict-content"><div class="verdict-item-title">Share card flywheel fires</div><div class="verdict-item-body">If 15% of users share a score card and 8% of views convert to installs, the flywheel generates 12 free installs/week per 1,000 users. At 5,000 users that is 60 free installs/week — compounding. This is not guaranteed but it is the thing that makes the economics exceptional rather than merely workable.</div></div></div>
+  </div>
+
+  <div class="card-lime">
+    <div class="section-label" style="color:var(--lime)">The one-paragraph answer to the VC</div>
+    <div style="font-size:14px;color:var(--paper);line-height:1.75">"The unit economics work — with strict channel discipline. Our blended CAC of ₹310 against an LTV of ₹2,100 produces a 6.8× LTV:CAC ratio that exceeds your 3× benchmark. The consumer CAC problem you are describing is real on paid acquisition channels, which is why we will not touch paid at scale until retention is proven. Our acquisition is gym partnerships, organic content, and B2B club licences that generate consumer users as a byproduct. The single number that makes or breaks the model is 30-day retention to first score unlock. That is what we are optimising for in the product right now."</div>
+  </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+// ── NAV ──────────────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById(btn.dataset.p).classList.add('on');
+    document.querySelector('.main').scrollTop=0;
+    if(btn.dataset.p==='p5')renderPaybackChart();
+    if(btn.dataset.p==='p6')renderRevChart();
+  });
+});
+
+function fmt(n){return n>=1e7?'₹'+(n/1e7).toFixed(1)+'Cr':n>=1e5?'₹'+(n/1e5).toFixed(1)+'L':n>=1000?'₹'+(n/1000).toFixed(0)+'K':'₹'+n}
+function sc(v,hi,lo){return v>=hi?'var(--lime)':v>=lo?'var(--amber)':'var(--red)'}
+
+// ── P3 LTV ────────────────────────────────────────────────
+const LTV_SCENARIOS={
+  bear: {arpu:499,r1:65,churn:12,exp:0},
+  base: {arpu:499,r1:75,churn:8,exp:0},
+  bull: {arpu:699,r1:82,churn:5,exp:15},
+  custom:null
+};
+let ltvState={arpu:499,r1:75,churn:8,exp:0};
+
+function calcLTV(s){
+  const monthlyChurnRate=s.churn/100;
+  let surviving=s.r1/100;
+  let totalRevenue=0;
+  const months=[];
+  for(let m=1;m<=24;m++){
+    const rev=surviving*(s.arpu*(1+s.exp/100*Math.max(0,m-6)/100));
+    totalRevenue+=rev;
+    months.push({m,pct:Math.round(surviving*100),rev:Math.round(rev)});
+    surviving*=(1-monthlyChurnRate);
+    if(surviving<0.01)break;
+  }
+  const avgLife=(s.r1/100)/(monthlyChurnRate);
+  const ltv=Math.round(s.arpu*avgLife*(s.r1/100)*0.85);
+  const r12=months.find(x=>x.m===12)?.pct||5;
+  return{ltv,avgLife:avgLife.toFixed(1),r12,months,totalRevenue:Math.round(totalRevenue)};
+}
+
+function updateLTV(){
+  const res=calcLTV(ltvState);
+  const netLtv=Math.round(res.ltv*0.92);
+  const ltv24=Math.round(ltvState.arpu*24*(ltvState.r1/100)*0.92);
+  document.getElementById('ltv-arpu-display').textContent='₹'+ltvState.arpu;
+  document.getElementById('ltv-r12-display').textContent=res.r12+'%';
+  document.getElementById('ltv-months-display').textContent=res.avgLife+'mo';
+  document.getElementById('ltv-ltv-display').textContent=fmt(res.ltv);
+  document.getElementById('ltv-net-display').textContent=fmt(netLtv);
+  document.getElementById('ltv-24-display').textContent=fmt(ltv24);
+  [document.getElementById('ltv-ltv-display'),document.getElementById('ltv-net-display')].forEach(el=>{
+    el.style.color=res.ltv>2000?'var(--lime)':res.ltv>1200?'var(--amber)':'var(--red)';
+  });
+  // Waterfall
+  const wf=document.getElementById('ltv-waterfall');wf.innerHTML='';
+  const maxRev=res.months[0]?.rev||1;
+  [1,2,3,6,9,12,18,24].forEach(m=>{
+    const mo=res.months.find(x=>x.m===m);if(!mo)return;
+    const d=document.createElement('div');d.className='wf-row';
+    const col=mo.pct>60?'var(--lime)':mo.pct>35?'var(--amber)':'var(--red)';
+    d.innerHTML=`<span class="wf-label">Month ${m}</span>
+    <div class="wf-bar-wrap"><div class="wf-bar" style="width:${Math.round(mo.rev/maxRev*100)}%;background:${col}"></div></div>
+    <span class="wf-val" style="color:${col}">₹${mo.rev.toLocaleString()}</span>
+    <span class="wf-sub" style="color:${col}">${mo.pct}% left</span>`;
+    wf.appendChild(d);
+  });
+}
+
+document.querySelectorAll('[data-sc]').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('[data-sc]').forEach(t=>t.classList.remove('on'));
+    tab.classList.add('on');
+    const sc=tab.dataset.sc;
+    const custom=document.getElementById('ltv-custom-controls');
+    if(sc==='custom'){
+      custom.style.display='block';
+    } else {
+      custom.style.display='none';
+      ltvState={...LTV_SCENARIOS[sc]};
+      document.getElementById('ltv-arpu').value=ltvState.arpu;
+      document.getElementById('ltv-r1').value=ltvState.r1;
+      document.getElementById('ltv-churn').value=ltvState.churn;
+      document.getElementById('ltv-exp').value=ltvState.exp;
+      document.getElementById('ltv-arpu-v').textContent='₹'+ltvState.arpu;
+      document.getElementById('ltv-r1-v').textContent=ltvState.r1+'%';
+      document.getElementById('ltv-churn-v').textContent=ltvState.churn+'%';
+      document.getElementById('ltv-exp-v').textContent=ltvState.exp+'%';
+    }
+    updateLTV();
+  });
+});
+['arpu','r1','churn','exp'].forEach(k=>{
+  const el=document.getElementById('ltv-'+k);
+  el.addEventListener('input',()=>{
+    ltvState[k]=+el.value;
+    const vEl=document.getElementById('ltv-'+k+'-v');
+    vEl.textContent=(k==='arpu'?'₹':'')+el.value+(k!=='arpu'?'%':'');
+    updateLTV();
+  });
+});
+updateLTV();
+
+// ── P4 LTV:CAC ────────────────────────────────────────────
+const CHANNELS=[
+  {name:'Gym partnership',    cac:200,   color:'var(--lime)'},
+  {name:'Organic content',    cac:190,   color:'var(--lime)'},
+  {name:'Share card loop',    cac:0,     color:'var(--teal)'},
+  {name:'Influencer',         cac:600,   color:'var(--amber)'},
+  {name:'B2B club licence',   cac:0,     color:'var(--teal)'},
+  {name:'Paid acquisition',   cac:8000,  color:'var(--red)'},
+];
+const BLENDED_MIX=[
+  {name:'Gym partnership',pct:50,cac:200},
+  {name:'Organic content',pct:30,cac:190},
+  {name:'Influencers',    pct:15,cac:600},
+  {name:'Share loop',     pct:5, cac:0},
+];
+function renderLTVCACBars(){
+  const ltv=calcLTV(ltvState).ltv;
+  const el=document.getElementById('ltv-cac-bars');el.innerHTML='';
+  CHANNELS.forEach(ch=>{
+    const ratio=ch.cac===0?Infinity:ltv/ch.cac;
+    const barPct=ch.cac===0?100:Math.min(100,ratio/15*100);
+    const d=document.createElement('div');
+    d.style.cssText='margin-bottom:10px';
+    const ratioText=ch.cac===0?'∞':ratio.toFixed(1)+'×';
+    const pillCls=ratio>5||ch.cac===0?'pill-lime':ratio>3?'pill-amber':'pill-red';
+    d.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:4px">
+      <span style="font-size:12px;color:var(--paper)">${ch.name}</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;font-family:var(--mono);color:var(--ash1)">CAC: ${ch.cac===0?'₹0':'₹'+ch.cac.toLocaleString()}</span>
+        <span class="pill ${pillCls}" style="font-size:10px">${ratioText}</span>
+      </div>
+    </div>
+    <div class="bar-track"><div class="bar-fill" style="width:${barPct}%;background:${ch.color}"></div></div>`;
+    el.appendChild(d);
+  });
+  // Blended
+  const blendedCAC=Math.round(BLENDED_MIX.reduce((s,c)=>s+(c.pct/100*c.cac),0));
+  const blendedRatio=(ltv/blendedCAC).toFixed(1);
+  document.getElementById('blended-cac-val').textContent='₹'+blendedCAC;
+  document.getElementById('blended-ratio-val').textContent=blendedRatio+'×';
+  const bEl=document.getElementById('blended-cac-calc');bEl.innerHTML='';
+  BLENDED_MIX.forEach(c=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;justify-content:space-between;font-size:11px;color:var(--ash1);margin-bottom:3px';
+    d.innerHTML=`<span>${c.name} (${c.pct}%)</span><span style="font-family:var(--mono)">₹${c.cac} × ${c.pct}% = ₹${Math.round(c.cac*c.pct/100)}</span>`;
+    bEl.appendChild(d);
+  });
+}
+renderLTVCACBars();
+
+// ── P5 PAYBACK CHART ──────────────────────────────────────
+const PAYBACK_SCENARIOS={
+  gym:        {name:'Gym partner',   cac:200,  arpu:499, r1:75, churn:8},
+  organic:    {name:'Organic',       cac:190,  arpu:499, r1:75, churn:8},
+  influencer: {name:'Influencer',    cac:600,  arpu:499, r1:75, churn:8},
+  paid:       {name:'Paid',          cac:8000, arpu:499, r1:75, churn:8},
+};
+let paybackActive='gym';
+document.querySelectorAll('[data-sc2]').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('[data-sc2]').forEach(t=>t.classList.remove('on'));
+    tab.classList.add('on');paybackActive=tab.dataset.sc2;
+    updatePaybackDisplay();renderPaybackChart();
+  });
+});
+function updatePaybackDisplay(){
+  const s=PAYBACK_SCENARIOS[paybackActive];
+  const monthlyNet=s.arpu*(s.r1/100)*0.92;
+  const payback=s.cac===0?0:Math.ceil(s.cac/monthlyNet);
+  const ltv=calcLTV({arpu:s.arpu,r1:s.r1,churn:s.churn,exp:0}).ltv;
+  const ratio=s.cac===0?Infinity:ltv/s.cac;
+  const el=document.getElementById('payback-display');
+  el.innerHTML=`<div class="g4" style="margin-bottom:12px">
+    <div class="card-sm"><div class="section-label">CAC</div><div class="mid-num" style="color:${s.cac>2000?'var(--red)':s.cac>800?'var(--amber)':'var(--lime)'}">₹${s.cac.toLocaleString()}</div></div>
+    <div class="card-sm"><div class="section-label">Monthly net revenue</div><div class="mid-num" style="color:var(--lime)">₹${Math.round(monthlyNet)}</div></div>
+    <div class="card-sm"><div class="section-label">Payback period</div><div class="mid-num" style="color:${payback>12?'var(--red)':payback>6?'var(--amber)':'var(--lime)'}">${s.cac===0?'Day 1':payback+'mo'}</div></div>
+    <div class="card-sm"><div class="section-label">LTV:CAC</div><div class="mid-num" style="color:${ratio<1?'var(--red)':ratio<3?'var(--amber)':'var(--lime)'}">${s.cac===0?'∞':ratio.toFixed(1)+'×'}</div></div>
+  </div>`;
+}
+function renderPaybackChart(){
+  const canvas=document.getElementById('payback-chart');if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||760,H=188;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const months=24,pad={l:50,r:20,t:10,b:30};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+  const colors={gym:'#B8FF3C',organic:'#00E0B5',influencer:'#F5A524',paid:'#FF4560'};
+  const gC='rgba(255,255,255,.05)',tC='rgba(138,136,164,.7)';
+  // Grid
+  ctx.strokeStyle=gC;ctx.lineWidth=1;
+  for(let i=0;i<=6;i++){const y=pad.t+i*(ch/6);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();}
+  ctx.font=`10px DM Mono,monospace`;ctx.fillStyle=tC;ctx.textAlign='right';
+  const maxVal=15000;
+  for(let i=0;i<=6;i++){const v=maxVal*(1-i/6);ctx.fillText('₹'+Math.round(v/1000)+'K',pad.l-5,pad.t+i*(ch/6)+4);}
+  ctx.textAlign='center';
+  for(let m=0;m<=months;m+=4){const x=pad.l+m/months*cw;ctx.fillText('M'+m,x,H-8);}
+  // Break-even line
+  ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,0);ctx.lineTo(pad.l,H-pad.b);ctx.stroke();
+  ctx.setLineDash([]);
+  Object.entries(PAYBACK_SCENARIOS).forEach(([key,s])=>{
+    let cum=0;const col=colors[key];
+    ctx.strokeStyle=col;ctx.lineWidth=key===paybackActive?2.5:1;ctx.globalAlpha=key===paybackActive?1:0.3;
+    ctx.beginPath();
+    for(let m=0;m<=months;m++){
+      const revenue=(s.arpu*(s.r1/100)*(1-s.churn/100)**m)*0.92*m;
+      const net=revenue-s.cac;
+      const x=pad.l+m/months*cw;
+      const y=pad.t+ch-(net+maxVal/2)/maxVal*ch;
+      m===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();ctx.globalAlpha=1;
+  });
+}
+updatePaybackDisplay();
+
+// ── P6 REVENUE SCENARIOS ─────────────────────────────────
+const REV_SCENARIOS={
+  bear:{label:'Bear',newUsersM1:100,growthRate:15,retentionM12:20,arpu:499,b2bM12:50000,color:'var(--red)'},
+  base:{label:'Base',newUsersM1:300,growthRate:25,retentionM12:35,arpu:499,b2bM12:200000,color:'var(--amber)'},
+  bull:{label:'Bull',newUsersM1:600,growthRate:40,retentionM12:45,arpu:599,b2bM12:500000,color:'var(--lime)'},
+};
+let revActive='base';
+document.querySelectorAll('[data-sc3]').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('[data-sc3]').forEach(t=>t.classList.remove('on'));
+    tab.classList.add('on');revActive=tab.dataset.sc3;
+    updateRevScenario();renderRevChart();
+  });
+});
+function updateRevScenario(){
+  const s=REV_SCENARIOS[revActive];
+  const mrr=m=>{
+    let users=0;
+    for(let i=0;i<m;i++){
+      const newU=s.newUsersM1*Math.pow(1+s.growthRate/100,i);
+      users+=newU;
+      users*=(1-((100-s.retentionM12)/100)/12);
+    }
+    const b2cMRR=users*s.arpu;
+    const b2bMRR=m>=12?s.b2bM12*(1+(m-12)*0.1):s.b2bM12*(m/12)*0.5;
+    return Math.round(b2cMRR+b2bMRR);
+  };
+  document.getElementById('rev-m12').textContent=fmt(mrr(12));
+  document.getElementById('rev-m24').textContent=fmt(mrr(24));
+  document.getElementById('rev-m36').textContent=fmt(mrr(36));
+  document.getElementById('rev-arr').textContent=fmt(mrr(36)*12);
+  [document.getElementById('rev-m12'),document.getElementById('rev-m24'),document.getElementById('rev-m36'),document.getElementById('rev-arr')].forEach(el=>el.style.color=s.color);
+  const tbody=document.getElementById('rev-assumptions');tbody.innerHTML='';
+  const rows=[
+    ['New users Month 1',{bear:'100',base:'300',bull:'600'}],
+    ['Monthly growth rate',{bear:'15%',base:'25%',bull:'40%'}],
+    ['12-month retention',{bear:'20%',base:'35%',bull:'45%'}],
+    ['Monthly ARPU',{bear:'₹499',base:'₹499',bull:'₹599'}],
+    ['B2B revenue M12',{bear:'₹50K',base:'₹2L',bull:'₹5L'}],
+    ['₹1Cr ARR month',{bear:'Month 20',base:'Month 14',bull:'Month 9'}],
+  ];
+  rows.forEach(([label,vals])=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${label}</td><td style="color:var(--red)">${vals.bear}</td><td style="color:var(--amber)">${vals.base}</td><td style="color:var(--lime)">${vals.bull}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function renderRevChart(){
+  const canvas=document.getElementById('rev-chart');if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||760,H=188;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const pad={l:55,r:20,t:10,b:30};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+  const gC='rgba(255,255,255,.05)',tC='rgba(138,136,164,.7)';
+  ctx.strokeStyle=gC;ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){const y=pad.t+i*(ch/5);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();}
+  const maxMRR=3e7;
+  ctx.font='10px DM Mono,monospace';ctx.fillStyle=tC;ctx.textAlign='right';
+  for(let i=0;i<=5;i++){const v=maxMRR*(1-i/5);ctx.fillText(fmt(v),pad.l-5,pad.t+i*(ch/5)+4);}
+  ctx.textAlign='center';
+  for(let m=0;m<=36;m+=6){const x=pad.l+m/36*cw;ctx.fillText('M'+m,x,H-8);}
+  // 1Cr MRR line
+  ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;
+  const y1cr=pad.t+ch-(1e7/maxMRR)*ch;
+  ctx.beginPath();ctx.moveTo(pad.l,y1cr);ctx.lineTo(pad.l+cw,y1cr);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.4)';ctx.textAlign='left';ctx.font='9px DM Mono,monospace';
+  ctx.fillText('₹1Cr ARR',pad.l+4,y1cr-4);
+  ctx.setLineDash([]);
+  Object.entries(REV_SCENARIOS).forEach(([key,s])=>{
+    const mrr=m=>{
+      let users=0;
+      for(let i=0;i<m;i++){const newU=s.newUsersM1*Math.pow(1+s.growthRate/100,i);users+=newU;users*=(1-((100-s.retentionM12)/100)/12);}
+      const b2cMRR=users*s.arpu;const b2bMRR=m>=12?s.b2bM12*(1+(m-12)*0.1):s.b2bM12*(m/12)*0.5;
+      return Math.round(b2cMRR+b2bMRR);
+    };
+    ctx.strokeStyle=s.color;ctx.lineWidth=key===revActive?2.5:1;ctx.globalAlpha=key===revActive?1:0.3;
+    ctx.beginPath();
+    for(let m=0;m<=36;m++){const v=mrr(m);const x=pad.l+m/36*cw;const y=pad.t+ch-(v/maxMRR)*ch;m===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+    ctx.stroke();ctx.globalAlpha=1;
+  });
+}
+updateRevScenario();
+
+// Render charts on first panel load
+document.querySelector('[data-p="p5"]').addEventListener('click',()=>{setTimeout(()=>{renderPaybackChart();updatePaybackDisplay();},50);});
+document.querySelector('[data-p="p6"]').addEventListener('click',()=>{setTimeout(()=>{renderRevChart();updateRevScenario();},50);});
+</script>
+</body>
+</html>
