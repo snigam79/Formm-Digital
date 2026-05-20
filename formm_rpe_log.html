@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — RPE Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06060A;--bg1:#0D0D16;--bg2:#13131E;--bg3:#1A1A28;--bg4:#222232;
+  --ln1:rgba(255,255,255,.055);--ln2:rgba(255,255,255,.10);--ln3:rgba(255,255,255,.17);
+  --tx1:#F0EFE8;--tx2:#8E8CA6;--tx3:#52506A;
+  --teal:#00E0B5;--teal2:#00C49E;--teal-d:rgba(0,224,181,.08);--teal-bd:rgba(0,224,181,.2);
+  --green:#2DD4A0;--amber:#F5A524;--red:#FF4560;--blue:#4DA3FF;--purple:#9B7FFF;
+  --disp:'Syne',sans-serif;--body:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--tx1);font-family:var(--body);-webkit-font-smoothing:antialiased;display:flex;align-items:flex-start;justify-content:center;padding:32px 20px 60px}
+
+/* ── LAYOUT ── */
+.page{display:grid;grid-template-columns:320px 1fr;gap:40px;max-width:900px;width:100%;align-items:start}
+
+/* ── PHONE ── */
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:14px}
+.ex-strip{display:flex;gap:6px}
+.ex-btn{padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--ln2);background:transparent;color:var(--tx2);font-family:var(--body);font-weight:500;transition:all .15s}
+.ex-btn:hover{border-color:var(--ln3);color:var(--tx1)}
+.ex-btn.on{background:var(--teal);border-color:var(--teal);color:var(--bg);font-weight:700}
+
+.phone{
+  width:300px;background:var(--bg1);border-radius:40px;
+  border:1.5px solid var(--ln2);overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.03),0 0 60px rgba(0,224,181,.04);
+  position:relative;
+}
+.phone-notch{width:80px;height:22px;background:var(--bg);border-radius:0 0 14px 14px;margin:0 auto;position:relative;z-index:2}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:4px 14px 6px;opacity:.45}
+.pst{font-size:10px;font-family:var(--mono);color:var(--tx2)}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;padding:10px 14px 18px;gap:10px}
+.screen.active{display:flex;animation:screenIn .2s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Session pill */
+.session-pill{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:10px 12px}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 1.8s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sp-text{font-size:12px;font-weight:600;color:var(--tx1);flex:1}
+.sp-meta{font-size:10px;color:var(--tx3);font-family:var(--mono)}
+
+/* RPE headline */
+.rpe-headline{text-align:center;padding:4px 0}
+.rpe-q{font-size:16px;font-weight:700;color:var(--tx1);margin-bottom:2px}
+.rpe-hint{font-size:11px;color:var(--tx3)}
+
+/* RPE scale */
+.rpe-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.rpe-btn{border:1px solid var(--ln1);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;background:var(--bg2);transition:all .15s;user-select:none}
+.rpe-btn:hover{border-color:var(--ln2);background:var(--bg3)}
+.rpe-btn:active{transform:scale(.95)}
+.rpe-btn.selected{border-width:1.5px}
+.rpe-num{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:3px}
+.rpe-word{font-size:8px;color:var(--tx3);line-height:1.3;height:22px;display:flex;align-items:center;justify-content:center}
+
+/* Duration */
+.dur-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:11px 13px}
+.dur-label{font-size:12px;color:var(--tx2);flex:1}
+.dur-controls{display:flex;align-items:center;gap:10px}
+.dur-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--ln2);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--tx1);transition:all .15s;user-select:none;flex-shrink:0}
+.dur-btn:hover{border-color:var(--teal);color:var(--teal)}
+.dur-btn:active{transform:scale(.9)}
+.dur-val{font-size:15px;font-weight:600;font-family:var(--mono);min-width:38px;text-align:center;color:var(--tx1)}
+
+/* Impact card */
+.impact-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:12px 13px}
+.impact-lbl{font-size:8px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:9px}
+.impact-rows{display:flex;flex-direction:column;gap:7px}
+.impact-row{display:flex;justify-content:space-between;align-items:center}
+.impact-key{font-size:11px;color:var(--tx2)}
+.impact-val{font-size:12px;font-weight:600;font-family:var(--mono);transition:color .3s}
+
+/* ACWR bar */
+.acwr-bar-section{margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)}
+.acwr-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:4px;position:relative}
+.acwr-fill{height:100%;border-radius:3px;transition:width .5s ease,background .4s}
+.acwr-zones{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);font-family:var(--mono)}
+
+/* Buttons */
+.log-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--body);transition:all .15s;letter-spacing:.2px}
+.log-btn:active{transform:scale(.98)}
+.log-btn.disabled{opacity:.35;pointer-events:none;background:var(--bg3);color:var(--tx3);border:1px solid var(--ln1)}
+.skip-link{text-align:center;font-size:11px;color:var(--tx3);cursor:pointer;padding:2px;transition:color .15s}
+.skip-link:hover{color:var(--tx2)}
+
+/* Phone nav */
+.phone-nav{display:flex;justify-content:space-around;padding:8px 6px 14px;border-top:1px solid var(--ln1)}
+.pnav{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.pnav-dot{width:5px;height:5px;border-radius:50%;background:var(--tx3)}
+.pnav.on .pnav-dot{background:var(--teal)}
+.pnav-lbl{font-size:8px;color:var(--tx3);font-family:var(--mono)}
+.pnav.on .pnav-lbl{color:var(--teal)}
+
+/* ── SUCCESS SCREEN ── */
+.success-header{text-align:center;padding:14px 0 8px}
+.success-check{width:50px;height:50px;border-radius:50%;background:rgba(45,212,160,.15);border:1.5px solid rgba(45,212,160,.4);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px}
+.success-title{font-size:16px;font-weight:700;color:var(--green);margin-bottom:4px}
+.success-body{font-size:11px;color:var(--tx2);line-height:1.6;max-width:220px;margin:0 auto}
+.success-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sg-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:10px;padding:10px 11px}
+.sg-label{font-size:8px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.sg-val{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1;transition:color .3s}
+.sg-sub{font-size:9px;color:var(--tx3);margin-top:3px}
+.tomorrow-card{background:var(--teal-d);border:1px solid var(--teal-bd);border-radius:12px;padding:11px 13px}
+.tc-label{font-size:8px;color:var(--teal);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.tc-text{font-size:12px;color:var(--tx1);line-height:1.6;font-weight:500}
+.tc-text span{color:var(--teal)}
+
+/* ── RIGHT PANEL ── */
+.right-col{}
+.section-title{font-family:var(--disp);font-size:22px;font-weight:800;letter-spacing:-.3px;margin-bottom:5px}
+.section-desc{font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:22px}
+.insight{background:var(--teal-d);border-left:2px solid var(--teal);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--tx2);line-height:1.7;margin-bottom:14px}
+.insight strong{color:var(--teal)}
+.insight-amber{background:rgba(245,165,36,.07);border-left:2px solid var(--amber);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--tx2);line-height:1.7;margin-bottom:14px}
+.insight-amber strong{color:var(--amber)}
+.card{background:var(--bg1);border:1px solid var(--ln1);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.card-title{font-size:11px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px}
+.formula-box{background:var(--bg2);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--tx2);line-height:1.8;margin-bottom:10px}
+.formula-box strong{color:var(--teal);font-weight:500}
+.data-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--ln1)}
+.data-row:last-child{border:none}
+.dr-label{font-size:12px;color:var(--tx2)}
+.dr-val{font-size:12px;font-weight:600;font-family:var(--mono)}
+.acwr-full-track{height:10px;background:var(--bg4);border-radius:5px;overflow:hidden;margin:10px 0 5px;position:relative}
+.acwr-zone{position:absolute;top:0;height:100%;background:rgba(45,212,160,.25);border-left:1px solid rgba(45,212,160,.4);border-right:1px solid rgba(45,212,160,.4)}
+.acwr-pointer{position:absolute;top:-3px;width:3px;height:16px;border-radius:2px;background:var(--tx1);transition:left .5s ease}
+.acwr-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--tx3);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── PHONE ── -->
+  <div class="phone-col">
+    <div class="ex-strip">
+      <button class="ex-btn on" data-ex="squat">Squat</button>
+      <button class="ex-btn" data-ex="deadlift">Deadlift</button>
+      <button class="ex-btn" data-ex="run">Run</button>
+      <button class="ex-btn" data-ex="hiit">HIIT</button>
+    </div>
+
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-status">
+        <span class="pst">9:44</span>
+        <span class="pst">▲ WiFi ◼</span>
+      </div>
+
+      <!-- LOG SCREEN -->
+      <div class="screen active" id="screen-log">
+        <div class="session-pill">
+          <div class="sp-dot"></div>
+          <span class="sp-text" id="sp-text">Squat session complete</span>
+          <span class="sp-meta" id="sp-meta">65 min</span>
+        </div>
+
+        <div class="rpe-headline">
+          <div class="rpe-q">How hard was that?</div>
+          <div class="rpe-hint">Tap one — takes under 5 seconds</div>
+        </div>
+
+        <div class="rpe-scale" id="rpe-scale"></div>
+
+        <div class="dur-row">
+          <span class="dur-label">⏱ Session length</span>
+          <div class="dur-controls">
+            <div class="dur-btn" onclick="changeDur(-5)">−</div>
+            <span class="dur-val" id="dur-val">65 min</span>
+            <div class="dur-btn" onclick="changeDur(5)">+</div>
+          </div>
+        </div>
+
+        <div class="impact-card">
+          <div class="impact-lbl">Session impact</div>
+          <div class="impact-rows">
+            <div class="impact-row"><span class="impact-key">Session load (AU)</span><span class="impact-val" id="ic-au" style="color:var(--tx3)">— tap RPE to calculate</span></div>
+            <div class="impact-row"><span class="impact-key">New ACWR</span><span class="impact-val" id="ic-acwr" style="color:var(--tx3)">—</span></div>
+            <div class="impact-row"><span class="impact-key">Weekly load</span><span class="impact-val" id="ic-weekly" style="color:var(--tx3)">—</span></div>
+          </div>
+          <div id="acwr-bar-section" style="display:none" class="acwr-bar-section">
+            <div class="acwr-track">
+              <div class="acwr-fill" id="acwr-fill-phone"></div>
+            </div>
+            <div class="acwr-zones">
+              <span>0.5</span><span>0.8 ←optimal→ 1.3</span><span>1.5</span><span>2.0</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="log-btn disabled" id="log-btn" onclick="submitLog()">Log session</button>
+        <div class="skip-link" onclick="showSkip()">Skip for now</div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="screen" id="screen-success">
+        <div class="success-header">
+          <div class="success-check">✓</div>
+          <div class="success-title">Session logged</div>
+          <div class="success-body" id="success-body">ACWR updated. Recovery notification set for 7am.</div>
+        </div>
+        <div class="success-grid">
+          <div class="sg-card"><div class="sg-label">Session load</div><div class="sg-val" id="sg-au">—</div><div class="sg-sub">AU (RPE × min)</div></div>
+          <div class="sg-card"><div class="sg-label">ACWR</div><div class="sg-val" id="sg-acwr">—</div><div class="sg-sub" id="sg-acwr-sub">—</div></div>
+          <div class="sg-card"><div class="sg-label">Weekly total</div><div class="sg-val" id="sg-weekly">—</div><div class="sg-sub">AU this week</div></div>
+          <div class="sg-card"><div class="sg-label">Next session</div><div class="sg-val" id="sg-next">—</div><div class="sg-sub" id="sg-next-sub">—</div></div>
+        </div>
+        <div class="tomorrow-card">
+          <div class="tc-label">Tomorrow morning · 7am</div>
+          <div class="tc-text" id="tc-text">Recovery notification will fire with your <span>updated readiness score</span> and today's session in context.</div>
+        </div>
+        <button class="log-btn" id="reset-btn" onclick="resetLog()" style="background:var(--bg2);color:var(--tx1);border:1px solid var(--ln2)">Try another session</button>
+      </div>
+
+    </div><!-- /phone -->
+
+    <div style="font-size:10px;color:var(--tx3);text-align:center;font-family:var(--mono)">Tap any RPE number · adjust duration · log</div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-col">
+    <div class="section-title">RPE logging</div>
+    <div class="section-desc">The entire load management layer depends on this one data point. RPE × session duration = session load in Arbitrary Units. Under 10 seconds. One tap.</div>
+
+    <div class="insight"><strong>The Foster formula:</strong> Session load (AU) = RPE (1–10) × session duration (minutes). Published in Medicine & Science in Sports & Exercise (2001). The simplest validated load quantification method that requires no wearable device — just subjective effort and a clock.</div>
+
+    <div class="card">
+      <div class="card-title">Live ACWR calculation</div>
+      <div class="formula-box">
+        <strong>ACWR</strong> = Acute load (7-day) ÷ Chronic load (28-day avg)<br><br>
+        Acute:  <strong id="formula-acute">1,920 AU</strong> (this week so far)<br>
+        Session: <strong id="formula-session">—</strong><br>
+        New acute: <strong id="formula-new-acute">—</strong><br>
+        Chronic: <strong id="formula-chronic">2,800 AU</strong> (28-day avg)<br>
+        <strong>New ACWR: <span id="formula-acwr">—</span></strong>
+      </div>
+      <div class="acwr-full-track">
+        <div class="acwr-zone" style="left:37.5%;width:23.75%"></div>
+        <div class="acwr-pointer" id="acwr-pointer" style="left:0%"></div>
+      </div>
+      <div class="acwr-labels"><span>0.5 Under</span><span>0.8</span><span>1.3</span><span>1.5</span><span>2.0</span></div>
+      <div style="margin-top:10px;font-size:11px;color:var(--tx3);line-height:1.65">Optimal zone: <strong style="color:var(--green)">0.8–1.3</strong>. Above 1.5 = elevated injury risk. Below 0.6 = detraining. The RPE log is what makes this number accurate.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What this week looks like</div>
+      <div class="data-row"><span class="dr-label">Monday squat</span><span class="dr-val" style="color:var(--green)">480 AU</span></div>
+      <div class="data-row"><span class="dr-label">Wednesday run</span><span class="dr-val" style="color:var(--green)">390 AU</span></div>
+      <div class="data-row"><span class="dr-label">Thursday HIIT</span><span class="dr-val" style="color:var(--amber)">650 AU</span></div>
+      <div class="data-row"><span class="dr-label">Friday pull session</span><span class="dr-val" style="color:var(--green)">400 AU</span></div>
+      <div class="data-row" style="background:var(--bg2);border-radius:8px;padding:8px 10px;margin-top:4px;border:1px solid var(--ln1)"><span class="dr-label">This session</span><span class="dr-val" id="week-this-session" style="color:var(--tx3)">— logging now</span></div>
+      <div class="data-row" style="border-top:1px solid var(--ln2);margin-top:6px;padding-top:10px"><span class="dr-label" style="font-weight:600;color:var(--tx1)">Week total</span><span class="dr-val" id="week-total" style="color:var(--teal)">1,920 AU</span></div>
+    </div>
+
+    <div class="insight-amber"><strong>Why skipping kills the model:</strong> One missed RPE log makes the ACWR calculation inaccurate for the next 7 days — because the denominator uses a rolling 28-day average. The entire readiness brief, session prescription, and recovery notification depend on this log being filled in. Friction must be near zero.</div>
+
+    <div class="card">
+      <div class="card-title">RPE scale reference</div>
+      <div id="rpe-reference" style="display:flex;flex-direction:column;gap:5px"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const EXERCISES = {
+  squat:    { label: 'Squat session complete',    emoji: '🏋' },
+  deadlift: { label: 'Deadlift session complete', emoji: '⬆' },
+  run:      { label: 'Running session complete',  emoji: '🏃' },
+  hiit:     { label: 'HIIT session complete',     emoji: '⚡' },
+};
+const RPE_DATA = [
+  { n:1,  word:'Very easy',   desc:'Barely any effort. Walking pace.' },
+  { n:2,  word:'Easy',        desc:'Light effort. Conversation easy.' },
+  { n:3,  word:'Moderate',    desc:'Comfortable. Breathing elevated.' },
+  { n:4,  word:'Somewhat hard',desc:'Noticeable effort. Still OK.' },
+  { n:5,  word:'Hard',        desc:'Fairly hard. Sentences short.' },
+  { n:6,  word:'Hard+',       desc:'Quite hard. Focused breathing.' },
+  { n:7,  word:'Very hard',   desc:'Very hard. Pushing consistently.' },
+  { n:8,  word:'Very hard+',  desc:'High intensity. Hard to maintain.' },
+  { n:9,  word:'Near max',    desc:'Almost maximum. Very brief.' },
+  { n:10, word:'Maximum',     desc:'All out. Cannot continue.' },
+];
+const RPE_COLORS = [
+  null,
+  { bg:'rgba(45,212,160,.12)', border:'rgba(45,212,160,.5)', text:'var(--green)' },
+  { bg:'rgba(45,212,160,.10)', border:'rgba(45,212,160,.4)', text:'var(--green)' },
+  { bg:'rgba(45,212,160,.08)', border:'rgba(45,212,160,.3)', text:'var(--green)' },
+  { bg:'rgba(77,163,255,.10)', border:'rgba(77,163,255,.4)', text:'var(--blue)' },
+  { bg:'rgba(77,163,255,.08)', border:'rgba(77,163,255,.3)', text:'var(--blue)' },
+  { bg:'rgba(245,165,36,.10)', border:'rgba(245,165,36,.4)', text:'var(--amber)' },
+  { bg:'rgba(245,165,36,.12)', border:'rgba(245,165,36,.5)', text:'var(--amber)' },
+  { bg:'rgba(255,69,96,.10)',  border:'rgba(255,69,96,.4)',  text:'var(--red)' },
+  { bg:'rgba(255,69,96,.12)', border:'rgba(255,69,96,.5)',  text:'var(--red)' },
+  { bg:'rgba(255,69,96,.18)', border:'rgba(255,69,96,.7)',  text:'var(--red)' },
+];
+
+let selectedRPE = null;
+let duration = 65;
+let currentEx = 'squat';
+const CHRONIC = 2800;
+const WEEKLY_BEFORE = 1920;
+
+// ── BUILD RPE SCALE ───────────────────────────────────────
+function buildScale() {
+  const el = document.getElementById('rpe-scale');
+  el.innerHTML = '';
+  RPE_DATA.forEach(r => {
+    const col = RPE_COLORS[r.n];
+    const isSel = selectedRPE === r.n;
+    const btn = document.createElement('div');
+    btn.className = 'rpe-btn' + (isSel ? ' selected' : '');
+    if (isSel) {
+      btn.style.cssText = `background:${col.bg};border-color:${col.border}`;
+    }
+    btn.innerHTML = `<div class="rpe-num" style="color:${isSel ? col.text : 'var(--tx1)'}">${r.n}</div>
+    <div class="rpe-word" style="color:${isSel ? col.text : 'var(--tx3)'}">${r.word.split(' ')[0]}</div>`;
+    btn.onclick = () => selectRPE(r.n);
+    el.appendChild(btn);
+  });
+}
+
+// ── BUILD RPE REFERENCE ───────────────────────────────────
+function buildReference() {
+  const el = document.getElementById('rpe-reference');
+  RPE_DATA.forEach(r => {
+    const col = RPE_COLORS[r.n];
+    const d = document.createElement('div');
+    d.style.cssText = `display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:${col.bg};border:1px solid ${col.border}`;
+    d.innerHTML = `<span style="font-family:var(--mono);font-size:14px;font-weight:600;color:${col.text};min-width:18px">${r.n}</span>
+    <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--tx1)">${r.word}</div><div style="font-size:10px;color:var(--tx2);margin-top:1px">${r.desc}</div></div>`;
+    el.appendChild(d);
+  });
+}
+
+// ── SELECT RPE ────────────────────────────────────────────
+function selectRPE(val) {
+  selectedRPE = val;
+  buildScale();
+  updateImpact();
+  const col = RPE_COLORS[val];
+  const btn = document.getElementById('log-btn');
+  btn.classList.remove('disabled');
+  btn.style.cssText = `background:${col.bg};color:${col.text};border:1.5px solid ${col.border}`;
+  btn.textContent = `Log session — RPE ${val}`;
+}
+
+// ── DURATION ──────────────────────────────────────────────
+function changeDur(delta) {
+  duration = Math.max(10, Math.min(240, duration + delta));
+  document.getElementById('dur-val').textContent = duration + ' min';
+  document.getElementById('sp-meta').textContent = duration + ' min';
+  if (selectedRPE) updateImpact();
+}
+
+// ── UPDATE IMPACT ─────────────────────────────────────────
+function updateImpact() {
+  if (!selectedRPE) return;
+  const au = selectedRPE * duration;
+  const newWeekly = WEEKLY_BEFORE + au;
+  const acwr = newWeekly / CHRONIC;
+  const pct = Math.min(97, Math.max(1, ((acwr - 0.5) / (2.0 - 0.5)) * 100));
+
+  const acwrCol = acwr >= 0.8 && acwr <= 1.3 ? 'var(--green)' : acwr > 1.3 && acwr <= 1.5 ? 'var(--amber)' : acwr < 0.8 ? 'var(--blue)' : 'var(--red)';
+  const weeklyCol = newWeekly < 3000 ? 'var(--green)' : newWeekly < 4000 ? 'var(--amber)' : 'var(--red)';
+
+  // Phone impact card
+  document.getElementById('ic-au').textContent = au.toLocaleString() + ' AU';
+  document.getElementById('ic-au').style.color = 'var(--tx1)';
+  document.getElementById('ic-acwr').textContent = acwr.toFixed(2);
+  document.getElementById('ic-acwr').style.color = acwrCol;
+  document.getElementById('ic-weekly').textContent = newWeekly.toLocaleString() + ' AU';
+  document.getElementById('ic-weekly').style.color = weeklyCol;
+  const barSec = document.getElementById('acwr-bar-section');
+  barSec.style.display = 'block';
+  const fill = document.getElementById('acwr-fill-phone');
+  fill.style.width = pct + '%';
+  fill.style.background = acwrCol.replace('var(--','').replace(')','') === 'green' ? '#2DD4A0' : acwrCol.replace('var(--','').replace(')','') === 'amber' ? '#F5A524' : acwrCol.replace('var(--','').replace(')','') === 'red' ? '#FF4560' : '#4DA3FF';
+  fill.style.background = acwr >= 0.8 && acwr <= 1.3 ? '#2DD4A0' : acwr > 1.3 && acwr <= 1.5 ? '#F5A524' : acwr < 0.8 ? '#4DA3FF' : '#FF4560';
+
+  // Right panel formula
+  document.getElementById('formula-session').textContent = `+${au.toLocaleString()} AU (RPE ${selectedRPE} × ${duration} min)`;
+  document.getElementById('formula-new-acute').textContent = newWeekly.toLocaleString() + ' AU';
+  document.getElementById('formula-acwr').textContent = acwr.toFixed(2);
+  document.getElementById('formula-acwr').style.color = acwrCol;
+
+  // ACWR pointer
+  document.getElementById('acwr-pointer').style.left = pct + '%';
+
+  // Week summary
+  document.getElementById('week-this-session').textContent = au.toLocaleString() + ' AU';
+  document.getElementById('week-this-session').style.color = weeklyCol;
+  document.getElementById('week-total').textContent = newWeekly.toLocaleString() + ' AU';
+  document.getElementById('week-total').style.color = weeklyCol;
+}
+
+// ── SUBMIT ────────────────────────────────────────────────
+function submitLog() {
+  if (!selectedRPE) return;
+  const au = selectedRPE * duration;
+  const newWeekly = WEEKLY_BEFORE + au;
+  const acwr = newWeekly / CHRONIC;
+  const acwrCol = acwr >= 0.8 && acwr <= 1.3 ? 'var(--green)' : acwr > 1.3 && acwr <= 1.5 ? 'var(--amber)' : acwr < 0.8 ? 'var(--blue)' : 'var(--red)';
+  const acwrLabel = acwr >= 0.8 && acwr <= 1.3 ? 'Optimal zone ✓' : acwr > 1.5 ? 'High — reduce next' : acwr < 0.8 ? 'Low — can push more' : 'Elevated — monitor';
+
+  let nextRec, nextSub, bodyText;
+  if (acwr > 1.5) {
+    nextRec = 'Rest'; nextSub = 'Active recovery only';
+    bodyText = `Load is elevated at ACWR ${acwr.toFixed(2)}. Rest or light mobility tomorrow. Notification set for 7am.`;
+  } else if (acwr > 1.3) {
+    nextRec = 'Moderate'; nextSub = 'RPE 5–6 max';
+    bodyText = `ACWR at ${acwr.toFixed(2)} — a little high. Keep tomorrow lighter. Notification set for 7am.`;
+  } else if (acwr < 0.8) {
+    nextRec = 'Hard session'; nextSub = 'ACWR is low — push';
+    bodyText = `ACWR is ${acwr.toFixed(2)} — below optimal. Your chronic load can support a harder session tomorrow.`;
+  } else {
+    nextRec = 'Normal'; nextSub = 'Full training';
+    bodyText = `ACWR is ${acwr.toFixed(2)} — optimal zone. Training consistently. Recovery notification set for 7am.`;
+  }
+
+  document.getElementById('sg-au').textContent = au.toLocaleString();
+  document.getElementById('sg-acwr').textContent = acwr.toFixed(2);
+  document.getElementById('sg-acwr').style.color = acwrCol;
+  document.getElementById('sg-acwr-sub').textContent = acwrLabel;
+  document.getElementById('sg-weekly').textContent = newWeekly.toLocaleString();
+  document.getElementById('sg-weekly').style.color = acwrCol;
+  document.getElementById('sg-next').textContent = nextRec;
+  document.getElementById('sg-next').style.color = acwrCol;
+  document.getElementById('sg-next-sub').textContent = nextSub;
+  document.getElementById('success-body').textContent = bodyText;
+  document.getElementById('tc-text').innerHTML = acwr > 1.5
+    ? `Tomorrow: <span>rest day recommended</span>. ACWR will drop back into the optimal zone if you take it easy.`
+    : `Your readiness brief at 7am will show <span>ACWR ${acwr.toFixed(2)}</span> and today's session in full context.`;
+
+  showScreen('success');
+}
+
+// ── SCREENS ───────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function showSkip() {
+  alert('Session will not be counted in your ACWR. Your readiness brief tomorrow will be less accurate for today\'s session.');
+}
+function resetLog() {
+  selectedRPE = null; duration = 65;
+  document.getElementById('dur-val').textContent = '65 min';
+  document.getElementById('sp-meta').textContent = '65 min';
+  document.getElementById('ic-au').textContent = '— tap RPE to calculate';
+  document.getElementById('ic-au').style.color = 'var(--tx3)';
+  document.getElementById('ic-acwr').textContent = '—';
+  document.getElementById('ic-acwr').style.color = 'var(--tx3)';
+  document.getElementById('ic-weekly').textContent = '—';
+  document.getElementById('ic-weekly').style.color = 'var(--tx3)';
+  document.getElementById('acwr-bar-section').style.display = 'none';
+  document.getElementById('formula-session').textContent = '—';
+  document.getElementById('formula-new-acute').textContent = '—';
+  document.getElementById('formula-acwr').textContent = '—';
+  document.getElementById('formula-acwr').style.color = 'var(--tx2)';
+  document.getElementById('acwr-pointer').style.left = '0%';
+  document.getElementById('week-this-session').textContent = '— logging now';
+  document.getElementById('week-this-session').style.color = 'var(--tx3)';
+  document.getElementById('week-total').textContent = '1,920 AU';
+  document.getElementById('week-total').style.color = 'var(--teal)';
+  const btn = document.getElementById('log-btn');
+  btn.classList.add('disabled');
+  btn.style.cssText = '';
+  btn.textContent = 'Log session';
+  buildScale();
+  showScreen('log');
+}
+
+// ── EXERCISE SWITCH ───────────────────────────────────────
+document.querySelectorAll('.ex-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ex-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    currentEx = btn.dataset.ex;
+    document.getElementById('sp-text').textContent = EXERCISES[currentEx].label;
+    resetLog();
+  });
+});
+
+// ── INIT ──────────────────────────────────────────────────
+buildScale();
+buildReference();
+</script>
+</body>
+</html>
