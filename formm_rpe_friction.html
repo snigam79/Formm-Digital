@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — RPE Friction Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050508;--bg1:#0A0A10;--bg2:#0F0F18;--bg3:#161622;--bg4:#1E1E2E;--bg5:#272738;
+  --ln1:rgba(255,255,255,.05);--ln2:rgba(255,255,255,.09);--ln3:rgba(255,255,255,.15);
+  --tx1:#EEEDF4;--tx2:#8A88A2;--tx3:#4E4C66;
+  --acid:#C8FF00;--acid-d:rgba(200,255,0,.08);--acid-bd:rgba(200,255,0,.22);
+  --teal:#00E0B5;--teal-d:rgba(0,224,181,.08);
+  --amber:#F5A524;--red:#FF4560;--blue:#4DA3FF;--purple:#9B7FFF;
+  --disp:'Bebas Neue',sans-serif;--body:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--tx1);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{background:var(--bg1);border-right:1px solid var(--ln1);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar::-webkit-scrollbar{display:none}
+.main{overflow-y:auto;height:100vh}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--bg4)}
+
+/* ── SIDEBAR ── */
+.s-brand{padding:22px 20px 18px;border-bottom:1px solid var(--ln1)}
+.s-logo{font-family:var(--disp);font-size:32px;letter-spacing:1px;color:var(--acid);line-height:1}
+.s-sub{font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.s-section{padding:14px 20px 4px;font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;border:none;background:none;color:var(--tx2);font-size:12px;font-weight:500;width:100%;text-align:left;cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-family:var(--body)}
+.nav-item:hover{background:var(--bg2);color:var(--tx1)}
+.nav-item.on{color:var(--acid);border-left-color:var(--acid);background:var(--acid-d)}
+.nav-badge{margin-left:auto;font-size:9px;font-family:var(--mono);padding:2px 6px;border-radius:6px;font-weight:500}
+.nav-item.on .nav-badge{color:var(--acid);background:var(--acid-d)}
+.p0{color:var(--red)!important}.p1{color:var(--amber)!important}.p2{color:var(--blue)!important}
+
+/* ── PANELS ── */
+.panel{display:none;padding:36px 44px 80px;max-width:880px}
+.panel.on{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel-eyebrow{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.panel-title{font-family:var(--disp);font-size:42px;letter-spacing:.5px;line-height:1.05;margin-bottom:8px}
+.panel-desc{font-size:13px;color:var(--tx2);line-height:1.8;max-width:580px;margin-bottom:28px}
+
+/* ── SHARED ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.card{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:18px 20px}
+.card-sm{background:var(--bg3);border:1px solid var(--ln1);border-radius:11px;padding:13px 15px}
+.card-acid{background:var(--acid-d);border:1px solid var(--acid-bd);border-radius:14px;padding:18px 20px}
+.divider{height:1px;background:var(--ln1);margin:18px 0}
+.label{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.insight{background:var(--acid-d);border-left:2px solid var(--acid);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--tx2);line-height:1.7;margin-top:12px}
+.insight strong{color:var(--acid)}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:8px;font-size:10px;font-weight:600;border:1px solid;font-family:var(--mono)}
+.pill-acid{color:var(--acid);background:var(--acid-d);border-color:var(--acid-bd)}
+.pill-red{color:var(--red);background:rgba(255,69,96,.1);border-color:rgba(255,69,96,.3)}
+.pill-amber{color:var(--amber);background:rgba(245,165,36,.1);border-color:rgba(245,165,36,.3)}
+.pill-blue{color:var(--blue);background:rgba(77,163,255,.1);border-color:rgba(77,163,255,.3)}
+input[type=range]{accent-color:var(--acid);width:100%}
+
+/* ── PHONE FRAME ── */
+.phone-frame{
+  width:290px;flex-shrink:0;
+  background:var(--bg1);border-radius:38px;
+  border:1.5px solid var(--ln2);
+  box-shadow:0 40px 80px rgba(0,0,0,.9),0 0 60px rgba(200,255,0,.04);
+  overflow:hidden;position:relative;
+}
+.phone-notch{width:72px;height:20px;background:var(--bg);border-radius:0 0 12px 12px;margin:0 auto;position:relative;z-index:3}
+.phone-status{display:flex;justify-content:space-between;padding:4px 14px 4px;opacity:.4}
+.pst{font-size:10px;font-family:var(--mono);color:var(--tx2)}
+.phone-screen{padding:10px 14px 16px;display:flex;flex-direction:column;gap:9px;min-height:520px;background:var(--bg1)}
+
+/* screen state management */
+.phone-view{display:none;flex-direction:column;gap:9px}
+.phone-view.active{display:flex;animation:screenPop .25s ease}
+@keyframes screenPop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* ── PHONE COMPONENTS ── */
+.p-session-pill{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--ln1);border-radius:11px;padding:9px 12px}
+.p-sp-dot{width:6px;height:6px;border-radius:50%;background:var(--acid);animation:blink 1.8s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.p-sp-text{font-size:12px;font-weight:600;color:var(--tx1);flex:1}
+.p-sp-meta{font-size:10px;color:var(--tx3);font-family:var(--mono)}
+
+.p-progress{display:flex;align-items:center;gap:8px;padding:6px 0}
+.p-prog-step{flex:1;height:3px;border-radius:2px;background:var(--bg4);transition:background .4s}
+.p-prog-step.done{background:var(--acid)}
+.p-prog-step.active{background:var(--teal);animation:progPulse 1.2s infinite}
+@keyframes progPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.p-prog-label{font-size:9px;color:var(--tx3);font-family:var(--mono);text-align:center}
+
+.p-score-hero{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:14px;text-align:center}
+.p-score-num{font-family:var(--disp);font-size:68px;letter-spacing:1px;line-height:1;transition:color .4s}
+.p-score-lbl{font-size:11px;color:var(--tx2);margin-top:4px}
+
+.p-headline{font-size:15px;font-weight:700;color:var(--tx1);margin-bottom:3px;line-height:1.3}
+.p-subhead{font-size:11px;color:var(--tx2);line-height:1.6}
+
+/* RPE scale */
+.rpe-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.rpe-btn{border:1px solid var(--ln2);border-radius:10px;padding:10px 4px 8px;text-align:center;cursor:pointer;background:var(--bg3);transition:all .15s;user-select:none;position:relative;overflow:hidden}
+.rpe-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,.08),transparent);opacity:0;transition:opacity .15s}
+.rpe-btn:hover::before,.rpe-btn:active::before{opacity:1}
+.rpe-btn:active{transform:scale(.94)}
+.rpe-btn.selected{border-width:1.5px}
+.rpe-num{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:3px}
+.rpe-anchor{font-size:8px;color:var(--tx3);line-height:1.2;height:20px;display:flex;align-items:center;justify-content:center;padding:0 2px}
+.rpe-btn.selected .rpe-anchor{color:inherit;opacity:.8}
+
+.dur-row{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--ln1);border-radius:11px;padding:10px 12px}
+.dur-lbl{font-size:12px;color:var(--tx2);flex:1}
+.dur-ctrl{display:flex;align-items:center;gap:9px}
+.dur-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--ln2);background:var(--bg4);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--tx1);transition:all .15s;user-select:none;flex-shrink:0}
+.dur-btn:hover{border-color:var(--acid);color:var(--acid)}
+.dur-btn:active{transform:scale(.9)}
+.dur-val{font-size:15px;font-weight:600;font-family:var(--mono);min-width:42px;text-align:center}
+
+/* Quick duration chips */
+.dur-chips{display:flex;gap:6px;flex-wrap:wrap}
+.dur-chip{padding:5px 11px;border-radius:20px;border:1px solid var(--ln2);background:var(--bg3);font-size:11px;color:var(--tx2);cursor:pointer;font-family:var(--mono);transition:all .15s}
+.dur-chip:hover,.dur-chip.on{border-color:var(--acid);color:var(--acid);background:var(--acid-d)}
+
+/* Impact card */
+.impact-card{background:var(--bg3);border:1px solid var(--ln1);border-radius:12px;padding:12px 13px}
+.impact-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.impact-row:last-child{margin:0}
+.impact-key{font-size:11px;color:var(--tx2)}
+.impact-val{font-size:12px;font-weight:600;font-family:var(--mono);transition:color .3s}
+
+/* ACWR bar */
+.acwr-bar-section{margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)}
+.acwr-track{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:4px;position:relative}
+.acwr-fill{height:100%;border-radius:4px;transition:width .6s ease,background .4s}
+.acwr-zones-lbl{display:flex;justify-content:space-between;font-size:8px;color:var(--tx3);font-family:var(--mono)}
+
+/* Log button */
+.p-log-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--body);transition:all .15s;letter-spacing:.3px}
+.p-log-btn:active{transform:scale(.98)}
+.p-log-btn.disabled{opacity:.3;pointer-events:none;background:var(--bg4);color:var(--tx3);border:1px solid var(--ln1)}
+.p-skip{text-align:center;font-size:11px;color:var(--tx3);cursor:pointer;padding:2px;transition:color .15s}
+.p-skip:hover{color:var(--tx2)}
+
+/* Success screen */
+.success-check{width:48px;height:48px;border-radius:50%;background:rgba(200,255,0,.12);border:1.5px solid rgba(200,255,0,.4);display:flex;align-items:center;justify-content:center;font-size:20px;margin:8px auto}
+.sg-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sg-card{background:var(--bg3);border:1px solid var(--ln1);border-radius:10px;padding:10px 11px}
+.sg-lbl{font-size:8px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.sg-val{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1;transition:color .3s}
+.sg-sub{font-size:9px;color:var(--tx3);margin-top:3px}
+
+.tomorrow-card{background:var(--acid-d);border:1px solid var(--acid-bd);border-radius:11px;padding:10px 12px}
+.tc-lbl{font-size:8px;color:var(--acid);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.tc-text{font-size:11px;color:var(--tx1);line-height:1.6;font-weight:500}
+.tc-text span{color:var(--acid)}
+
+/* Calibration overlay */
+.rpe-overlay{position:absolute;inset:0;background:rgba(5,5,8,.92);backdrop-filter:blur(4px);z-index:10;display:flex;flex-direction:column;justify-content:center;padding:20px;animation:fadeIn .3s ease}
+.rpe-overlay-title{font-family:var(--disp);font-size:28px;color:var(--acid);letter-spacing:.5px;margin-bottom:6px}
+.rpe-overlay-body{font-size:12px;color:var(--tx2);line-height:1.7;margin-bottom:16px}
+.rpe-anchor-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.rpe-anchor-item{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--bg3);border-radius:9px;border:1px solid var(--ln1)}
+.rpe-anchor-num{font-family:var(--mono);font-size:16px;font-weight:500;min-width:24px}
+.rpe-anchor-desc{font-size:11px;color:var(--tx2);line-height:1.5}
+.p-btn-ghost{width:100%;padding:10px;border:1px solid var(--ln2);border-radius:10px;background:transparent;color:var(--tx2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--body);transition:all .15s}
+.p-btn-ghost:hover{border-color:var(--acid);color:var(--acid)}
+
+/* Missed log notification */
+.notif-card{background:var(--bg2);border:1px solid var(--ln2);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.notif-header{padding:10px 14px;border-bottom:1px solid var(--ln1);display:flex;align-items:center;gap:8px}
+.notif-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.notif-body{padding:12px 14px;font-size:12px;color:var(--tx2);line-height:1.7}
+.notif-body strong{color:var(--tx1)}
+.notif-body span{color:var(--acid)}
+.notif-actions{padding:8px 14px;border-top:1px solid var(--ln1);display:flex;gap:8px}
+.n-btn{flex:1;padding:8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--body);transition:all .15s}
+.n-btn-primary{background:var(--acid);color:var(--bg)}
+.n-btn-ghost{background:var(--bg3);color:var(--tx2);border:1px solid var(--ln2)}
+
+/* phone nav */
+.phone-nav{display:flex;justify-content:space-around;padding:8px 6px 14px;background:var(--bg1);border-top:1px solid var(--ln1)}
+.pnav{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.pnav-dot{width:5px;height:5px;border-radius:50%;background:var(--tx3)}
+.pnav.on .pnav-dot{background:var(--acid)}
+.pnav-lbl{font-size:8px;color:var(--tx3);font-family:var(--mono)}
+.pnav.on .pnav-lbl{color:var(--acid)}
+
+/* ── RIGHT EXPLAINER ── */
+.explainer{flex:1}
+.ex-title{font-family:var(--disp);font-size:28px;letter-spacing:.5px;margin-bottom:6px}
+.ex-problem{background:rgba(255,69,96,.06);border-left:2px solid var(--red);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:14px}
+.ex-problem-lbl{font-size:9px;color:var(--red);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.ex-problem-text{font-size:12px;color:var(--tx2);line-height:1.7}
+.ex-solution{background:rgba(200,255,0,.06);border-left:2px solid var(--acid);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:14px}
+.ex-solution-lbl{font-size:9px;color:var(--acid);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.ex-solution-text{font-size:12px;color:var(--tx2);line-height:1.7}
+.ex-solution-text strong{color:var(--acid)}
+.action-list{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.action-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--bg3);border-radius:10px;border:1px solid var(--ln1)}
+.action-dot{width:6px;height:6px;border-radius:50%;background:var(--acid);flex-shrink:0;margin-top:5px}
+.action-text{font-size:12px;color:var(--tx2);line-height:1.6}
+.action-text strong{color:var(--tx1)}
+.metric-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--acid-d);border:1px solid var(--acid-bd);border-radius:20px;font-size:11px;color:var(--acid);font-family:var(--mono)}
+
+/* ── FRICTION OVERVIEW (panel 1) ── */
+.friction-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.friction-card{background:var(--bg2);border-radius:12px;border:1px solid var(--ln1);padding:14px 15px;cursor:pointer;transition:all .2s;border-left:3px solid}
+.friction-card:hover{background:var(--bg3);transform:translateY(-1px)}
+.fc-num{font-family:var(--mono);font-size:22px;font-weight:500;line-height:1;margin-bottom:4px}
+.fc-name{font-size:12px;font-weight:600;color:var(--tx1);margin-bottom:3px}
+.fc-desc{font-size:11px;color:var(--tx2);line-height:1.5}
+.fc-pri{font-size:9px;font-family:var(--mono);font-weight:700;margin-top:6px}
+
+/* ── DEMO CONTROLS ── */
+.demo-strip{background:var(--bg2);border-radius:12px;border:1px solid var(--ln1);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.demo-strip-lbl{font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase}
+.demo-btn{padding:6px 13px;border-radius:8px;border:1px solid var(--ln2);background:transparent;color:var(--tx2);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--body);transition:all .15s}
+.demo-btn:hover{border-color:var(--acid);color:var(--acid)}
+.demo-btn.on{background:var(--acid);border-color:var(--acid);color:var(--bg)}
+
+/* session pair layout */
+.session-pair{display:flex;gap:20px;align-items:flex-start}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="s-brand">
+    <div class="s-logo">Formm</div>
+    <div class="s-sub">RPE Friction Solved</div>
+  </div>
+  <div class="s-section" style="margin-top:8px">Frictions</div>
+  <button class="nav-item on" data-p="p0"><span>Overview</span><span class="nav-badge">10</span></button>
+  <button class="nav-item" data-p="p1"><span>F1 — Post-session fatigue</span><span class="nav-badge p0">P0</span></button>
+  <button class="nav-item" data-p="p2"><span>F2 — Deferred reward</span><span class="nav-badge p0">P0</span></button>
+  <button class="nav-item" data-p="p3"><span>F3 — RPE calibration</span><span class="nav-badge p1">P1</span></button>
+  <button class="nav-item" data-p="p4"><span>F4 — Duration estimation</span><span class="nav-badge p1">P1</span></button>
+  <button class="nav-item" data-p="p5"><span>F5 — Two separate actions</span><span class="nav-badge p0">P0</span></button>
+  <button class="nav-item" data-p="p6"><span>F6 — Abstract numbers</span><span class="nav-badge p1">P1</span></button>
+  <button class="nav-item" data-p="p7"><span>F7 — Missed log cascade</span><span class="nav-badge p1">P1</span></button>
+  <button class="nav-item" data-p="p8"><span>F8 — No wearable</span><span class="nav-badge p2">P2</span></button>
+  <button class="nav-item" data-p="p9"><span>F9 — RPE drift over time</span><span class="nav-badge p2">P2</span></button>
+  <button class="nav-item" data-p="p10"><span>F10 — Onboarding</span><span class="nav-badge p1">P1</span></button>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+<!-- ════ P0 OVERVIEW ════ -->
+<div class="panel on" id="p0">
+  <div class="panel-eyebrow">RPE / ACWR / AU</div>
+  <div class="panel-title">10 frictions.<br>10 solutions.</div>
+  <div class="panel-desc">Each panel below shows the friction, the solution, and a live phone mockup you can interact with. P0 = ship before alpha. P1 = ship at alpha. P2 = post-alpha.</div>
+
+  <div class="friction-grid">
+    <div class="friction-card" style="border-left-color:var(--red)" onclick="goTo('p1')">
+      <div class="fc-num" style="color:var(--red)">01</div>
+      <div class="fc-name">Post-session fatigue</div>
+      <div class="fc-desc">Users leave the app after seeing their form score. RPE screen never reached.</div>
+      <div class="fc-pri" style="color:var(--red)">P0 · Auto-slide RPE after result · 2 taps max</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--red)" onclick="goTo('p2')">
+      <div class="fc-num" style="color:var(--red)">02</div>
+      <div class="fc-name">Deferred reward</div>
+      <div class="fc-desc">Cost of logging is now. Reward (readiness brief) arrives tomorrow at 7am.</div>
+      <div class="fc-pri" style="color:var(--red)">P0 · ACWR bar updates live · prescription appears instantly</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--amber)" onclick="goTo('p3')">
+      <div class="fc-num" style="color:var(--amber)">03</div>
+      <div class="fc-name">RPE calibration</div>
+      <div class="fc-desc">Subjective scale varies by person and day. Inconsistent logs → noisy ACWR.</div>
+      <div class="fc-pri" style="color:var(--amber)">P1 · Anchored descriptions · personal calibration after 6 sessions</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--amber)" onclick="goTo('p4')">
+      <div class="fc-num" style="color:var(--amber)">04</div>
+      <div class="fc-name">Duration estimation</div>
+      <div class="fc-desc">Users misremember session length. ±20 min = ±140 AU load variance.</div>
+      <div class="fc-pri" style="color:var(--amber)">P1 · Camera timer auto-fills · history-based quick-tap chips</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--red)" onclick="goTo('p5')">
+      <div class="fc-num" style="color:var(--red)">05</div>
+      <div class="fc-name">Two separate actions</div>
+      <div class="fc-desc">Form analysis and RPE log are disconnected. High form-analysis users have zero load data.</div>
+      <div class="fc-pri" style="color:var(--red)">P0 · 1 of 2 / 2 of 2 session framing</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--amber)" onclick="goTo('p6')">
+      <div class="fc-num" style="color:var(--amber)">06</div>
+      <div class="fc-name">Abstract numbers</div>
+      <div class="fc-desc">455 AU means nothing. ACWR 1.3 means nothing. Abstract = no behaviour change.</div>
+      <div class="fc-pri" style="color:var(--amber)">P1 · Every metric has a plain-English verdict</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--amber)" onclick="goTo('p7')">
+      <div class="fc-num" style="color:var(--amber)">07</div>
+      <div class="fc-name">Missed log cascade</div>
+      <div class="fc-desc">One missed log = 7 days of inaccurate ACWR. Two skips per week = model breaks down.</div>
+      <div class="fc-pri" style="color:var(--amber)">P1 · 20h re-engagement · retroactive 48h logging</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--blue)" onclick="goTo('p8')">
+      <div class="fc-num" style="color:var(--blue)">08</div>
+      <div class="fc-name">No wearable</div>
+      <div class="fc-desc">Readiness brief is incomplete without HRV. Most alpha users have no wearable.</div>
+      <div class="fc-pri" style="color:var(--blue)">P2 · Load-based brief at launch · Health Connect sleep</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--blue)" onclick="goTo('p9')">
+      <div class="fc-num" style="color:var(--blue)">09</div>
+      <div class="fc-name">RPE drift over time</div>
+      <div class="fc-desc">As users get fitter, RPE drops for the same workout. Model accuracy declines silently.</div>
+      <div class="fc-pri" style="color:var(--blue)">P2 · 8-week calibration check · progression prompt</div>
+    </div>
+    <div class="friction-card" style="border-left-color:var(--amber)" onclick="goTo('p10')">
+      <div class="fc-num" style="color:var(--amber)">10</div>
+      <div class="fc-name">Onboarding</div>
+      <div class="fc-desc">Most gym-goers have never used RPE. Blank 10-number scale = first-session drop-off.</div>
+      <div class="fc-pri" style="color:var(--amber)">P1 · 90-second contextual explainer · shown once only</div>
+    </div>
+  </div>
+
+  <div class="card-acid">
+    <div class="label" style="color:var(--acid)">The one rule</div>
+    <div style="font-size:15px;font-weight:600;color:var(--tx1);line-height:1.6;margin-bottom:6px">RPE must feel like completing the session — not doing extra admin.</div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.7">Not "log your RPE" → "record this session." Not "add session data" → "complete your training record." <strong style="color:var(--acid)">Target: 70% of sessions logged within 10 minutes of analysis ending.</strong> Below 50% = friction unsolved. Above 80% = design working.</div>
+  </div>
+</div>
+
+<!-- ════ P1 POST-SESSION FATIGUE ════ -->
+<div class="panel" id="p1">
+  <div class="panel-eyebrow">Friction 01 · P0 Critical</div>
+  <div class="panel-title">Post-session fatigue</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:44</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen" style="position:relative">
+        <!-- View 1: Result screen -->
+        <div class="phone-view active" id="p1-result">
+          <div class="p-progress">
+            <div class="p-prog-step done"></div>
+            <div class="p-prog-step active"></div>
+            <div class="p-prog-label">Step 1 of 2 — analysis done</div>
+          </div>
+          <div class="p-score-hero">
+            <div class="p-score-num" style="color:var(--acid)">84</div>
+            <div class="p-score-lbl">Squat form score</div>
+          </div>
+          <div class="card-sm">
+            <div class="label">Top insight</div>
+            <div class="p-headline">Depth excellent · knee tracking 6° better</div>
+            <div class="p-subhead" style="margin-top:4px">Left knee valgus improved from 11° → 5°. You are now in the safe zone.</div>
+          </div>
+          <div class="p-session-pill">
+            <div class="p-sp-dot"></div>
+            <span class="p-sp-text">Squat session complete</span>
+            <span class="p-sp-meta" id="p1-dur-pill">65 min</span>
+          </div>
+          <button class="p-log-btn" style="background:rgba(200,255,0,.15);color:var(--acid);border:1px solid var(--acid-bd)" onclick="showView('p1','rpe')">
+            Record this session →
+          </button>
+        </div>
+        <!-- View 2: RPE screen -->
+        <div class="phone-view" id="p1-rpe">
+          <div class="p-progress">
+            <div class="p-prog-step done"></div>
+            <div class="p-prog-step done"></div>
+            <div class="p-prog-label">Step 2 of 2 — record session</div>
+          </div>
+          <div style="text-align:center;padding:4px 0">
+            <div style="font-size:15px;font-weight:700;color:var(--tx1);margin-bottom:2px">How hard was that?</div>
+            <div style="font-size:11px;color:var(--tx3)">Tap one number</div>
+          </div>
+          <div class="rpe-scale" id="p1-scale"></div>
+          <div class="dur-row">
+            <span class="dur-lbl">⏱ Session length</span>
+            <div class="dur-ctrl">
+              <div class="dur-btn" onclick="chDur('p1',-5)">−</div>
+              <span class="dur-val" id="p1-dur">65 min</span>
+              <div class="dur-btn" onclick="chDur('p1',5)">+</div>
+            </div>
+          </div>
+          <div class="impact-card" id="p1-impact">
+            <div class="label">Session impact</div>
+            <div class="impact-row"><span class="impact-key">Session load</span><span class="impact-val" id="p1-au" style="color:var(--tx3)">— tap RPE</span></div>
+            <div class="impact-row"><span class="impact-key">New ACWR</span><span class="impact-val" id="p1-acwr" style="color:var(--tx3)">—</span></div>
+            <div id="p1-bar-wrap" style="display:none" class="acwr-bar-section">
+              <div class="acwr-track"><div class="acwr-fill" id="p1-bar"></div></div>
+              <div class="acwr-zones-lbl"><span>0.5</span><span>Optimal 0.8–1.3</span><span>2.0</span></div>
+            </div>
+          </div>
+          <button class="p-log-btn disabled" id="p1-logbtn" onclick="doLog('p1')">Log session</button>
+          <div class="p-skip">Skip for now</div>
+        </div>
+        <!-- View 3: Success -->
+        <div class="phone-view" id="p1-success">
+          <div style="text-align:center;padding:10px 0 4px">
+            <div class="success-check">✓</div>
+            <div style="font-size:16px;font-weight:700;color:var(--acid);margin-bottom:4px">Session recorded</div>
+            <div style="font-size:11px;color:var(--tx2);line-height:1.6" id="p1-success-body">ACWR updated. Recovery brief set for 7am.</div>
+          </div>
+          <div class="sg-grid">
+            <div class="sg-card"><div class="sg-lbl">Load</div><div class="sg-val" id="p1-sg-au" style="color:var(--acid)">—</div><div class="sg-sub">AU</div></div>
+            <div class="sg-card"><div class="sg-lbl">ACWR</div><div class="sg-val" id="p1-sg-acwr">—</div><div class="sg-sub" id="p1-sg-acwr-sub">—</div></div>
+            <div class="sg-card"><div class="sg-lbl">Weekly</div><div class="sg-val" id="p1-sg-weekly" style="color:var(--teal)">—</div><div class="sg-sub">AU total</div></div>
+            <div class="sg-card"><div class="sg-lbl">Next</div><div class="sg-val" id="p1-sg-next">—</div><div class="sg-sub" id="p1-sg-next-sub">—</div></div>
+          </div>
+          <div class="tomorrow-card"><div class="tc-lbl">Tomorrow · 7am</div><div class="tc-text" id="p1-tc">Recovery brief will show <span>ACWR and readiness score</span> in context.</div></div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2)" onclick="resetFlow('p1')">Try again</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 01</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">The result screen feels like the destination. Users see their form score and leave. The RPE screen is a separate navigation they never reach. High form-analysis engagement — zero load data.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text">The session does not end until both steps are complete. <strong>The progress bar shows "Step 1 of 2 — Step 2 of 2."</strong> The "Record this session" button is the exit from the result screen — not a separate journey. Same flow, same session.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Progress indicator</strong> — "Step 1 of 2 complete" on result screen makes the RPE log feel like a required second step, not optional extra.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>2 taps maximum</strong> — tap RPE number, tap Log. Duration is pre-filled from the camera timer. Under 8 seconds total.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Language change</strong> — "Record this session" not "Log RPE." The user is doing something for themselves, not filling in a form.</div></div>
+      </div>
+      <div class="metric-badge">Target: ≥ 70% of sessions logged within 10 min</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P2 DEFERRED REWARD ════ -->
+<div class="panel" id="p2">
+  <div class="panel-eyebrow">Friction 02 · P0 Critical</div>
+  <div class="panel-title">Deferred reward</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:46</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p2-log">
+          <div style="text-align:center;padding:2px 0 4px">
+            <div style="font-size:14px;font-weight:700;color:var(--tx1);margin-bottom:2px">How hard was that?</div>
+            <div style="font-size:11px;color:var(--tx3)">The reward appears instantly when you tap</div>
+          </div>
+          <div class="rpe-scale" id="p2-scale"></div>
+          <div class="dur-row">
+            <span class="dur-lbl">⏱ Duration</span>
+            <div class="dur-ctrl">
+              <div class="dur-btn" onclick="chDur('p2',-5)">−</div>
+              <span class="dur-val" id="p2-dur">65 min</span>
+              <div class="dur-btn" onclick="chDur('p2',5)">+</div>
+            </div>
+          </div>
+          <!-- Live impact — the IMMEDIATE reward -->
+          <div class="impact-card" id="p2-impact-card">
+            <div class="label">Instant feedback</div>
+            <div class="impact-row"><span class="impact-key">Session load (AU)</span><span class="impact-val" id="p2-au" style="color:var(--tx3)">— tap a number above</span></div>
+            <div class="impact-row"><span class="impact-key">ACWR updates to</span><span class="impact-val" id="p2-acwr" style="color:var(--tx3)">—</span></div>
+            <div class="impact-row"><span class="impact-key">Weekly total</span><span class="impact-val" id="p2-weekly" style="color:var(--tx3)">—</span></div>
+            <div id="p2-bar-wrap" style="display:none" class="acwr-bar-section">
+              <div class="acwr-track"><div class="acwr-fill" id="p2-bar"></div></div>
+              <div class="acwr-zones-lbl"><span>0.5</span><span>Optimal</span><span>2.0</span></div>
+            </div>
+            <!-- Next session prescription — appears immediately -->
+            <div id="p2-prescription" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--ln1)">
+              <div style="font-size:9px;color:var(--acid);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Next session (immediate output)</div>
+              <div style="font-size:12px;font-weight:600;color:var(--tx1)" id="p2-prescription-text">—</div>
+            </div>
+          </div>
+          <button class="p-log-btn disabled" id="p2-logbtn" onclick="doLog('p2')">Log session</button>
+        </div>
+        <div class="phone-view" id="p2-success">
+          <div style="text-align:center;padding:8px 0 2px">
+            <div class="success-check">✓</div>
+            <div style="font-size:15px;font-weight:700;color:var(--acid)">Session recorded</div>
+          </div>
+          <div class="sg-grid">
+            <div class="sg-card"><div class="sg-lbl">Load</div><div class="sg-val" id="p2-sg-au" style="color:var(--acid)">—</div><div class="sg-sub">AU</div></div>
+            <div class="sg-card"><div class="sg-lbl">ACWR</div><div class="sg-val" id="p2-sg-acwr">—</div><div class="sg-sub" id="p2-sg-sub">—</div></div>
+          </div>
+          <div class="tomorrow-card"><div class="tc-lbl">Tomorrow · 7am</div><div class="tc-text" id="p2-tc">—</div></div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2)" onclick="resetFlow('p2')">Try again</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 02</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">Cost of logging is now. Reward — the readiness brief — arrives tomorrow morning. Without an immediate visible payoff at the moment of tapping, the habit does not form.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text">Two things happen the instant an RPE number is tapped: <strong>the ACWR bar animates to the new position</strong> and <strong>the next session prescription appears.</strong> Value is tangible within 3 seconds — before the user even taps Log.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Live ACWR update</strong> — tap RPE 7 and watch the bar move, the number update, the colour shift. The model is running in real time in front of them.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Immediate prescription</strong> — "Next session: RPE 6–7 in 48h" appears before they tap Log. A concrete output that did not exist 2 seconds ago.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Confirmed notification</strong> — "Recovery brief set for 7am tomorrow" makes the deferred reward feel real and scheduled.</div></div>
+      </div>
+      <div class="metric-badge">Target: next session prescription shown after ≥ 80% of logs</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P3 CALIBRATION ════ -->
+<div class="panel" id="p3">
+  <div class="panel-eyebrow">Friction 03 · P1 High</div>
+  <div class="panel-title">RPE calibration</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:47</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen" style="position:relative">
+        <div class="phone-view active" id="p3-main">
+          <div style="text-align:center;padding:2px 0">
+            <div style="font-size:14px;font-weight:700;color:var(--tx1)">How hard was that?</div>
+          </div>
+          <div class="rpe-scale" id="p3-scale"></div>
+          <div class="impact-card">
+            <div class="label">Session #1 — calibration in progress</div>
+            <div id="p3-calib-msg" style="font-size:12px;color:var(--tx2);line-height:1.6">After 6 sessions your personal calibration card will appear here.</div>
+          </div>
+          <button class="p-log-btn disabled" id="p3-logbtn" onclick="showView('p3','calib')">Log session</button>
+        </div>
+        <!-- Calibration card after 6 sessions -->
+        <div class="phone-view" id="p3-calib">
+          <div style="background:rgba(200,255,0,.07);border:1px solid var(--acid-bd);border-radius:14px;padding:14px;text-align:center;margin-bottom:8px">
+            <div style="font-size:10px;color:var(--acid);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Your RPE calibration (6 sessions)</div>
+            <div style="font-size:13px;color:var(--tx2);line-height:1.7">Your <strong style="color:var(--acid)">RPE 7 sessions</strong> average <strong style="color:var(--tx1)">380 AU</strong>. That puts you in the moderate-high range for your training age.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg3);border-radius:9px">
+              <span style="font-size:12px;color:var(--tx2)">Your RPE 6 avg</span><span style="font-family:var(--mono);font-size:12px;color:var(--teal)">295 AU</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg3);border-radius:9px">
+              <span style="font-size:12px;color:var(--tx2)">Your RPE 7 avg</span><span style="font-family:var(--mono);font-size:12px;color:var(--acid)">380 AU</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg3);border-radius:9px">
+              <span style="font-size:12px;color:var(--tx2)">Your RPE 8 avg</span><span style="font-family:var(--mono);font-size:12px;color:var(--amber)">470 AU</span>
+            </div>
+          </div>
+          <div class="insight" style="margin-top:8px">Your scale is <strong>consistent</strong>. The model is working.</div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2)" onclick="resetFlow('p3')">Back</button>
+        </div>
+        <!-- First-time RPE overlay (F10) -->
+        <div class="rpe-overlay" id="p3-overlay" style="display:none">
+          <div class="rpe-overlay-title">Rate your session</div>
+          <div class="rpe-overlay-body">Not how tired you are now — how hard the session felt while you were doing it.</div>
+          <div class="rpe-anchor-list">
+            <div class="rpe-anchor-item"><span class="rpe-anchor-num" style="color:var(--teal)">5</span><span class="rpe-anchor-desc">Moderate. Could have done more. Conversation was easy.</span></div>
+            <div class="rpe-anchor-item"><span class="rpe-anchor-num" style="color:var(--amber)">7</span><span class="rpe-anchor-desc">Hard but controlled. Speaking was possible but effortful.</span></div>
+            <div class="rpe-anchor-item"><span class="rpe-anchor-num" style="color:var(--red)">9</span><span class="rpe-anchor-desc">Near maximum. Could not sustain for much longer.</span></div>
+          </div>
+          <button class="p-btn-ghost" onclick="document.getElementById('p3-overlay').style.display='none'">Got it — let me rate it</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 03</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">RPE is subjective. A beginner's 7 and an advanced athlete's 7 are different physiological states. Inconsistent logs → noisy ACWR → unreliable readiness briefs → user stops trusting the product.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>Anchored descriptions on every RPE button, permanently visible.</strong> After 6 sessions: personal calibration card shows the user their own scale in AU. After 20 sessions: RPE drift detection enabled.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Anchors always visible</strong> — "RPE 8 = speaking hard, rest tomorrow" beneath every button. Tap the overlay button to see the full-screen explainer (Friction 10 solution).</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Personal calibration card</strong> — after 6 sessions, tap "Log session" to see what their data shows. Tells them their scale is working.</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="demo-btn" onclick="document.getElementById('p3-overlay').style.display='flex'">Show first-time overlay</button>
+        <button class="demo-btn" onclick="selectRPE('p3',7)">Select RPE 7</button>
+      </div>
+      <div class="metric-badge">Target: RPE variance &lt; 1.5 SD within same exercise</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P4 DURATION ════ -->
+<div class="panel" id="p4">
+  <div class="panel-eyebrow">Friction 04 · P1 High</div>
+  <div class="panel-title">Duration estimation</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:48</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p4-main">
+          <div style="text-align:center;padding:2px 0">
+            <div style="font-size:14px;font-weight:700;color:var(--tx1)">How hard was that?</div>
+          </div>
+          <div class="rpe-scale" id="p4-scale"></div>
+          <!-- Auto-detected duration -->
+          <div style="background:rgba(200,255,0,.06);border:1px solid var(--acid-bd);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:14px">⏱</span>
+            <div style="flex:1">
+              <div style="font-size:10px;color:var(--acid);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px">Auto-detected</div>
+              <div style="font-size:12px;color:var(--tx1);font-weight:600">Camera session: 63 minutes</div>
+            </div>
+            <button style="padding:4px 10px;border-radius:8px;border:1px solid var(--acid-bd);background:var(--acid-d);color:var(--acid);font-size:11px;cursor:pointer;font-family:var(--body)">Edit</button>
+          </div>
+          <!-- Quick chips from history -->
+          <div>
+            <div style="font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Your usual durations</div>
+            <div class="dur-chips">
+              <div class="dur-chip" onclick="setChip('p4',45,'chip-45')">45 min</div>
+              <div class="dur-chip on" onclick="setChip('p4',60,'chip-60')" id="p4-chip-60">60 min</div>
+              <div class="dur-chip" onclick="setChip('p4',75,'chip-75')">75 min</div>
+              <div class="dur-chip" onclick="setChip('p4',90,'chip-90')">90 min</div>
+            </div>
+          </div>
+          <div class="impact-card">
+            <div class="impact-row"><span class="impact-key">Session load</span><span class="impact-val" id="p4-au" style="color:var(--tx3)">— select RPE</span></div>
+            <div class="impact-row"><span class="impact-key">ACWR</span><span class="impact-val" id="p4-acwr" style="color:var(--tx3)">—</span></div>
+          </div>
+          <button class="p-log-btn disabled" id="p4-logbtn" onclick="resetFlow('p4')">Log session</button>
+        </div>
+        <div class="phone-view" id="p4-success">
+          <div style="text-align:center;padding:10px 0 4px"><div class="success-check">✓</div><div style="font-size:15px;font-weight:700;color:var(--acid)">Logged</div></div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2);margin-top:40px" onclick="resetFlow('p4')">Try again</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 04</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">Did the session take 55 or 75 minutes? Users genuinely do not know. ±20 minute error at RPE 7 = ±140 AU load variance. That shifts ACWR from 1.2 (safe) to 1.4 (elevated) — producing false alerts that erode trust.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>Three layers:</strong> (1) Camera timer auto-detects duration for filmed sessions. (2) History-based quick-tap chips for non-filmed sessions. (3) Never a blank text field — always a pre-filled starting point.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Auto-detected from camera</strong> — the phone knows when the analysis started and ended. Pre-filled with one-tap edit option.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>History chips</strong> — the user's 4 most common session durations shown as one-tap options. 60 min pre-selected as the most recent. Correct in most cases with zero effort.</div></div>
+      </div>
+      <div class="metric-badge">Target: duration pre-filled in ≥ 85% of log attempts</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P5 TWO ACTIONS ════ -->
+<div class="panel" id="p5">
+  <div class="panel-eyebrow">Friction 05 · P0 Critical</div>
+  <div class="panel-title">Two separate actions</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:50</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p5-result">
+          <!-- 1 of 2 progress bar - the key design element -->
+          <div style="background:var(--bg3);border-radius:11px;padding:10px 12px;border:1px solid var(--ln1)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:10px;color:var(--acid);font-family:var(--mono);font-weight:600">SESSION PROGRESS</span>
+              <span style="font-size:10px;color:var(--tx3);font-family:var(--mono)">1 of 2</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;height:4px;border-radius:2px;background:var(--acid)"></div>
+              <div style="flex:1;height:4px;border-radius:2px;background:var(--bg4)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:5px">
+              <span style="font-size:9px;color:var(--acid);font-family:var(--mono)">✓ Form analysis</span>
+              <span style="font-size:9px;color:var(--tx3);font-family:var(--mono)">○ Record session</span>
+            </div>
+          </div>
+          <div class="p-score-hero">
+            <div class="p-score-num" style="color:var(--acid)">84</div>
+            <div class="p-score-lbl">Squat form score</div>
+          </div>
+          <div class="card-sm">
+            <div class="p-subhead">Analysis complete. One more step to complete this session.</div>
+          </div>
+          <button class="p-log-btn" style="background:rgba(200,255,0,.15);color:var(--acid);border:1px solid var(--acid-bd)" onclick="showView('p5','rpe')">Complete session — record load →</button>
+        </div>
+        <div class="phone-view" id="p5-rpe">
+          <div style="background:var(--bg3);border-radius:11px;padding:10px 12px;border:1px solid var(--ln1)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:10px;color:var(--acid);font-family:var(--mono);font-weight:600">SESSION PROGRESS</span>
+              <span style="font-size:10px;color:var(--acid);font-family:var(--mono)">2 of 2</span>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;height:4px;border-radius:2px;background:var(--acid)"></div>
+              <div style="flex:1;height:4px;border-radius:2px;background:var(--acid);animation:progPulse 1.2s infinite"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:5px">
+              <span style="font-size:9px;color:var(--acid);font-family:var(--mono)">✓ Form analysis</span>
+              <span style="font-size:9px;color:var(--teal);font-family:var(--mono)">▶ Record session</span>
+            </div>
+          </div>
+          <div class="rpe-scale" id="p5-scale"></div>
+          <div class="impact-card">
+            <div class="impact-row"><span class="impact-key">Session load</span><span class="impact-val" id="p5-au" style="color:var(--tx3)">— select RPE</span></div>
+            <div class="impact-row"><span class="impact-key">ACWR</span><span class="impact-val" id="p5-acwr" style="color:var(--tx3)">—</span></div>
+          </div>
+          <button class="p-log-btn disabled" id="p5-logbtn" onclick="showView('p5','done')">Complete session ✓</button>
+        </div>
+        <div class="phone-view" id="p5-done">
+          <div style="text-align:center;padding:10px 0">
+            <div class="success-check">✓</div>
+            <div style="font-size:15px;font-weight:700;color:var(--acid);margin-bottom:4px">Session complete</div>
+            <div style="font-size:11px;color:var(--tx2)">Both steps done. ACWR updated.</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:11px;padding:10px 12px;border:1px solid var(--ln1);margin-top:8px">
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;height:4px;border-radius:2px;background:var(--acid)"></div>
+              <div style="flex:1;height:4px;border-radius:2px;background:var(--acid)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:5px">
+              <span style="font-size:9px;color:var(--acid);font-family:var(--mono)">✓ Form analysis</span>
+              <span style="font-size:9px;color:var(--acid);font-family:var(--mono)">✓ Session recorded</span>
+            </div>
+          </div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2);margin-top:16px" onclick="resetFlow('p5')">Try again</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 05</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">Form analysis and RPE log are two disconnected features. A user who films a squat and leaves has engaged fully with one — and generated zero load data. High form-analysis users and zero ACWR accuracy.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text">The session progress bar makes both steps explicit and sequential. <strong>"1 of 2" on the result screen. "2 of 2" on the RPE screen.</strong> The session is not complete until both bars are filled. The completion button says "Complete session" — not "Log RPE."</div></div>
+      <div class="metric-badge">Target: % of form analyses followed by RPE log within 10 min</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P6 ABSTRACT NUMBERS ════ -->
+<div class="panel" id="p6">
+  <div class="panel-eyebrow">Friction 06 · P1 High</div>
+  <div class="panel-title">Abstract numbers</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:51</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p6-main">
+          <div style="text-align:center;padding:2px 0">
+            <div style="font-size:14px;font-weight:700;color:var(--tx1)">How hard was that?</div>
+          </div>
+          <div class="rpe-scale" id="p6-scale"></div>
+          <!-- The translation layer — verdict first, number second -->
+          <div style="background:var(--bg3);border-radius:12px;border:1px solid var(--ln1);overflow:hidden">
+            <div style="padding:12px 13px;border-bottom:1px solid var(--ln1)">
+              <div style="font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Session impact</div>
+              <div style="font-size:22px;font-weight:700;font-family:var(--mono);transition:color .3s" id="p6-verdict" style="color:var(--tx3)">— tap a number</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:3px" id="p6-verdict-sub">The verdict appears here</div>
+            </div>
+            <div style="padding:10px 13px">
+              <div id="p6-acwr-bar-wrap" style="display:none">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                  <div style="font-size:11px;color:var(--tx2)">Training load</div>
+                  <div style="flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;position:relative">
+                    <div style="position:absolute;left:30%;width:25%;height:100%;background:rgba(200,255,0,.2);border-left:1px solid var(--acid);border-right:1px solid var(--acid)"></div>
+                    <div class="acwr-fill" id="p6-bar" style="height:100%;border-radius:4px;transition:width .6s,background .4s"></div>
+                  </div>
+                  <div style="font-size:11px;font-family:var(--mono);font-weight:500;transition:color .3s" id="p6-acwr-num">—</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--tx3);font-family:var(--mono)">
+                  <span>Under</span><span>← Optimal →</span><span>Over</span>
+                </div>
+              </div>
+              <div id="p6-tap-hint" style="font-size:11px;color:var(--tx3);text-align:center;padding:4px 0">Tap a number above to see your verdict</div>
+            </div>
+          </div>
+          <button class="p-log-btn disabled" id="p6-logbtn" onclick="resetFlow('p6')">Log session</button>
+        </div>
+        <div class="phone-view" id="p6-success">
+          <div style="text-align:center;padding:10px 0 4px"><div class="success-check">✓</div><div style="font-size:15px;font-weight:700;color:var(--acid)">Session recorded</div></div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2);margin-top:40px" onclick="resetFlow('p6')">Try again</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 06</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">455 AU means nothing. ACWR 1.3 means nothing. Users cannot decode these numbers, so they do not value the logging that produces them, and do not change behaviour based on the output.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>Design rule: every number has a verdict. The verdict is the product. The number is context.</strong> The bar shows three zones (under / optimal / over). Tapping a number shows a plain-English verdict before anything else.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text">Tap RPE 4 → "Light session. Your ACWR is low — you can push harder."</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text">Tap RPE 7 → "Solid session. ACWR is in the optimal zone."</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text">Tap RPE 9 → "Very hard. ACWR is elevated — rest before next session."</div></div>
+      </div>
+      <div class="metric-badge">Target: user taps through to ACWR detail ≥ 40% of sessions</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P7 MISSED LOG ════ -->
+<div class="panel" id="p7">
+  <div class="panel-eyebrow">Friction 07 · P1 High</div>
+  <div class="panel-title">Missed log cascade</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">8:02 AM</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p7-home">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:600;color:var(--tx1);flex:1">Good morning, Arjun</div>
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 6px rgba(245,165,36,.5)"></div>
+          </div>
+          <!-- Estimated vs confirmed ACWR indicator -->
+          <div style="background:rgba(245,165,36,.08);border:1px solid rgba(245,165,36,.3);border-radius:12px;padding:12px 13px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+              <div style="font-size:11px;font-weight:600;color:var(--amber)">ACWR estimated (1 session missing)</div>
+            </div>
+            <div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--amber)">~1.2</div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:3px">Could be higher. Yesterday's session was not logged.</div>
+          </div>
+          <!-- Re-engagement notification -->
+          <div class="notif-card">
+            <div class="notif-header">
+              <div class="notif-icon" style="background:rgba(245,165,36,.15)">⚠</div>
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--tx1)">Yesterday's session missing</div>
+                <div style="font-size:10px;color:var(--tx3);font-family:var(--mono)">8 hours ago</div>
+              </div>
+            </div>
+            <div class="notif-body">Yesterday's squat session isn't logged — your <strong>ACWR is estimated at 1.2</strong> but could be <span>higher</span>. Log it now to confirm your readiness brief.</div>
+            <div class="notif-actions">
+              <button class="n-btn n-btn-primary" onclick="showView('p7','retro')">Log yesterday →</button>
+              <button class="n-btn n-btn-ghost">Dismiss</button>
+            </div>
+          </div>
+        </div>
+        <!-- Retroactive logging screen -->
+        <div class="phone-view" id="p7-retro">
+          <div class="p-session-pill">
+            <div class="p-sp-dot" style="background:var(--amber)"></div>
+            <span class="p-sp-text">Yesterday's squat session</span>
+            <span class="p-sp-meta">Retroactive</span>
+          </div>
+          <div class="rpe-scale" id="p7-scale"></div>
+          <div class="dur-chips">
+            <div class="dur-chip on">60 min</div>
+            <div class="dur-chip">75 min</div>
+            <div class="dur-chip">90 min</div>
+          </div>
+          <div class="impact-card">
+            <div class="impact-row"><span class="impact-key">Session load</span><span class="impact-val" id="p7-au" style="color:var(--tx3)">—</span></div>
+            <div class="impact-row"><span class="impact-key">ACWR (confirmed)</span><span class="impact-val" id="p7-acwr" style="color:var(--amber)">~1.2 estimated</span></div>
+          </div>
+          <button class="p-log-btn disabled" id="p7-logbtn" onclick="showView('p7','confirmed')">Confirm yesterday's session</button>
+        </div>
+        <div class="phone-view" id="p7-confirmed">
+          <div style="text-align:center;padding:10px 0 4px">
+            <div class="success-check">✓</div>
+            <div style="font-size:14px;font-weight:700;color:var(--acid);margin-bottom:4px">ACWR confirmed</div>
+            <div style="font-size:11px;color:var(--tx2)">The estimated value is now exact.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--acid-d);border:1px solid var(--acid-bd);border-radius:12px;padding:12px 13px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--acid);flex-shrink:0"></div>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--acid)">ACWR confirmed (amber → teal)</div>
+              <div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--acid)" id="p7-confirmed-acwr">1.3</div>
+            </div>
+          </div>
+          <button class="p-log-btn" style="background:var(--bg3);color:var(--tx1);border:1px solid var(--ln2);margin-top:12px" onclick="resetFlow('p7')">Try again</button>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 07</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">One missed log = 7 days of inaccurate ACWR. Two missed sessions per week = permanently noisy model. Unreliable readiness briefs → user stops trusting the product → stops logging entirely.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>Three mechanisms:</strong> (1) Re-engagement notification fires 20h after missed session. (2) ACWR shows as "estimated" with amber dot instead of confirmed teal — visible difference. (3) Retroactive logging allowed up to 48h.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Estimated vs confirmed ACWR</strong> — amber dot + "~1.2 estimated" vs teal dot + "1.3 confirmed." The gap between them is visible and motivating.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Specific re-engagement message</strong> — "Yesterday's squat session isn't logged — your ACWR could be higher." References their actual data, not generic guilt.</div></div>
+      </div>
+      <div class="metric-badge">Target: &lt; 2 missed logs per user per week at day 30</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P8 NO WEARABLE ════ -->
+<div class="panel" id="p8">
+  <div class="panel-eyebrow">Friction 08 · P2 Medium</div>
+  <div class="panel-title">No wearable</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">7:00 AM</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p8-main">
+          <div style="font-size:10px;color:var(--tx3);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Morning readiness brief</div>
+          <!-- Load-based brief (no wearable) -->
+          <div id="p8-load-brief" style="background:rgba(200,255,0,.07);border:1px solid var(--acid-bd);border-radius:14px;padding:14px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--acid);flex-shrink:0"></div>
+              <div style="font-size:10px;font-weight:600;color:var(--acid);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase">Load-based readiness</div>
+            </div>
+            <div style="font-size:20px;font-weight:700;color:var(--acid);margin-bottom:4px">Train hard today</div>
+            <div style="font-size:11px;color:var(--tx2);line-height:1.6">ACWR 1.1 — optimal zone. You rested 48 hours since your last hard session. Load data supports full training.</div>
+          </div>
+          <!-- What we'd add with wearable -->
+          <div style="background:var(--bg3);border:1px dashed rgba(77,163,255,.3);border-radius:12px;padding:12px;margin-bottom:8px;opacity:.7">
+            <div style="font-size:10px;color:var(--blue);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">Full readiness (needs wearable)</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--tx3)">HRV vs baseline</span><span style="font-size:11px;color:var(--tx3);font-family:var(--mono)">— not connected</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--tx3)">Sleep quality</span><span style="font-size:11px;color:var(--teal);font-family:var(--mono)">Good (Health Connect)</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--tx3)">ACWR</span><span style="font-size:11px;color:var(--acid);font-family:var(--mono)">1.1 ✓</span></div>
+            </div>
+          </div>
+          <div style="background:var(--bg3);border-radius:11px;padding:10px 12px;border:1px solid var(--ln1)">
+            <div style="font-size:10px;color:var(--blue);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px">Connect for full brief</div>
+            <div style="font-size:11px;color:var(--tx2);line-height:1.5;margin-bottom:8px">Connect a WHOOP, Garmin, or Apple Watch to add HRV to your readiness score.</div>
+            <button style="padding:7px 14px;border-radius:8px;background:var(--blue-d,rgba(77,163,255,.15));border:1px solid rgba(77,163,255,.3);color:var(--blue);font-size:11px;cursor:pointer;font-family:var(--body)">Connect wearable →</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 08</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">The ideal readiness brief uses HRV + sleep + ACWR. Most alpha users have no wearable. A brief that never fully works for 80% of users erodes perceived value before the habit forms.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>Launch with a load-based brief that is genuinely useful without a wearable.</strong> ACWR alone is meaningful. Label it "Load-based readiness" vs "Full readiness." Health Connect provides sleep data free on all Android phones — no wearable needed.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Load-based brief at launch</strong> — ACWR + training history only. Honest labelling. Genuinely useful even without HRV.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Health Connect sleep</strong> — free on Android, no hardware needed. Adds sleep quality to the brief immediately.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Non-pushy upsell</strong> — "Connect for full brief" shown only after 7 days of regular logging. Not at onboarding.</div></div>
+      </div>
+      <div class="metric-badge">Target: ≥ 60% of users seeing readiness brief daily by day 30</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P9 RPE DRIFT ════ -->
+<div class="panel" id="p9">
+  <div class="panel-eyebrow">Friction 09 · P2 Medium</div>
+  <div class="panel-title">RPE drift over time</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:55</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen">
+        <div class="phone-view active" id="p9-main">
+          <div style="font-size:11px;font-weight:600;color:var(--tx1);margin-bottom:10px">Week 8 check-in</div>
+          <!-- Drift detection card -->
+          <div style="background:rgba(77,163,255,.07);border:1px solid rgba(77,163,255,.3);border-radius:14px;padding:14px;margin-bottom:10px">
+            <div style="font-size:9px;color:var(--blue);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Movement detected in your data</div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx1);margin-bottom:6px">Your sessions feel easier — that is progress</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--tx2)">Avg RPE 8 weeks ago</span>
+                <span style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--amber)">7.2</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:var(--tx2)">Avg RPE this week</span>
+                <span style="font-family:var(--mono);font-size:12px;font-weight:500;color:var(--acid)">6.1</span>
+              </div>
+              <div style="height:1px;background:var(--ln1);margin:3px 0"></div>
+              <div style="font-size:11px;color:var(--tx2);line-height:1.6">Same workouts feel 15% easier. <strong style="color:var(--tx1)">Are you increasing weight or volume to match?</strong></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <button style="padding:10px;border-radius:10px;background:rgba(200,255,0,.12);border:1px solid var(--acid-bd);color:var(--acid);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--body)">Yes — I've increased load →</button>
+            <button style="padding:10px;border-radius:10px;background:var(--bg3);border:1px solid var(--ln2);color:var(--tx2);font-size:12px;cursor:pointer;font-family:var(--body)">Not yet — show me how</button>
+          </div>
+          <div class="insight" style="margin-top:8px"><strong>Your RPE scale is working.</strong> The drift is real — Formm detected it.</div>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 09</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">As users get fitter, the same workout feels easier. RPE drops from 7 to 6 without load increasing. ACWR appears stable while actual load drops. The model becomes less accurate without the user realising — or being told.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>Every 8 weeks, detect if average RPE has dropped more than 1.0 point without a corresponding load increase.</strong> Show a card that reframes this as good news (you are fitter) and asks if they are increasing load to match. Doubles as a training progression prompt.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Drift is reframed as progress</strong> — "Your sessions feel easier — that is progress." Not an accusation. A celebration that includes a prompt.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Two options shown</strong> — "I've increased load" (confirms calibration is still valid) or "Show me how" (training progression guidance). Both paths serve the user.</div></div>
+      </div>
+      <div class="metric-badge">Target: RPE drift flagged in ≥ 80% of qualifying users at 8 weeks</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ P10 ONBOARDING ════ -->
+<div class="panel" id="p10">
+  <div class="panel-eyebrow">Friction 10 · P1 High</div>
+  <div class="panel-title">First-session onboarding</div>
+  <div class="session-pair">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-status"><span class="pst">9:56</span><span class="pst">▲ WiFi</span></div>
+      <div class="phone-screen" style="position:relative">
+        <div class="phone-view active" id="p10-main">
+          <div class="p-score-hero">
+            <div class="p-score-num" style="color:var(--acid)">84</div>
+            <div class="p-score-lbl">First ever form analysis — nice</div>
+          </div>
+          <div class="card-sm">
+            <div class="p-subhead">Analysis complete. Now record how hard that session felt.</div>
+          </div>
+          <div class="rpe-scale" id="p10-scale"></div>
+          <button class="p-log-btn disabled" id="p10-logbtn" onclick="resetFlow('p10')">Log this session</button>
+        </div>
+        <!-- First-time full-screen overlay -->
+        <div class="rpe-overlay" id="p10-overlay">
+          <div style="font-size:9px;color:var(--acid);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">First time? One thing to know</div>
+          <div class="rpe-overlay-title">Rate your session</div>
+          <div class="rpe-overlay-body">Not how tired you are right now — how hard the session felt <em>while you were doing it.</em> Use the whole scale.</div>
+          <div class="rpe-anchor-list">
+            <div class="rpe-anchor-item">
+              <span class="rpe-anchor-num" style="color:var(--teal)">5</span>
+              <div class="rpe-anchor-desc"><strong style="color:var(--tx1)">Moderate.</strong> Could have done more. Conversation was easy.</div>
+            </div>
+            <div class="rpe-anchor-item">
+              <span class="rpe-anchor-num" style="color:var(--amber)">7</span>
+              <div class="rpe-anchor-desc"><strong style="color:var(--tx1)">Hard.</strong> Speaking was effortful. You gave something real.</div>
+            </div>
+            <div class="rpe-anchor-item">
+              <span class="rpe-anchor-num" style="color:var(--red)">9</span>
+              <div class="rpe-anchor-desc"><strong style="color:var(--tx1)">Near maximum.</strong> Could not have continued much longer.</div>
+            </div>
+          </div>
+          <button class="p-log-btn" style="background:var(--acid);color:var(--bg);border:none" onclick="document.getElementById('p10-overlay').style.display='none'">Got it — I'll rate it now</button>
+          <div style="text-align:center;font-size:10px;color:var(--tx3);font-family:var(--mono);margin-top:6px">This screen will not appear again</div>
+        </div>
+      </div>
+      <div class="phone-nav">
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Home</div></div>
+        <div class="pnav on"><div class="pnav-dot"></div><div class="pnav-lbl">Session</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Score</div></div>
+        <div class="pnav"><div class="pnav-dot"></div><div class="pnav-lbl">Coach</div></div>
+      </div>
+    </div>
+    <div class="explainer">
+      <div class="ex-title">Friction 10</div>
+      <div class="ex-problem"><div class="ex-problem-lbl">The problem</div><div class="ex-problem-text">Most gym-goers have never used RPE. A blank 10-number scale with no context is disorienting. First-session drop-off is highest when the RPE screen appears for the first time with no explanation.</div></div>
+      <div class="ex-solution"><div class="ex-solution-lbl">The solution</div><div class="ex-solution-text"><strong>A 90-second full-screen explainer that appears once — on the first RPE screen, in context, after a real session.</strong> Three anchor examples. Dismisses with one tap. Never shown again. No onboarding deck. No tutorial video.</div></div>
+      <div class="action-list">
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Contextual — not pre-emptive</strong> — shown after the user has just finished a session and needs to rate it. The context makes the explanation immediately relevant.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Three anchors only</strong> — 5, 7, 9. Not all 10. Enough to calibrate. Simple enough to remember.</div></div>
+        <div class="action-item"><div class="action-dot"></div><div class="action-text"><strong>Confirmed it will not repeat</strong> — "This screen will not appear again" removes the anxiety of onboarding fatigue.</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <button class="demo-btn" onclick="document.getElementById('p10-overlay').style.display='flex'">Show the overlay again</button>
+      </div>
+      <div class="metric-badge">Target: first-session RPE log completion ≥ 80%</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── NAV ──────────────────────────────────────────────────
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById(btn.dataset.p).classList.add('on');
+    document.querySelector('.main').scrollTop=0;
+  });
+});
+
+function goTo(id){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelector(`[data-p="${id}"]`).classList.add('on');
+  document.getElementById(id).classList.add('on');
+  document.querySelector('.main').scrollTop=0;
+}
+
+// ── RPE DATA ──────────────────────────────────────────────
+const RPE = [
+  {n:1, word:'Easy',    anchor:'Very easy'},
+  {n:2, word:'Light',   anchor:'Light effort'},
+  {n:3, word:'Moderate',anchor:'Comfortable'},
+  {n:4, word:'Moderate',anchor:'Noticeable'},
+  {n:5, word:'Hard',    anchor:'Breathing up'},
+  {n:6, word:'Hard',    anchor:'Focused'},
+  {n:7, word:'V.Hard',  anchor:'Pushing'},
+  {n:8, word:'V.Hard',  anchor:'High intensity'},
+  {n:9, word:'Max',     anchor:'Near limit'},
+  {n:10,word:'MAX',     anchor:'All out'},
+];
+const COLS=[
+  null,
+  {bg:'rgba(45,212,160,.12)',bdr:'rgba(45,212,160,.4)',tx:'#2DD4A0'},
+  {bg:'rgba(45,212,160,.10)',bdr:'rgba(45,212,160,.35)',tx:'#2DD4A0'},
+  {bg:'rgba(0,224,181,.10)', bdr:'rgba(0,224,181,.35)', tx:'#00E0B5'},
+  {bg:'rgba(77,163,255,.10)',bdr:'rgba(77,163,255,.35)',tx:'#4DA3FF'},
+  {bg:'rgba(77,163,255,.08)',bdr:'rgba(77,163,255,.3)', tx:'#4DA3FF'},
+  {bg:'rgba(245,165,36,.10)',bdr:'rgba(245,165,36,.35)',tx:'#F5A524'},
+  {bg:'rgba(245,165,36,.12)',bdr:'rgba(245,165,36,.4)', tx:'#F5A524'},
+  {bg:'rgba(255,69,96,.10)', bdr:'rgba(255,69,96,.35)', tx:'#FF4560'},
+  {bg:'rgba(255,69,96,.12)', bdr:'rgba(255,69,96,.4)',  tx:'#FF4560'},
+  {bg:'rgba(255,69,96,.18)', bdr:'rgba(255,69,96,.6)',  tx:'#FF4560'},
+];
+
+const STATE = {};
+const CHRONIC = 2800, WEEKLY_BEFORE = 1920;
+['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10'].forEach(id=>{
+  STATE[id]={rpe:null,dur:65};
+});
+
+function buildScale(id){
+  const el=document.getElementById(id+'-scale');
+  if(!el)return;
+  el.innerHTML='';
+  RPE.forEach(r=>{
+    const col=COLS[r.n];
+    const isSel=STATE[id].rpe===r.n;
+    const btn=document.createElement('div');
+    btn.className='rpe-btn'+(isSel?' selected':'');
+    if(isSel){btn.style.background=col.bg;btn.style.borderColor=col.bdr;}
+    btn.innerHTML=`<div class="rpe-num" style="color:${isSel?col.tx:'var(--tx1)'}">${r.n}</div>
+    <div class="rpe-anchor" style="color:${isSel?col.tx:'var(--tx3)'}">${r.anchor}</div>`;
+    btn.onclick=()=>selectRPE(id,r.n);
+    el.appendChild(btn);
+  });
+}
+
+function selectRPE(id,val){
+  STATE[id].rpe=val;
+  buildScale(id);
+  updateImpact(id);
+  // Enable log button
+  const logBtn=document.getElementById(id+'-logbtn');
+  if(logBtn){
+    const col=COLS[val];
+    logBtn.classList.remove('disabled');
+    logBtn.style.cssText=`background:${col.bg};color:${col.tx};border:1.5px solid ${col.bdr}`;
+  }
+}
+
+function calcImpact(id){
+  const rpe=STATE[id].rpe, dur=STATE[id].dur;
+  if(!rpe)return null;
+  const au=rpe*dur;
+  const weekly=WEEKLY_BEFORE+au;
+  const acwr=weekly/CHRONIC;
+  const col=acwr>=0.8&&acwr<=1.3?'var(--acid)':acwr>1.3&&acwr<=1.5?'var(--amber)':acwr<0.8?'var(--blue)':'var(--red)';
+  const pct=Math.min(97,Math.max(2,((acwr-0.5)/1.5)*100));
+  const hexCol=acwr>=0.8&&acwr<=1.3?'#C8FF00':acwr>1.5?'#FF4560':acwr<0.8?'#4DA3FF':'#F5A524';
+  const verdict=acwr>=0.8&&acwr<=1.3?'Optimal zone':acwr>1.5?'High — rest before next':acwr<0.8?'Low — can push more':'Elevated — monitor';
+  const nextRec=acwr>1.5?{txt:'Rest',sub:'Active recovery only'}:acwr>1.3?{txt:'Moderate',sub:'RPE 5–6 max'}:acwr<0.8?{txt:'Hard session',sub:'ACWR low — push'}:{txt:'Normal',sub:'Full training'};
+  return{au,weekly,acwr,col,hexCol,pct,verdict,nextRec};
+}
+
+function updateImpact(id){
+  const imp=calcImpact(id);
+  if(!imp)return;
+
+  // P1 impact
+  if(id==='p1'){
+    document.getElementById('p1-au').textContent=imp.au.toLocaleString()+' AU';
+    document.getElementById('p1-au').style.color='var(--tx1)';
+    document.getElementById('p1-acwr').textContent=imp.acwr.toFixed(2);
+    document.getElementById('p1-acwr').style.color=imp.col;
+    const bw=document.getElementById('p1-bar-wrap');if(bw)bw.style.display='block';
+    const bar=document.getElementById('p1-bar');if(bar){bar.style.width=imp.pct+'%';bar.style.background=imp.hexCol;}
+  }
+  // P2 impact (immediate reward)
+  if(id==='p2'){
+    document.getElementById('p2-au').textContent=imp.au.toLocaleString()+' AU';document.getElementById('p2-au').style.color='var(--tx1)';
+    document.getElementById('p2-acwr').textContent=imp.acwr.toFixed(2);document.getElementById('p2-acwr').style.color=imp.col;
+    document.getElementById('p2-weekly').textContent=imp.weekly.toLocaleString()+' AU';document.getElementById('p2-weekly').style.color=imp.col;
+    const bw=document.getElementById('p2-bar-wrap');if(bw)bw.style.display='block';
+    const bar=document.getElementById('p2-bar');if(bar){bar.style.width=imp.pct+'%';bar.style.background=imp.hexCol;}
+    // Immediate prescription
+    const pres=document.getElementById('p2-prescription');
+    if(pres){pres.style.display='block';document.getElementById('p2-prescription-text').textContent='Next session: '+imp.nextRec.txt+' — '+imp.nextRec.sub;}
+    const hint=document.getElementById('p2-tap-hint');if(hint)hint.style.display='none';
+  }
+  // P4 impact
+  if(id==='p4'){
+    document.getElementById('p4-au').textContent=imp.au.toLocaleString()+' AU';document.getElementById('p4-au').style.color=imp.col;
+    document.getElementById('p4-acwr').textContent=imp.acwr.toFixed(2);document.getElementById('p4-acwr').style.color=imp.col;
+  }
+  // P5 impact
+  if(id==='p5'){
+    document.getElementById('p5-au').textContent=imp.au.toLocaleString()+' AU';document.getElementById('p5-au').style.color=imp.col;
+    document.getElementById('p5-acwr').textContent=imp.acwr.toFixed(2);document.getElementById('p5-acwr').style.color=imp.col;
+  }
+  // P6 verdict layer
+  if(id==='p6'){
+    const auLabel=imp.au>500?'Heavy session':imp.au>350?'Solid session':imp.au>200?'Light session':'Easy session';
+    document.getElementById('p6-verdict').textContent=auLabel;
+    document.getElementById('p6-verdict').style.color=imp.col;
+    document.getElementById('p6-verdict-sub').textContent=imp.verdict+' · '+imp.acwr.toFixed(2)+' ACWR';
+    document.getElementById('p6-verdict-sub').style.color=imp.col;
+    const bw=document.getElementById('p6-acwr-bar-wrap');if(bw)bw.style.display='block';
+    const bar=document.getElementById('p6-bar');if(bar){bar.style.width=imp.pct+'%';bar.style.background=imp.hexCol;}
+    document.getElementById('p6-acwr-num').textContent=imp.acwr.toFixed(2);document.getElementById('p6-acwr-num').style.color=imp.col;
+    const hint=document.getElementById('p6-tap-hint');if(hint)hint.style.display='none';
+  }
+  // P7 impact
+  if(id==='p7'){
+    const est=document.getElementById('p7-au');if(est){est.textContent=imp.au.toLocaleString()+' AU';est.style.color=imp.col;}
+    const acwrEl=document.getElementById('p7-acwr');if(acwrEl){acwrEl.textContent=imp.acwr.toFixed(2)+' (confirmed)';acwrEl.style.color=imp.col;}
+    const confEl=document.getElementById('p7-confirmed-acwr');if(confEl){confEl.textContent=imp.acwr.toFixed(2);confEl.style.color=imp.col;}
+  }
+}
+
+function chDur(id,delta){
+  STATE[id].dur=Math.max(10,Math.min(240,STATE[id].dur+delta));
+  const el=document.getElementById(id+'-dur');if(el)el.textContent=STATE[id].dur+' min';
+  const el2=document.getElementById(id+'-dur-pill');if(el2)el2.textContent=STATE[id].dur+' min';
+  if(STATE[id].rpe)updateImpact(id);
+}
+
+function setChip(id,dur,chipId){
+  STATE[id].dur=dur;
+  document.querySelectorAll(`#p4-main .dur-chip`).forEach(c=>c.classList.remove('on'));
+  const chip=document.getElementById('p4-'+chipId);if(chip)chip.classList.add('on');
+  if(STATE[id].rpe)updateImpact(id);
+}
+
+function showView(panelId, viewName){
+  document.querySelectorAll(`#${panelId} .phone-view`).forEach(v=>v.classList.remove('active'));
+  const target=document.getElementById(`${panelId}-${viewName}`);
+  if(target)target.classList.add('active');
+}
+
+function doLog(id){
+  const imp=calcImpact(id);if(!imp)return;
+  const acwrCol=imp.col;
+  const nextRec=imp.nextRec;
+  // Fill success screen
+  const elMap={
+    [`${id}-sg-au`]:imp.au.toLocaleString(),
+    [`${id}-sg-acwr`]:imp.acwr.toFixed(2),
+    [`${id}-sg-weekly`]:imp.weekly.toLocaleString(),
+    [`${id}-sg-next`]:nextRec.txt,
+    [`${id}-sg-next-sub`]:nextRec.sub,
+    [`${id}-sg-acwr-sub`]:imp.verdict,
+    [`${id}-success-body`]:imp.acwr>1.5?'Load is elevated. Rest tomorrow.':imp.acwr>1.3?'Load high. Keep tomorrow lighter.':'ACWR optimal. Recovery brief set for 7am.',
+    [`${id}-tc`]:imp.acwr>1.5?'Tomorrow: <span>rest day recommended</span>.':`Readiness brief at 7am will show <span>ACWR ${imp.acwr.toFixed(2)}</span>.`,
+  };
+  Object.entries(elMap).forEach(([eid,val])=>{
+    const el=document.getElementById(eid);
+    if(!el)return;
+    if(eid.includes('tc'))el.innerHTML=val;
+    else el.textContent=val;
+    if(eid.includes('acwr')&&!eid.includes('sub'))el.style.color=acwrCol;
+  });
+  showView(id,'success');
+}
+
+function resetFlow(id){
+  STATE[id]={rpe:null,dur:65};
+  // Reset log button
+  const logBtn=document.getElementById(id+'-logbtn');
+  if(logBtn){logBtn.classList.add('disabled');logBtn.style.cssText='';}
+  // Reset dur
+  const dur=document.getElementById(id+'-dur');if(dur)dur.textContent='65 min';
+  const durPill=document.getElementById(id+'-dur-pill');if(durPill)durPill.textContent='65 min';
+  // Reset impact
+  ['au','acwr','weekly'].forEach(k=>{
+    const el=document.getElementById(`${id}-${k}`);
+    if(el){el.textContent='—';el.style.color='var(--tx3)';}
+  });
+  const bw=document.getElementById(id+'-bar-wrap');if(bw)bw.style.display='none';
+  const bar=document.getElementById(id+'-bar');if(bar)bar.style.width='0%';
+  buildScale(id);
+  // Show first view
+  const firstView=document.querySelector(`#${id} .phone-view`);
+  if(firstView){
+    document.querySelectorAll(`#${id} .phone-view`).forEach(v=>v.classList.remove('active'));
+    firstView.classList.add('active');
+  }
+  // P2 special resets
+  const pres=document.getElementById('p2-prescription');if(pres)pres.style.display='none';
+  const hint=document.getElementById('p2-tap-hint');if(hint)hint.style.display='block';
+  const hint6=document.getElementById('p6-tap-hint');if(hint6)hint6.style.display='block';
+  const bw6=document.getElementById('p6-acwr-bar-wrap');if(bw6)bw6.style.display='none';
+  const v6=document.getElementById('p6-verdict');if(v6){v6.textContent='— tap a number';v6.style.color='var(--tx3)';}
+  const vs6=document.getElementById('p6-verdict-sub');if(vs6){vs6.textContent='The verdict appears here';vs6.style.color='var(--tx2)';}
+}
+
+// ── INIT ALL SCALES ───────────────────────────────────────
+['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10'].forEach(id=>buildScale(id));
+</script>
+</body>
+</html>
