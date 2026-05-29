@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Formm — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg0:#08080C; --bg1:#0F0F17; --bg2:#15151F;
+  --bg3:#1C1C28; --bg4:#242433; --bg5:#2D2D40;
+  --ln1:rgba(255,255,255,0.06); --ln2:rgba(255,255,255,0.10); --ln3:rgba(255,255,255,0.18);
+  --tx1:#F2F1EC; --tx2:#9896AE; --tx3:#5A5870;
+  --teal:#00E0B5; --teal2:#00C49E;
+  --teal-dim:rgba(0,224,181,0.08); --teal-bdr:rgba(0,224,181,0.20);
+  --green:#36D99A; --green-d:rgba(54,217,154,0.10);
+  --amber:#F5A524; --amber-d:rgba(245,165,36,0.10);
+  --blue:#4DA3FF; --blue-d:rgba(77,163,255,0.10);
+  --r6:6px; --r10:10px; --r14:14px; --r18:18px; --r24:24px;
+  --disp:'Clash Display',sans-serif;
+  --body:'Cabinet Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg0);font-family:var(--body);color:var(--tx1);-webkit-font-smoothing:antialiased;}
+
+.shell{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px 56px;background:radial-gradient(ellipse 600px 400px at 80% 5%,rgba(0,224,181,0.03) 0%,transparent 60%),radial-gradient(ellipse 400px 300px at 15% 95%,rgba(155,127,255,0.03) 0%,transparent 60%),var(--bg0);}
+.phone{width:100%;max-width:375px;background:var(--bg1);border-radius:var(--r24);border:1px solid var(--ln2);overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,0.025),0 48px 100px rgba(0,0,0,0.75),0 0 60px rgba(0,224,181,0.035);}
+.notch{width:100px;height:24px;background:var(--bg0);border-radius:0 0 16px 16px;margin:0 auto;}
+.page{padding-bottom:44px;}
+
+.eb{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);}
+.eb.teal{color:var(--teal);}
+.eb.amber{color:var(--amber);}
+.eb.blue{color:var(--blue);}
+.eb.green{color:var(--green);}
+
+/* ROW 1 */
+.row1{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 16px 0;gap:8px;}
+.app-logo{font-family:var(--disp);font-size:17px;font-weight:700;letter-spacing:-0.5px;color:var(--tx1);margin-bottom:4px;}
+.app-logo span{color:var(--teal);}
+.welcome-name{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-0.3px;color:var(--tx1);line-height:1.1;}
+.welcome-sub{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:1px;margin-top:2px;}
+.r1-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.streak-badge{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--amber-d);border:1px solid rgba(245,165,36,0.22);border-radius:var(--r6);}
+.streak-n{font-family:var(--disp);font-size:16px;font-weight:700;color:var(--amber);line-height:1;}
+.streak-lbl{font-family:var(--mono);font-size:8px;color:var(--amber);opacity:0.7;letter-spacing:0.5px;}
+
+/* ROW 2 */
+.row2{display:flex;align-items:center;gap:10px;margin:12px 16px 0;background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:12px 13px;}
+.av-ring{position:relative;width:54px;height:54px;flex-shrink:0;}
+.av-ring svg{position:absolute;inset:0;width:100%;height:100%;}
+.av-inner{position:absolute;inset:5px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.av-info{flex:1;min-width:0;}
+.rank-row{display:flex;align-items:center;gap:5px;margin-bottom:4px;}
+.rank-txt{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--amber);letter-spacing:0.3px;}
+.xp-lbl{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-bottom:4px;}
+.xp-track{height:3px;background:var(--bg5);border-radius:2px;overflow:hidden;}
+.xp-fill{height:100%;width:67%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:2px;}
+.time-water{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.tw-row{display:flex;align-items:center;gap:4px;}
+.tw-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--teal);line-height:1;}
+.tw-lbl{font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:0.5px;}
+.drops{display:flex;gap:2px;align-items:center;}
+.drop{width:5px;height:7px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--bg5);}
+.drop.on{background:var(--blue);}
+
+/* ROW 3 — Scoreboard */
+.row3{margin:10px 16px 0;background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:13px 14px;position:relative;overflow:hidden;}
+.row3::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,0.25),transparent);}
+.sb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sb-badge{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--teal);padding:2px 7px;border:1px solid var(--teal-bdr);border-radius:10px;background:var(--teal-dim);}
+.sb-nums{display:flex;margin-bottom:10px;}
+.sb-i{flex:1;border-right:1px solid var(--ln1);padding-right:12px;margin-right:12px;}
+.sb-i:last-child{border:none;padding:0;margin:0;}
+.sb-val{font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-0.5px;color:var(--teal);line-height:1;}
+.sb-unit{font-family:var(--mono);font-size:9px;color:var(--tx3);margin-top:2px;}
+.sb-segs{display:flex;gap:3px;}
+.sb-seg{flex:1;height:3px;border-radius:2px;background:var(--bg5);}
+.sb-seg.on{background:var(--teal);}
+.sb-seg.dim{background:rgba(0,224,181,0.22);}
+
+/* ROW 4 — Tip */
+.row4{margin:10px 16px 0;display:flex;gap:10px;align-items:flex-start;background:rgba(0,224,181,0.04);border:1px solid rgba(0,224,181,0.12);border-radius:var(--r14);padding:11px 13px;}
+.tip-ic{font-size:15px;flex-shrink:0;margin-top:1px;}
+.tip-txt{font-size:12px;color:var(--tx2);line-height:1.55;}
+
+/* ROW 5 — 3-col */
+.row5{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 16px 0;}
+.sc{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:11px 10px;cursor:pointer;transition:border-color 0.15s;}
+.sc:hover{border-color:var(--ln2);}
+.sc-ic{font-size:15px;margin-bottom:5px;}
+.sc-val{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-0.3px;color:var(--teal);line-height:1;}
+.sc-lbl{font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.3;}
+.sc-sub{font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:0.5px;margin-top:4px;}
+.goal-bar{height:3px;background:var(--bg5);border-radius:2px;margin-top:6px;overflow:hidden;}
+.goal-fill{height:100%;width:74%;background:linear-gradient(90deg,var(--teal2),var(--green));border-radius:2px;}
+
+/* Fix Your Form card */
+.sc.fcard{background:radial-gradient(ellipse 100px 70px at 95% 10%,rgba(0,224,181,0.09) 0%,transparent 55%),var(--bg2);border-color:var(--teal-bdr);position:relative;overflow:hidden;}
+.sc.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,0.3),transparent);}
+.fcard-title{font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:-0.2px;color:var(--tx1);line-height:1.1;margin-bottom:4px;}
+.live-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;background:var(--teal-dim);border:1px solid var(--teal-bdr);border-radius:8px;font-family:var(--mono);font-size:8px;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.ldot{width:4px;height:4px;border-radius:50%;background:var(--teal);animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.fcard-actions{display:flex;flex-direction:column;gap:4px;}
+.fa{width:100%;padding:5px 0;border-radius:var(--r6);border:1px solid var(--ln2);background:var(--bg3);color:var(--tx2);font-family:var(--body);font-size:10px;font-weight:500;text-align:center;cursor:pointer;transition:all 0.15s;}
+.fa:hover{border-color:var(--ln3);color:var(--tx1);}
+.fa.primary{background:var(--teal);border-color:var(--teal);color:var(--bg0);font-weight:700;}
+.fa.primary:hover{background:var(--teal2);}
+
+/* MBS */
+.mbs{margin:12px 16px 0;}
+.mbs-tabs{display:flex;background:var(--bg3);padding:3px;border-radius:var(--r10);margin-bottom:8px;}
+.mt{flex:1;padding:6px 0;border-radius:7px;text-align:center;font-family:var(--body);font-size:12px;font-weight:500;color:var(--tx3);cursor:pointer;transition:all 0.15s;border:none;background:none;}
+.mt.on{background:var(--teal);color:var(--bg0);font-weight:700;}
+.mbs-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.mc{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:11px;cursor:pointer;transition:border-color 0.15s;}
+.mc:hover{border-color:var(--ln2);}
+.mc-ic{font-size:17px;margin-bottom:5px;}
+.mc-name{font-size:12px;font-weight:700;color:var(--tx1);margin-bottom:2px;line-height:1.2;}
+.mc-sub{font-size:10px;color:var(--tx3);line-height:1.3;}
+
+/* Community */
+.community{margin:10px 16px 0;background:radial-gradient(ellipse 160px 100px at 88% 25%,rgba(77,163,255,0.07) 0%,transparent 55%),var(--bg2);border:1px solid rgba(77,163,255,0.16);border-radius:var(--r18);padding:14px 15px;cursor:pointer;transition:transform 0.15s;position:relative;overflow:hidden;}
+.community::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(77,163,255,0.25),transparent);}
+.community:hover{transform:scale(1.01);}
+.comm-title{font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:-0.3px;color:var(--tx1);margin-bottom:2px;}
+.comm-sub{font-size:11px;color:var(--tx2);}
+.comm-avs{display:flex;align-items:center;margin-top:9px;}
+.av{width:25px;height:25px;border-radius:50%;background:var(--bg3);border:2px solid var(--bg1);display:flex;align-items:center;justify-content:center;font-size:12px;margin-left:-5px;}
+.av:first-child{margin-left:0;}
+.av-ct{margin-left:8px;font-family:var(--mono);font-size:10px;color:var(--blue);letter-spacing:0.5px;}
+
+@keyframes up{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.a0{animation:up 0.38s 0.00s both;}.a1{animation:up 0.38s 0.05s both;}.a2{animation:up 0.38s 0.10s both;}
+.a3{animation:up 0.38s 0.15s both;}.a4{animation:up 0.38s 0.20s both;}.a5{animation:up 0.38s 0.25s both;}
+.a6{animation:up 0.38s 0.30s both;}
+
+/* ── DATA SOURCE ANNOTATIONS ─────────────────────────── */
+.ds{display:inline-flex;align-items:center;gap:3px;
+    font-family:'JetBrains Mono',monospace;font-size:7.5px;
+    font-weight:600;letter-spacing:0.4px;padding:2px 6px 2px 5px;
+    border-radius:4px;vertical-align:middle;margin-left:4px;
+    opacity:0.92;white-space:nowrap;pointer-events:none;}
+.ds::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;}
+
+.ds-up  {background:#EAF6F3;color:#007A60;border:1px solid #B2DDD5;} /* User Profile */
+.ds-up::before{background:#007A60;}
+.ds-sl  {background:#E8F4FD;color:#1A6FA0;border:1px solid #B2D4EE;} /* Session Log */
+.ds-sl::before{background:#1A6FA0;}
+.ds-ge  {background:#FFF8E8;color:#A07010;border:1px solid #EED8A0;} /* Gamification */
+.ds-ge::before{background:#A07010;}
+.ds-lb  {background:#F3F0FF;color:#5A3FA0;border:1px solid #C8BFEE;} /* Leaderboard */
+.ds-lb::before{background:#5A3FA0;}
+.ds-xp  {background:#FFF0F5;color:#A03060;border:1px solid #EEB8CC;} /* XP Ledger */
+.ds-xp::before{background:#A03060;}
+.ds-hl  {background:#E8F0FF;color:#2040A0;border:1px solid #B8C8EE;} /* Hydration */
+.ds-hl::before{background:#2040A0;}
+.ds-fs  {background:#E8FFF5;color:#007A50;border:1px solid #A0DDC8;} /* Formm Score */
+.ds-fs::before{background:#007A50;}
+.ds-ai  {background:#FFF5E8;color:#A05010;border:1px solid #EEC898;} /* AI/ML */
+.ds-ai::before{background:#A05010;}
+.ds-gt  {background:#F0F8FF;color:#105080;border:1px solid #A0C8E0;} /* Goals Table */
+.ds-gt::before{background:#105080;}
+.ds-sc  {background:#F5F5F5;color:#606060;border:1px solid #D0D0D0;} /* Static */
+.ds-sc::before{background:#909090;}
+.ds-ca  {background:#F0F0FF;color:#404090;border:1px solid #B8B8EE;} /* Community */
+.ds-ca::before{background:#404090;}
+.ds-pc  {background:#FFF0E8;color:#904020;border:1px solid #EEC8A0;} /* Programmes DB */
+.ds-pc::before{background:#904020;}
+.ds-pf  {background:#F5F0FF;color:#604090;border:1px solid #C8A8EE;} /* User Pref */
+.ds-pf::before{background:#604090;}
+.ds-na  {background:#F8F8F8;color:#808080;border:1px solid #D8D8D8;} /* Action */
+.ds-na::before{background:#C0C0C0;}
+.ds-warn{background:#FFF3E0;color:#8B3A00;border:1px solid #EEBB80;} /* ⚠️ complex */
+.ds-warn::before{background:#CC6600;}
+
+/* Legend panel */
+.legend{position:fixed;bottom:16px;right:16px;background:#0F0F17;border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;padding:12px 14px;max-width:220px;z-index:999;
+    box-shadow:0 8px 32px rgba(0,0,0,0.6);}
+.legend-title{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;
+    text-transform:uppercase;color:#00E0B5;margin-bottom:8px;}
+.legend-item{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:9px;color:#9896AE;font-family:'JetBrains Mono',monospace;}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+</style>
+
+</head>
+<body>
+<div class="shell">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="page">
+
+      <!-- ROW 1 -->
+      <div class="row1 a0">
+        <div>
+          <div class="app-logo"><span>F</span>ormm</div>
+          <div class="welcome-name">Welcome Back, Alex 👋<span class="ds ds-up">users.first_name</span></div>
+          <div class="welcome-sub">Monday · Training Day</div>
+        </div>
+        <div class="r1-right">
+          <div class="streak-badge">
+            <span style="font-size:14px">🔥</span>
+            <span class="streak-n">14</span>
+            <span class="streak-lbl">Day Streak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2 — Avatar / Rank / XP -->
+      <div class="row2 a1">
+        <div class="av-ring">
+          <svg viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="xpG" x1="0" y1="0" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00E0B5"/><stop offset="1" stop-color="#36D99A"/>
+              </linearGradient>
+            </defs>
+            <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4"/>
+            <circle cx="27" cy="27" r="22" fill="none" stroke="url(#xpG)" stroke-width="4"
+              stroke-dasharray="138.2" stroke-dashoffset="45.6"
+              stroke-linecap="round" transform="rotate(-90 27 27)"/>
+          </svg>
+          <div class="av-inner">🧑‍🏋️</div>
+        </div>
+        <div class="av-info">
+          <div class="rank-row">
+            <span style="font-size:14px">🥈</span>
+            <span class="rank-txt">Silver · Rank #142</span><span class="ds ds-ge">Gamification Engine</span><span class="ds ds-lb">Leaderboard · cached</span>
+          </div>
+          <div class="xp-lbl">XP 6,720 / 10,000 → Gold <span class="ds ds-xp">xp_events SUM</span></div>
+          <div class="xp-track"><div class="xp-fill"></div></div>
+        </div>
+        <div class="time-water">
+          <div class="tw-row">
+            <span class="tw-val">4.2h</span><span class="ds ds-sl">sessions · 7d SUM</span>
+            <span class="tw-lbl" style="margin-left:3px">/wk</span>
+          </div>
+          <div class="tw-row">
+            <span style="font-size:11px">💧</span>
+            <span class="ds ds-hl">hydration_log · today</span><div class="drops" id="drops"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3 — Running Meter Board -->
+      <div class="row3 a2">
+        <div class="sb-head">
+          <div class="eb">Running Meter Board</div>
+          <div class="sb-badge">Analog</div><span class="ds ds-up">users.training_mode</span>
+        </div>
+        <div class="sb-nums">
+          <div class="sb-i"><div class="sb-val">124<span class="ds ds-sl">sessions · SUM(distance)</span></div><div class="sb-unit">KM / Month</div></div>
+          <div class="sb-i"><div class="sb-val">38<span class="ds ds-sl">sessions · COUNT</span></div><div class="sb-unit">Sessions</div></div>
+          <div class="sb-i"><div class="sb-val">91<span class="ds ds-warn">⚠️ Formm Score Engine</span></div><div class="sb-unit">Scout Score</div></div>
+        </div>
+        <div class="sb-segs" id="segs"></div>
+      </div>
+
+      <!-- ROW 4 — Tip -->
+      <div class="row4 a3">
+        <div class="tip-ic">💡</div>
+        <div>
+          <div class="eb teal" style="margin-bottom:3px">Tip Of The Day</div>
+          <div class="tip-txt">Knee valgus improved 12% this week. Keep cueing "knees out" during descent. Clamshells 3×15 daily to maintain. <span class="ds ds-warn">⚠️ AI/ML Inference · joint_angle_trends</span></div>
+        </div>
+      </div>
+
+      <!-- ROW 5 -->
+      <div class="row5 a4">
+        <div class="sc">
+          <div class="sc-ic">✅</div>
+          <div class="sc-val">28<span class="ds ds-sl">sessions · COUNT</span></div>
+          <div class="sc-lbl">Completed Workouts</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic">🎯</div>
+          <div class="sc-val">74%<span class="ds ds-gt">goals table</span></div>
+          <div class="sc-lbl">Goal Tracking</div>
+          <div class="goal-bar"><div class="goal-fill"></div></div>
+          <div class="sc-sub">Are we there yet?</div>
+        </div>
+        <div class="sc fcard">
+          <div class="live-pill"><span class="ldot"></span>Live</div>
+          <div class="fcard-title">Fix Your Form</div>
+          <div class="fcard-actions">
+            <div class="fa primary">📹 Live <span class="ds ds-na">Action · camera</span></div>
+            <div class="fa">📁 Upload <span class="ds ds-na">Action · upload</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MBS Programmes -->
+      <div class="mbs a5">
+        <div class="eb" style="margin-bottom:8px">Programmes <span class="ds ds-pc">programmes table</span></div>
+        <div class="mbs-tabs">
+          <button class="mt" onclick="setMbs('Mind',this)">Mind</button>
+          <button class="mt on" onclick="setMbs('Body',this)">Body <span class="ds ds-pf">user_prefs.last_tab</span></button>
+          <button class="mt" onclick="setMbs('Soul',this)">Soul</button>
+        </div>
+        <div class="mbs-grid" id="mbs-grid"></div>
+      </div>
+
+      <!-- Community -->
+      <div class="community a6">
+        <div class="eb blue" style="margin-bottom:4px">Find Your Tribe</div>
+        <div class="comm-title">Explore Community</div>
+        <div class="comm-sub">Connect with athletes · Share progress · Join challenges</div>
+        <div class="comm-avs">
+          <div class="av" title="profile_photo_url · last 5 active">🏃<span class="ds ds-ca">users · last active</span></div>
+          <div class="av">💪</div>
+          <div class="av">🧘</div>
+          <div class="av">🏊</div>
+          <div class="av">⚽</div>
+          <span class="av-ct">+2,841 members <span class="ds ds-ca">community · cached COUNT</span></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const MBS = {
+  Mind:[
+    {icon:'🧠',name:'Mental Conditioning',sub:'Focus & resilience'},
+    {icon:'👥',name:'Find Your Tribe',sub:'Community & belonging'},
+  ],
+  Body:[
+    {icon:'🏋️',name:'Bespoke Training',sub:'Form-perfect programmes'},
+    {icon:'🔄',name:'Recovery & Mobility',sub:'Move without pain'},
+  ],
+  Soul:[
+    {icon:'🥗',name:'Food & Fuel',sub:'Eat for performance'},
+    {icon:'🧘',name:'Meditation',sub:'Stress, sleep & calm'},
+  ],
+};
+
+let currentMbs = 'Body';
+
+function setMbs(key, btn) {
+  currentMbs = key;
+  document.querySelectorAll('.mt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderMbs();
+}
+
+function renderMbs() {
+  const grid = document.getElementById('mbs-grid');
+  grid.innerHTML = MBS[currentMbs].map(c => `
+    <div class="mc">
+      <div class="mc-ic">${c.icon}</div>
+      <div class="mc-name">${c.name}</div>
+      <div class="mc-sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+// Drops
+const dropsEl = document.getElementById('drops');
+for (let i = 0; i < 8; i++) {
+  const d = document.createElement('div');
+  d.className = 'drop' + (i < 5 ? ' on' : '');
+  dropsEl.appendChild(d);
+}
+
+// Segs
+const segsEl = document.getElementById('segs');
+const segs = Array.from({length:14}, (_,i) => i < 9 ? 'on' : i < 11 ? 'dim' : '');
+segs.forEach(s => {
+  const seg = document.createElement('div');
+  seg.className = 'sb-seg' + (s ? ' ' + s : '');
+  segsEl.appendChild(seg);
+});
+
+renderMbs();
+</script>
+
+<div class="legend">
+  <div class="legend-title">Data Source Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#007A60"></div>User Profile</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1A6FA0"></div>Session Log</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#A07010"></div>Gamification Engine</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#5A3FA0"></div>Leaderboard</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#A03060"></div>XP Ledger</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2040A0"></div>Hydration Log</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#CC6600"></div>⚠️ High Complexity</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#007A50"></div>Formm Score Engine</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#A05010"></div>AI/ML Inference</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#105080"></div>Goals Table</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#904020"></div>Programmes DB</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#604090"></div>User Preference</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#404090"></div>Community Aggregate</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#C0C0C0"></div>Action Button (no data)</div>
+</div>
+
+</body>
+</html>
