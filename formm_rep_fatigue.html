@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Rep by Rep Model</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04040A;--bg1:#080810;--bg2:#0E0E1C;--bg3:#151526;--bg4:#1C1C30;--bg5:#242440;
+  --ln1:rgba(255,255,255,.05);--ln2:rgba(255,255,255,.09);--ln3:rgba(255,255,255,.16);
+  --tx1:#EDEAF8;--tx2:#8480A8;--tx3:#4A4768;
+  --lime:#CCFF00;--lime-d:rgba(204,255,0,.07);--lime-bd:rgba(204,255,0,.2);
+  --teal:#00E5C0;--teal-d:rgba(0,229,192,.07);
+  --red:#FF3D5A;--red-d:rgba(255,61,90,.07);
+  --amber:#FFB020;--amber-d:rgba(255,176,32,.07);
+  --purple:#9B7FFF;--blue:#4DB8FF;
+  --disp:'Bebas Neue',sans-serif;--body:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--tx1);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.nav{background:var(--bg1);border-right:1px solid var(--ln1);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.nav::-webkit-scrollbar{display:none}
+.main{overflow-y:auto;height:100vh}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--bg4)}
+
+/* ── NAV ── */
+.n-brand{padding:24px 20px 18px;border-bottom:1px solid var(--ln1)}
+.n-logo{font-family:var(--disp);font-size:30px;color:var(--lime);letter-spacing:1px}
+.n-sub{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.n-lbl{padding:14px 20px 4px;font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase}
+.n-btn{display:flex;align-items:center;gap:9px;padding:9px 20px;border:none;background:none;color:var(--tx2);font-size:12px;font-weight:500;width:100%;text-align:left;cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-family:var(--body)}
+.n-btn:hover{background:var(--bg2);color:var(--tx1)}
+.n-btn.on{color:var(--lime);border-left-color:var(--lime);background:var(--lime-d)}
+.n-num{margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--tx3)}
+.n-btn.on .n-num{color:var(--lime);opacity:.6}
+
+/* ── PANELS ── */
+.panel{display:none;padding:36px 44px 80px;max-width:920px;animation:fadeUp .2s ease both}
+.panel.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.title{font-family:var(--disp);font-size:52px;letter-spacing:.5px;line-height:1;margin-bottom:8px}
+.desc{font-size:13px;color:var(--tx2);line-height:1.8;max-width:600px;margin-bottom:28px}
+
+/* ── SHARED ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.card{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:18px 20px}
+.card-lime{background:var(--lime-d);border:1px solid var(--lime-bd);border-radius:14px;padding:18px 20px}
+.card-sm{background:var(--bg3);border:1px solid var(--ln1);border-radius:11px;padding:13px 15px}
+.lbl{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.note{background:var(--lime-d);border-left:2px solid var(--lime);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--tx2);line-height:1.7;margin-top:12px}
+.note strong{color:var(--lime)}
+.note-red{background:var(--red-d);border-left:2px solid var(--red);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--tx2);line-height:1.7;margin-top:12px}
+.note-red strong{color:var(--red)}
+.note-amber{background:var(--amber-d);border-left:2px solid var(--amber);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:var(--tx2);line-height:1.7;margin-top:12px}
+.note-amber strong{color:var(--amber)}
+input[type=range]{accent-color:var(--lime);width:100%}
+.ctrl{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.ctrl label{font-size:11px;color:var(--tx2);min-width:140px;flex-shrink:0}
+.ctrl-val{font-size:11px;font-family:var(--mono);color:var(--lime);min-width:44px;text-align:right}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:8px;font-size:10px;font-weight:600;border:1px solid;font-family:var(--mono)}
+.pill-lime{color:var(--lime);background:var(--lime-d);border-color:var(--lime-bd)}
+.pill-red{color:var(--red);background:var(--red-d);border-color:rgba(255,61,90,.3)}
+.pill-amber{color:var(--amber);background:var(--amber-d);border-color:rgba(255,176,32,.3)}
+
+/* ── REP BARS VISUALISATION ── */
+.rep-arena{background:var(--bg2);border:1px solid var(--ln1);border-radius:16px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.rep-arena::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(204,255,0,.03),transparent 60%);pointer-events:none}
+.rep-bars{display:flex;align-items:flex-end;gap:6px;height:200px;position:relative}
+.rep-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.rep-bar{width:100%;border-radius:5px 5px 0 0;position:relative;cursor:pointer;transition:opacity .2s;min-height:4px}
+.rep-bar:hover{opacity:.85}
+.rep-bar::after{content:attr(data-score);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-family:var(--mono);font-weight:500;white-space:nowrap;opacity:0;transition:opacity .15s}
+.rep-bar:hover::after{opacity:1}
+.rep-label{font-size:9px;font-family:var(--mono);color:var(--tx3);margin-top:4px}
+.rep-num{font-size:10px;font-family:var(--mono);font-weight:500}
+
+/* threshold line */
+.threshold-line{position:absolute;left:0;right:0;height:1px;border-top:1.5px dashed rgba(255,61,90,.5);pointer-events:none}
+.threshold-label{position:absolute;right:8px;top:-14px;font-size:9px;font-family:var(--mono);color:var(--red)}
+
+/* ── REP DETAIL CARD ── */
+.rep-detail{background:var(--bg3);border:1px solid var(--ln2);border-radius:12px;padding:14px 16px;margin-bottom:14px;transition:all .3s}
+.rd-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.rd-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:16px;font-weight:500;flex-shrink:0;border:1px solid}
+.rd-title{font-size:14px;font-weight:600;flex:1}
+.rd-score{font-family:var(--disp);font-size:38px;letter-spacing:.5px;line-height:1;transition:color .3s}
+.rd-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rdm-item{background:var(--bg4);border-radius:9px;padding:9px 11px}
+.rdm-lbl{font-size:9px;color:var(--tx3);font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+.rdm-val{font-size:14px;font-weight:600;font-family:var(--mono);transition:color .3s}
+.rdm-delta{font-size:10px;font-family:var(--mono);margin-top:2px;transition:color .3s}
+
+/* ── SET SCORE TICKER ── */
+.set-score-wrap{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.set-score-big{font-family:var(--disp);font-size:88px;letter-spacing:1px;line-height:1;transition:color .4s}
+.set-score-meta{display:flex;flex-direction:column;gap:4px}
+.set-score-lbl{font-size:11px;color:var(--tx2)}
+.set-score-trend{font-size:12px;font-family:var(--mono);font-weight:500}
+
+/* ── ALERT BADGE ── */
+.alert-badge{display:none;background:rgba(255,61,90,.12);border:1px solid rgba(255,61,90,.35);border-radius:12px;padding:12px 15px;margin-bottom:14px;animation:alertPop .3s ease}
+.alert-badge.show{display:flex;align-items:center;gap:10px}
+@keyframes alertPop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.alert-dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 8px rgba(255,61,90,.6);animation:alertPulse 1.5s infinite;flex-shrink:0}
+@keyframes alertPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.alert-text{font-size:12px;font-weight:600;color:var(--red)}
+
+/* ── FATIGUE CHART ── */
+.fatigue-chart-wrap{background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:20px;margin-bottom:14px}
+
+/* ── SESSION COMPARISON ── */
+.session-comp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.sc-col{background:var(--bg3);border-radius:12px;border:1px solid var(--ln1);overflow:hidden}
+.sc-header{padding:10px 14px;border-bottom:1px solid var(--ln1);display:flex;align-items:center;justify-content:space-between}
+.sc-title{font-size:11px;font-weight:600;color:var(--tx2)}
+.sc-score{font-family:var(--mono);font-size:20px;font-weight:500}
+.sc-bars{padding:12px 14px;display:flex;flex-direction:column;gap:7px}
+.sc-metric{display:flex;align-items:center;gap:8px}
+.sc-metric-lbl{font-size:10px;color:var(--tx3);min-width:70px}
+.sc-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.sc-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.sc-metric-val{font-size:10px;font-family:var(--mono);min-width:32px;text-align:right}
+
+/* ── REP SELECTOR ── */
+.rep-selector{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.rs-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--ln2);background:transparent;color:var(--tx2);font-size:11px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.rs-btn:hover{border-color:var(--ln3);color:var(--tx1)}
+.rs-btn.on{background:var(--lime);border-color:var(--lime);color:var(--bg);font-weight:700}
+.rs-btn.fault{border-color:rgba(255,61,90,.4);color:var(--red)}
+.rs-btn.on.fault{background:var(--red);border-color:var(--red);color:white}
+
+/* ── DATA TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);padding:8px 12px;border-bottom:1px solid var(--ln2);text-align:left;font-weight:400}
+.data-table td{padding:9px 12px;border-bottom:1px solid var(--ln1);color:var(--tx2);vertical-align:middle}
+.data-table td:first-child{color:var(--tx1);font-weight:500;font-family:var(--mono)}
+.data-table tr:last-child td{border:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── TREND ARROW ── */
+.trend-up{color:var(--teal)}
+.trend-down{color:var(--red)}
+.trend-flat{color:var(--tx3)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<div class="nav">
+  <div class="n-brand">
+    <div class="n-logo">Formm</div>
+    <div class="n-sub">Rep by Rep Model</div>
+  </div>
+  <div class="n-lbl" style="margin-top:8px">Sections</div>
+  <button class="n-btn on" data-p="p1">The model<span class="n-num">01</span></button>
+  <button class="n-btn" data-p="p2">Rep detail<span class="n-num">02</span></button>
+  <button class="n-btn" data-p="p3">Fatigue curve<span class="n-num">03</span></button>
+  <button class="n-btn" data-p="p4">Session comparison<span class="n-num">04</span></button>
+  <button class="n-btn" data-p="p5">Set score<span class="n-num">05</span></button>
+  <button class="n-btn" data-p="p6">The data model<span class="n-num">06</span></button>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-scroll">
+
+<!-- ════ P1 THE MODEL ════ -->
+<div class="panel on" id="p1">
+  <div class="eyebrow">01 · The Rep-by-Rep Model</div>
+  <div class="title">Every rep<br>tells a story</div>
+  <div class="desc">Form quality does not degrade uniformly — it collapses at a specific rep, under a specific load, in a specific pattern unique to each athlete. This is what Formm measures that no other platform does.</div>
+
+  <!-- Controls -->
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="lbl">Simulate a set</div>
+      <div class="ctrl"><label>Exercise</label>
+        <select id="ex-select" style="background:var(--bg3);border:1px solid var(--ln2);border-radius:8px;color:var(--tx1);font-size:12px;padding:5px 10px;outline:none;font-family:var(--body);flex:1">
+          <option value="squat">Squat</option>
+          <option value="deadlift">Deadlift</option>
+          <option value="pushup">Push-up</option>
+          <option value="pullup">Pull-up</option>
+          <option value="rdl">Romanian Deadlift</option>
+        </select>
+      </div>
+      <div class="ctrl"><label>Base form quality</label><input type="range" min="50" max="98" value="86" id="base-quality"><span class="ctrl-val" id="bq-v">86</span></div>
+      <div class="ctrl"><label>Load (% of 1RM)</label><input type="range" min="50" max="100" step="5" value="80" id="load-pct"><span class="ctrl-val" id="lp-v">80%</span></div>
+      <div class="ctrl"><label>Total reps</label><input type="range" min="3" max="12" value="8" id="total-reps"><span class="ctrl-val" id="tr-v">8</span></div>
+      <div class="ctrl"><label>Fatigue sensitivity</label><input type="range" min="1" max="5" value="3" id="fatigue-sens"><span class="ctrl-val" id="fs-v">Medium</span></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Set summary</div>
+      <div class="set-score-wrap">
+        <div class="set-score-big" id="set-score-big">86</div>
+        <div class="set-score-meta">
+          <div class="set-score-lbl">Set form score</div>
+          <div class="set-score-trend" id="set-score-trend" style="color:var(--teal)">All reps in range</div>
+          <div style="margin-top:8px" id="set-pills"></div>
+        </div>
+      </div>
+      <div class="alert-badge" id="main-alert">
+        <div class="alert-dot"></div>
+        <div class="alert-text" id="main-alert-text">Form dropped below 75 — stop or reduce weight</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rep bars -->
+  <div class="rep-arena">
+    <div class="lbl">Form score per rep</div>
+    <div class="rep-bars" id="main-bars"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:9px;color:var(--tx3);font-family:var(--mono)">
+      <span>Rep 1</span><span id="bars-footer">8 reps · 80% 1RM</span><span>Rep <span id="last-rep-n">8</span></span>
+    </div>
+  </div>
+
+  <!-- Rep selector -->
+  <div class="lbl" style="margin-bottom:8px">Click a rep to inspect</div>
+  <div class="rep-selector" id="rep-selector"></div>
+
+  <!-- Rep detail -->
+  <div class="rep-detail" id="rep-detail-card">
+    <div class="rd-header">
+      <div class="rd-num" id="rd-num" style="background:rgba(204,255,0,.1);color:var(--lime);border-color:var(--lime-bd)">1</div>
+      <div>
+        <div class="rd-title" id="rd-title">Rep 1 — Opening rep</div>
+        <div style="font-size:11px;color:var(--tx3)" id="rd-subtitle">Baseline form. Fully fresh.</div>
+      </div>
+      <div class="rd-score" id="rd-score" style="color:var(--lime)">86</div>
+    </div>
+    <div class="rd-metrics" id="rd-metrics"></div>
+  </div>
+
+  <div class="note"><strong>The insight:</strong> Most athletes can feel when a set is going badly. Formm shows the exact rep it started going badly, the exact metric that degraded first, and the exact threshold that was crossed. That specificity is what converts a vague feeling into a coaching cue.</div>
+</div>
+
+<!-- ════ P2 REP DETAIL ════ -->
+<div class="panel" id="p2">
+  <div class="eyebrow">02 · Rep-by-Rep Metrics</div>
+  <div class="title">What changes<br>each rep</div>
+  <div class="desc">Five metrics tracked per rep. Each tells a different part of the fatigue story. The form score is the composite — but the individual metrics tell you which fault is driving the degradation.</div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="lbl">Configure set</div>
+      <div class="ctrl"><label>Base form quality</label><input type="range" min="55" max="98" value="88" id="p2-base"><span class="ctrl-val" id="p2-bq">88</span></div>
+      <div class="ctrl"><label>Load (%)</label><input type="range" min="50" max="100" step="5" value="82" id="p2-load"><span class="ctrl-val" id="p2-lp">82%</span></div>
+      <div class="ctrl"><label>Reps</label><input type="range" min="4" max="12" value="8" id="p2-reps"><span class="ctrl-val" id="p2-rp">8</span></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Primary fault driver</div>
+      <div id="p2-fault-driver" style="font-size:24px;font-weight:700;color:var(--red);margin-bottom:4px">Knee valgus</div>
+      <div id="p2-fault-desc" style="font-size:12px;color:var(--tx2);line-height:1.6">Left knee begins collapsing inward from rep 5 as hip abductors fatigue.</div>
+      <div style="margin-top:10px" id="p2-fault-rep"></div>
+    </div>
+  </div>
+
+  <!-- Per-metric table -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="lbl">Per-rep metric breakdown</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Rep</th>
+          <th>Score</th>
+          <th>Knee valgus (L)</th>
+          <th>Depth (knee flex)</th>
+          <th>Trunk lean</th>
+          <th>Symmetry</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="p2-table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Metric trend lines -->
+  <div class="fatigue-chart-wrap">
+    <div class="lbl" style="margin-bottom:14px">Metric trends across the set</div>
+    <canvas id="p2-chart" height="220" style="width:100%;display:block"></canvas>
+    <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:14px;height:2px;background:var(--lime)"></div>Form score</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:14px;height:2px;background:var(--red)"></div>Knee valgus (inverted)</div>
+      <div style="display:flex;align-items:center;gap=6px;font-size:11px;color:var(--tx2)"><div style="width:14px;height:2px;background:var(--teal)"></div>Depth</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:14px;height:2px;background:var(--amber)"></div>Symmetry</div>
+    </div>
+  </div>
+
+  <div class="note-red"><strong>Why store per-rep data:</strong> The set average hides the degradation pattern. A set score of 78 could mean 8 reps all at 78, or reps 1–6 at 88 and reps 7–8 at 58. These are completely different training situations. Only rep_data reveals which one it was.</div>
+</div>
+
+<!-- ════ P3 FATIGUE CURVE ════ -->
+<div class="panel" id="p3">
+  <div class="eyebrow">03 · Fatigue Curve</div>
+  <div class="title">When form<br>breaks down</div>
+  <div class="desc">The fatigue curve shows the relationship between rep number and form quality across multiple sessions at the same load. This is the data that produces the between-set prediction — "your form typically drops at rep 6 at this weight."</div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="lbl">Simulate across sessions</div>
+      <div class="ctrl"><label>Sessions to compare</label><input type="range" min="1" max="5" value="3" id="p3-sessions"><span class="ctrl-val" id="p3-sv">3</span></div>
+      <div class="ctrl"><label>Load (%)</label><input type="range" min="60" max="100" step="5" value="80" id="p3-load"><span class="ctrl-val" id="p3-lv">80%</span></div>
+      <div class="ctrl"><label>Reps per set</label><input type="range" min="5" max="12" value="8" id="p3-reps"><span class="ctrl-val" id="p3-rv">8</span></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Prediction output</div>
+      <div id="p3-prediction" style="font-size:22px;font-weight:700;color:var(--amber);margin-bottom:6px">Drop at rep 6</div>
+      <div id="p3-prediction-body" style="font-size:12px;color:var(--tx2);line-height:1.65">Based on 3 sessions at 80% 1RM, your form typically drops below 75 at rep 6. Consider stopping at rep 5 or reducing weight for reps 6–8.</div>
+      <div style="margin-top:10px">
+        <div class="pill pill-lime" id="p3-confidence">High confidence — 3 sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fatigue-chart-wrap" style="margin-bottom:14px">
+    <div class="lbl" style="margin-bottom:14px">Fatigue curve — form score by rep across sessions</div>
+    <canvas id="p3-chart" height="240" style="width:100%;display:block"></canvas>
+    <div id="p3-legend" style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap"></div>
+  </div>
+
+  <!-- Breakdown rep insight -->
+  <div class="g3">
+    <div class="card-sm">
+      <div class="lbl">Typical drop rep</div>
+      <div style="font-family:var(--disp);font-size:48px;color:var(--amber)" id="p3-drop-rep">6</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:2px">Most sessions</div>
+    </div>
+    <div class="card-sm">
+      <div class="lbl">Avg drop magnitude</div>
+      <div style="font-family:var(--disp);font-size:48px;color:var(--red)" id="p3-drop-mag">−14</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:2px">Points from peak</div>
+    </div>
+    <div class="card-sm">
+      <div class="lbl">Best stop point</div>
+      <div style="font-family:var(--disp);font-size:48px;color:var(--lime)" id="p3-stop">5</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:2px">For quality training</div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:14px"><strong>The prescription:</strong> "Stop at rep 5 or reduce weight for reps 6–8" is a specific coaching output that comes only from having per-rep data across multiple sessions. No single-session analysis can produce this. It requires the rep_data table to be populated across at least 3 sessions at the same load.</div>
+</div>
+
+<!-- ════ P4 SESSION COMPARISON ════ -->
+<div class="panel" id="p4">
+  <div class="eyebrow">04 · Session Comparison</div>
+  <div class="title">Last session<br>vs today</div>
+  <div class="desc">The between-set insight card says "knee tracking improved 6° since Tuesday." This panel shows where that number comes from — the comparison of this session's per-rep averages against the previous session's stored data.</div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="lbl">Previous session (Tuesday)</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
+        <div style="font-family:var(--disp);font-size:56px;color:var(--tx2)" id="prev-score">76</div>
+        <div style="font-size:13px;color:var(--tx3)">/ 100</div>
+      </div>
+      <div id="prev-metrics" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Today's session</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
+        <div style="font-family:var(--disp);font-size:56px;color:var(--lime)" id="today-score">84</div>
+        <div style="font-size:13px;color:var(--tx3)">/ 100</div>
+      </div>
+      <div id="today-metrics" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
+  <!-- Delta card -->
+  <div class="card-lime" style="margin-bottom:14px">
+    <div class="lbl" style="color:var(--lime)">What changed</div>
+    <div id="delta-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <!-- Between-set card preview -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="lbl">Between-set insight card — what the user sees</div>
+    <div style="background:rgba(204,255,0,.07);border:1px solid var(--lime-bd);border-radius:12px;padding:14px">
+      <div style="font-size:9px;color:var(--lime);font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Since last Tuesday</div>
+      <div style="font-size:18px;font-weight:700;color:var(--teal)" id="bs-headline">↑ Knee tracking +6°</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:4px;line-height:1.6" id="bs-body">Left knee valgus improved from 11° → 5°. You are now in the safe zone. The clamshell work is in the data.</div>
+    </div>
+  </div>
+
+  <div class="ctrl" style="margin-bottom:0">
+    <label>Simulate improvement</label>
+    <input type="range" min="0" max="30" value="8" id="p4-improvement">
+    <span class="ctrl-val" id="p4-imp-v">+8 pts</span>
+  </div>
+
+  <div class="note"><strong>Data source:</strong> Comparing <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px">analysis_sessions.avg_valgus_l</code> between the two most recent sessions for the same exercise. Calculated and stored at session end so the between-set card loads instantly.</div>
+</div>
+
+<!-- ════ P5 SET SCORE ════ -->
+<div class="panel" id="p5">
+  <div class="eyebrow">05 · Set Score Calculation</div>
+  <div class="title">How the<br>score is built</div>
+  <div class="desc">The set form score is not a simple average of rep scores. It is a weighted composite that penalises late-set degradation more than early-set degradation, and weights fault severity differently by exercise.</div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="lbl">Scoring weights — squat</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="weight-bars"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Score composition — this set</div>
+      <div id="score-composition" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div style="border-top:1px solid var(--ln2);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;color:var(--tx2)">Composite set score</span>
+        <span style="font-family:var(--disp);font-size:32px;color:var(--lime)" id="p5-final-score">84</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rep weighting explanation -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="lbl">Why late reps are weighted more heavily</div>
+    <div style="font-size:13px;color:var(--tx2);line-height:1.75;margin-bottom:10px">A form breakdown at rep 7 of 8 tells you more about the athlete's limit than a form breakdown at rep 2 of 8. The scoring engine weights the final 30% of the set at 1.4× the weight of the opening reps.</div>
+    <div id="rep-weight-viz" style="display:flex;gap:5px;align-items:flex-end;height:60px;margin-top:8px"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--tx3);font-family:var(--mono)">
+      <span>Rep 1 (1.0×)</span><span>Rep weighting increases →</span><span>Rep 8 (1.4×)</span>
+    </div>
+  </div>
+
+  <!-- Fault severity table -->
+  <div class="card">
+    <div class="lbl">Fault severity — how each metric affects the score</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Metric</th><th>OK range</th><th>Penalty per degree outside range</th><th>Max penalty</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Knee valgus</td><td style="color:var(--teal)">0–8°</td><td style="color:var(--amber)">−2.5 pts/°</td><td style="color:var(--red)">−30 pts</td></tr>
+        <tr><td>Depth (knee flex)</td><td style="color:var(--teal)">85–130°</td><td style="color:var(--amber)">−1.5 pts/°</td><td style="color:var(--red)">−25 pts</td></tr>
+        <tr><td>Trunk lean</td><td style="color:var(--teal)">15–45°</td><td style="color:var(--amber)">−1.8 pts/°</td><td style="color:var(--red)">−20 pts</td></tr>
+        <tr><td>Symmetry</td><td style="color:var(--teal)">&lt;10%</td><td style="color:var(--amber)">−2.0 pts/%</td><td style="color:var(--red)">−25 pts</td></tr>
+        <tr><td>Lumbar deviation</td><td style="color:var(--teal)">0–10°</td><td style="color:var(--amber)">−3.0 pts/°</td><td style="color:var(--red)">−35 pts</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ P6 DATA MODEL ════ -->
+<div class="panel" id="p6">
+  <div class="eyebrow">06 · The Data Model</div>
+  <div class="title">Where every<br>number lives</div>
+  <div class="desc">The rep-by-rep model depends on three database tables. The rep_data table is the most critical — it cannot be backfilled and every longitudinal feature depends on it existing from session one.</div>
+
+  <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px">
+
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:500;color:var(--red)">rep_data</div>
+        <span class="pill pill-red">Never delete · Cannot be backfilled</span>
+      </div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.6;margin-bottom:10px">One row per rep per analysis session. The atomic unit of everything Formm does longitudinally. Every feature — fatigue curve, session comparison, validation study, form-load interaction — depends on this table existing.</div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--tx2);line-height:1.8">
+        <span style="color:var(--purple)">id</span>, <span style="color:var(--purple)">user_id</span>, <span style="color:var(--purple)">analysis_session_id</span><br>
+        <span style="color:var(--lime)">rep_number</span>, <span style="color:var(--lime)">knee_flexion_max</span>, <span style="color:var(--lime)">knee_valgus_left</span>, <span style="color:var(--lime)">knee_valgus_right</span><br>
+        <span style="color:var(--lime)">hip_flexion_max</span>, <span style="color:var(--lime)">trunk_lean</span>, <span style="color:var(--lime)">lumbar_deviation</span>, <span style="color:var(--lime)">symmetry_pct</span><br>
+        <span style="color:var(--teal)">form_score_this_rep</span>, <span style="color:var(--tx3)">captured_at</span>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--lime)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:500;color:var(--lime)">analysis_sessions</div>
+        <span class="pill pill-lime">Aggregated from rep_data · Updated each session</span>
+      </div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.6;margin-bottom:10px">One row per filming session. Stores per-session averages so Page 2 loads quickly without recalculating from rep_data every time. Session score, top fault, per-metric averages.</div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--tx2);line-height:1.8">
+        <span style="color:var(--purple)">id</span>, <span style="color:var(--purple)">user_id</span>, <span style="color:var(--purple)">exercise</span>, <span style="color:var(--purple)">session_date</span><br>
+        <span style="color:var(--lime)">session_score</span>, <span style="color:var(--lime)">reps_analysed</span>, <span style="color:var(--lime)">camera_angle</span><br>
+        <span style="color:var(--lime)">avg_valgus_l</span>, <span style="color:var(--lime)">avg_valgus_r</span>, <span style="color:var(--lime)">avg_depth</span>, <span style="color:var(--lime)">avg_symmetry</span><br>
+        <span style="color:var(--teal)">top_fault</span>, <span style="color:var(--teal)">improvement_vs_last</span>, <span style="color:var(--tx3)">created_at</span>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:500;color:var(--amber)">sessions</div>
+        <span class="pill pill-amber">RPE logs · Powers ACWR</span>
+      </div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.6;margin-bottom:10px">One row per RPE log. The load management data. Combined with analysis_sessions on the same date to produce the form-load interaction insight.</div>
+      <div style="background:var(--bg);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--tx2);line-height:1.8">
+        <span style="color:var(--purple)">id</span>, <span style="color:var(--purple)">user_id</span>, <span style="color:var(--purple)">session_date</span>, <span style="color:var(--purple)">exercise</span><br>
+        <span style="color:var(--amber)">rpe</span>, <span style="color:var(--amber)">duration_minutes</span>, <span style="color:var(--amber)">session_load_au</span><br>
+        <span style="color:var(--teal)">is_confirmed</span>, <span style="color:var(--tx3)">created_at</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- The unique insight -->
+  <div class="card-lime">
+    <div class="lbl" style="color:var(--lime)">The form-load interaction — Formm's unique insight</div>
+    <div style="font-size:13px;color:var(--tx1);line-height:1.75;margin-bottom:8px">When rep_data and sessions are joined by user and date, Formm can detect: <strong>your squat form score drops 14 points when your ACWR is above 1.3.</strong></div>
+    <div style="font-size:12px;color:var(--tx2);line-height:1.7">This insight — your technique deteriorates under high training load, specifically — is completely invisible without both data streams. No other platform produces it. It requires the rep_data table and the sessions table to exist simultaneously and be joined at the user level.</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── NAV ──────────────────────────────────────────────────
+document.querySelectorAll('.n-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.n-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById(btn.dataset.p).classList.add('on');
+    document.getElementById('main-scroll').scrollTop=0;
+    const pid=btn.dataset.p;
+    if(pid==='p2')renderP2();
+    if(pid==='p3')renderP3();
+    if(pid==='p4')renderP4();
+    if(pid==='p5')renderP5();
+  });
+});
+
+// ── COLOUR HELPERS ────────────────────────────────────────
+function scoreColHex(s){return s>=80?'#CCFF00':s>=65?'#00E5C0':s>=50?'#FFB020':'#FF3D5A';}
+function scoreColVar(s){return s>=80?'var(--lime)':s>=65?'var(--teal)':s>=50?'var(--amber)':'var(--red)';}
+
+// ── GENERATE REP SCORES ───────────────────────────────────
+function genRepScores(base, loadPct, totalReps, sens){
+  const loadFactor = (loadPct - 50) / 50; // 0 at 50%, 1 at 100%
+  const sensFactor = [0,0.6,1.0,1.5,2.2,3.0][sens];
+  const scores=[];
+  for(let i=0;i<totalReps;i++){
+    const fatigue = loadFactor * sensFactor * i * 1.8;
+    const noise   = (Math.random()-0.5)*3;
+    const s = Math.max(22, Math.round(base - fatigue + noise));
+    scores.push(s);
+  }
+  return scores;
+}
+
+// Generate per-metric data for a set
+function genRepMetrics(base, load, totalReps, sens){
+  const loadF=(load-50)/50;
+  const sensF=[0,0.5,0.9,1.4,2.0,2.8][sens];
+  const reps=[];
+  for(let i=0;i<totalReps;i++){
+    const deg=loadF*sensF*i;
+    const score=Math.max(22,Math.round(base - deg*1.8 + (Math.random()-0.5)*3));
+    const valgusL=Math.min(25, Math.round(3 + deg*1.2 + (Math.random()-0.5)*2));
+    const depth=Math.max(60, Math.round(110 - deg*2.5 + (Math.random()-0.5)*4));
+    const trunkLean=Math.min(60, Math.round(22 + deg*1.1 + (Math.random()-0.5)*3));
+    const symmetry=Math.min(30, Math.round(5 + deg*0.9 + (Math.random()-0.5)*2));
+    reps.push({score,valgusL,depth,trunkLean,symmetry});
+  }
+  return reps;
+}
+
+// ── P1 MAIN MODEL ─────────────────────────────────────────
+let p1State={base:86,load:80,reps:8,sens:3,selectedRep:0};
+let p1RepData=[];
+
+function buildP1(){
+  p1RepData=genRepMetrics(p1State.base,p1State.load,p1State.reps,p1State.sens);
+  renderMainBars();
+  renderRepSelector();
+  renderRepDetail(p1State.selectedRep);
+  updateSetSummary();
+}
+
+function renderMainBars(){
+  const el=document.getElementById('main-bars');
+  el.innerHTML='';
+  const scores=p1RepData.map(r=>r.score);
+  const maxS=Math.max(...scores);
+  const THRESH=75;
+  const threshPct=(THRESH/maxS)*100;
+
+  // threshold line
+  const tl=document.createElement('div');
+  tl.className='threshold-line';
+  tl.style.bottom=threshPct+'%';
+  const tll=document.createElement('div');
+  tll.className='threshold-label';
+  tll.textContent='75 — fault threshold';
+  tl.appendChild(tll);
+  el.appendChild(tl);
+
+  scores.forEach((s,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='rep-bar-wrap';
+    const bar=document.createElement('div');
+    bar.className='rep-bar';
+    bar.style.height=Math.round((s/maxS)*100)+'%';
+    bar.style.background=scoreColHex(s);
+    bar.dataset.score=s;
+    bar.title=`Rep ${i+1}: ${s}`;
+    bar.addEventListener('click',()=>{
+      p1State.selectedRep=i;
+      renderRepSelector();
+      renderRepDetail(i);
+    });
+    const num=document.createElement('div');
+    num.className='rep-num';
+    num.style.color=scoreColHex(s);
+    num.textContent=s;
+    wrap.appendChild(bar);
+    wrap.appendChild(num);
+    el.appendChild(wrap);
+  });
+
+  document.getElementById('bars-footer').textContent=`${p1State.reps} reps · ${p1State.load}% 1RM`;
+  document.getElementById('last-rep-n').textContent=p1State.reps;
+}
+
+function renderRepSelector(){
+  const el=document.getElementById('rep-selector');
+  el.innerHTML='';
+  p1RepData.forEach((r,i)=>{
+    const btn=document.createElement('button');
+    btn.className='rs-btn'+(i===p1State.selectedRep?' on':'')+(r.score<75?' fault':'');
+    btn.textContent=`Rep ${i+1}`;
+    btn.addEventListener('click',()=>{
+      p1State.selectedRep=i;
+      renderRepSelector();
+      renderRepDetail(i);
+    });
+    el.appendChild(btn);
+  });
+}
+
+function renderRepDetail(idx){
+  const r=p1RepData[idx];
+  const prev=idx>0?p1RepData[idx-1]:null;
+  const scoreEl=document.getElementById('rd-score');
+  const numEl=document.getElementById('rd-num');
+  const titleEl=document.getElementById('rd-title');
+  const subEl=document.getElementById('rd-subtitle');
+  const col=scoreColVar(r.score);
+  const colHex=scoreColHex(r.score);
+
+  scoreEl.textContent=r.score; scoreEl.style.color=col;
+  numEl.textContent=idx+1; numEl.style.color=colHex; numEl.style.borderColor=colHex+'55'; numEl.style.background=colHex+'15';
+
+  const titles=['Opening rep','Building momentum','Working through','Midpoint','Testing limits','Fatigue setting in','Late set territory','Final rep'];
+  titleEl.textContent=`Rep ${idx+1} — ${titles[Math.min(idx,7)]}`;
+
+  const status=r.score>=80?'Good form. All metrics within range.':r.score>=65?'Form slipping — watch valgus.':r.score>=50?'Form breaking down. Reduce weight.':'Significant breakdown — stop set.';
+  subEl.textContent=status; subEl.style.color=scoreColHex(r.score)+'aa';
+
+  // Metrics
+  const metricsEl=document.getElementById('rd-metrics');
+  metricsEl.innerHTML='';
+  const metrics=[
+    {lbl:'Knee valgus (L)',val:r.valgusL+'°',good:r.valgusL<8,delta:prev?r.valgusL-prev.valgusL:null,invert:true},
+    {lbl:'Depth (knee flex)',val:r.depth+'°',good:r.depth>=85,delta:prev?r.depth-prev.depth:null,invert:false},
+    {lbl:'Symmetry',val:r.symmetry+'%',good:r.symmetry<10,delta:prev?r.symmetry-prev.symmetry:null,invert:true},
+    {lbl:'Trunk lean',val:r.trunkLean+'°',good:r.trunkLean<40,delta:prev?r.trunkLean-prev.trunkLean:null,invert:true},
+    {lbl:'Score',val:r.score,good:r.score>=75,delta:prev?r.score-prev.score:null,invert:false},
+  ];
+  // show 3
+  metrics.slice(0,3).forEach(m=>{
+    const d=document.createElement('div');d.className='rdm-item';
+    const deltaStr=m.delta===null?'':(m.delta>0?(m.invert?'↑ worse':'↑ better'):(m.invert?'↓ better':'↓ worse'));
+    const deltaCol=m.delta===null?'':((m.delta>0&&m.invert)||(m.delta<0&&!m.invert))?'var(--red)':'var(--teal)';
+    d.innerHTML=`<div class="rdm-lbl">${m.lbl}</div>
+    <div class="rdm-val" style="color:${m.good?'var(--teal)':'var(--red)'}">${m.val}</div>
+    ${m.delta!==null?`<div class="rdm-delta" style="color:${deltaCol}">${deltaStr} ${Math.abs(m.delta).toFixed(1)}</div>`:''}`;
+    metricsEl.appendChild(d);
+  });
+}
+
+function updateSetSummary(){
+  const scores=p1RepData.map(r=>r.score);
+  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const faults=scores.filter(s=>s<75).length;
+  const firstFault=scores.findIndex(s=>s<75);
+  const hasFault=faults>0;
+
+  document.getElementById('set-score-big').textContent=avg;
+  document.getElementById('set-score-big').style.color=scoreColVar(avg);
+
+  const trendEl=document.getElementById('set-score-trend');
+  if(hasFault){
+    trendEl.textContent=`Form fault at rep ${firstFault+1} — ${faults} rep${faults>1?'s':''} below 75`;
+    trendEl.style.color='var(--red)';
+  } else {
+    trendEl.textContent='All reps in range ✓';
+    trendEl.style.color='var(--teal)';
+  }
+
+  // Pills
+  const pillsEl=document.getElementById('set-pills');
+  pillsEl.innerHTML='';
+  if(hasFault){
+    const p=document.createElement('span');p.className='pill pill-red';p.textContent=`${faults} fault rep${faults>1?'s':''}`;pillsEl.appendChild(p);
+  } else {
+    const p=document.createElement('span');p.className='pill pill-lime';p.textContent='Clean set';pillsEl.appendChild(p);
+  }
+
+  // Alert
+  const alert=document.getElementById('main-alert');
+  const alertText=document.getElementById('main-alert-text');
+  if(hasFault){
+    alert.classList.add('show');
+    alertText.textContent=`Form dropped below 75 at rep ${firstFault+1} — stop here or reduce weight`;
+  } else {
+    alert.classList.remove('show');
+  }
+}
+
+// Controls P1
+['base-quality','load-pct','total-reps','fatigue-sens'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    p1State.base=+document.getElementById('base-quality').value;
+    p1State.load=+document.getElementById('load-pct').value;
+    p1State.reps=+document.getElementById('total-reps').value;
+    p1State.sens=+document.getElementById('fatigue-sens').value;
+    document.getElementById('bq-v').textContent=p1State.base;
+    document.getElementById('lp-v').textContent=p1State.load+'%';
+    document.getElementById('tr-v').textContent=p1State.reps;
+    document.getElementById('fs-v').textContent=['','Low','Medium-low','Medium','High','Very high'][p1State.sens];
+    p1State.selectedRep=0;
+    buildP1();
+  });
+});
+document.getElementById('ex-select').addEventListener('change',buildP1);
+buildP1();
+
+// ── P2 METRIC TABLE + CHART ───────────────────────────────
+function renderP2(){
+  const base=+document.getElementById('p2-base').value;
+  const load=+document.getElementById('p2-load').value;
+  const reps=+document.getElementById('p2-reps').value;
+  const data=genRepMetrics(base,load,reps,3);
+
+  // Table
+  const tbody=document.getElementById('p2-table-body');
+  tbody.innerHTML='';
+  data.forEach((r,i)=>{
+    const prev=i>0?data[i-1]:null;
+    const tr=document.createElement('tr');
+    const statusText=r.score>=80?'✓ Good':r.score>=65?'⚠ Watch':r.score>=50?'⚠ Poor':'✗ Fault';
+    const statusCol=r.score>=80?'var(--teal)':r.score>=65?'var(--amber)':r.score>=50?'var(--amber)':'var(--red)';
+    const valgCol=r.valgusL<8?'var(--teal)':r.valgusL<12?'var(--amber)':'var(--red)';
+    tr.innerHTML=`<td>${i+1}</td>
+    <td style="color:${scoreColVar(r.score)};font-weight:600">${r.score}</td>
+    <td style="color:${valgCol}">${r.valgusL}°${prev&&r.valgusL>prev.valgusL?'<span style="color:var(--red);font-size:9px"> ↑</span>':''}</td>
+    <td style="color:${r.depth>=85?'var(--teal)':'var(--amber)'}">${r.depth}°</td>
+    <td style="color:${r.trunkLean<40?'var(--teal)':'var(--amber)'}">${r.trunkLean}°</td>
+    <td style="color:${r.symmetry<10?'var(--teal)':r.symmetry<15?'var(--amber)':'var(--red)'}">${r.symmetry}%</td>
+    <td style="color:${statusCol};font-family:var(--mono)">${statusText}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Fault driver
+  const lastRep=data[data.length-1];
+  const faultMetric=lastRep.valgusL>10?'Knee valgus':lastRep.symmetry>15?'Asymmetry':lastRep.depth<80?'Depth':'Trunk lean';
+  document.getElementById('p2-fault-driver').textContent=faultMetric;
+  const firstFault=data.findIndex(r=>r.score<75);
+  document.getElementById('p2-fault-desc').textContent=firstFault>=0?
+    `${faultMetric} crosses threshold at rep ${firstFault+1}. This is the primary driver of score degradation in this set.`:
+    'All metrics remain within range throughout the set.';
+  const pfr=document.getElementById('p2-fault-rep');
+  pfr.innerHTML=firstFault>=0?`<span class="pill pill-red">Fault at rep ${firstFault+1}</span>`:`<span class="pill pill-lime">No fault this set</span>`;
+
+  // Chart
+  drawLineChart('p2-chart', data, reps);
+}
+
+function drawLineChart(canvasId, data, reps){
+  const canvas=document.getElementById(canvasId);if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||760,H=220;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const pad={l:36,r:16,t:16,b:28};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){const y=pad.t+i*(ch/5);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();}
+  ctx.font='9px DM Mono';ctx.fillStyle='rgba(138,136,164,.7)';ctx.textAlign='right';
+  for(let i=0;i<=5;i++){ctx.fillText(100-i*20,pad.l-4,pad.t+i*(ch/5)+4);}
+  ctx.textAlign='center';
+  data.forEach((_,i)=>{const x=pad.l+(i/(reps-1))*cw;ctx.fillText(i+1,x,H-8);});
+
+  // Threshold
+  const ty=pad.t+ch-(75/100)*ch;
+  ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,61,90,.4)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,ty);ctx.lineTo(pad.l+cw,ty);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Lines
+  const lines=[
+    {data:data.map(r=>r.score),        col:'#CCFF00',lw:2.5},
+    {data:data.map(r=>100-r.valgusL*2),col:'#FF3D5A',lw:1.5},
+    {data:data.map(r=>r.depth*0.8),    col:'#00E5C0',lw:1.5},
+    {data:data.map(r=>100-r.symmetry*2),col:'#FFB020',lw:1.5},
+  ];
+  lines.forEach(line=>{
+    ctx.strokeStyle=line.col;ctx.lineWidth=line.lw;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();
+    line.data.forEach((v,i)=>{
+      const x=pad.l+(i/(reps-1))*cw;
+      const y=pad.t+ch-(Math.min(100,Math.max(0,v))/100)*ch;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    // Dots
+    line.data.forEach((v,i)=>{
+      const x=pad.l+(i/(reps-1))*cw;
+      const y=pad.t+ch-(Math.min(100,Math.max(0,v))/100)*ch;
+      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fillStyle=line.col;ctx.fill();
+    });
+  });
+}
+
+['p2-base','p2-load','p2-reps'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    document.getElementById('p2-bq').textContent=document.getElementById('p2-base').value;
+    document.getElementById('p2-lp').textContent=document.getElementById('p2-load').value+'%';
+    document.getElementById('p2-rp').textContent=document.getElementById('p2-reps').value;
+    renderP2();
+  });
+});
+
+// ── P3 FATIGUE CURVE ──────────────────────────────────────
+function renderP3(){
+  const numSessions=+document.getElementById('p3-sessions').value;
+  const load=+document.getElementById('p3-load').value;
+  const reps=+document.getElementById('p3-reps').value;
+  document.getElementById('p3-sv').textContent=numSessions;
+  document.getElementById('p3-lv').textContent=load+'%';
+  document.getElementById('p3-rv').textContent=reps;
+
+  const sessionColors=['#CCFF00','#00E5C0','#FFB020','#4DB8FF','#9B7FFF'];
+  const sessionNames=['Last session','2 sessions ago','3 sessions ago','4 sessions ago','5 sessions ago'];
+  const allSessions=[];
+  for(let s=0;s<numSessions;s++){
+    const base=82+Math.round((Math.random()-0.5)*6);
+    const sens=2+Math.round(Math.random()*2);
+    allSessions.push(genRepMetrics(base,load,reps,sens));
+  }
+
+  // Find typical drop rep
+  const dropReps=allSessions.map(sess=>{
+    const fi=sess.findIndex(r=>r.score<75);
+    return fi>=0?fi+1:reps+1;
+  }).filter(r=>r<=reps);
+  const avgDrop=dropReps.length>0?Math.round(dropReps.reduce((a,b)=>a+b,0)/dropReps.length):reps;
+  const dropMag=Math.round(allSessions.reduce((sum,sess)=>{
+    const peak=Math.max(...sess.map(r=>r.score));
+    const last=sess[sess.length-1].score;
+    return sum+(peak-last);
+  },0)/numSessions);
+
+  document.getElementById('p3-drop-rep').textContent=avgDrop<=reps?avgDrop:'N/A';
+  document.getElementById('p3-drop-mag').textContent='−'+dropMag;
+  document.getElementById('p3-stop').textContent=Math.max(1,avgDrop-1);
+  document.getElementById('p3-prediction').textContent=avgDrop<=reps?`Drop at rep ${avgDrop}`:'No drop detected';
+  document.getElementById('p3-prediction-body').textContent=avgDrop<=reps?
+    `Based on ${numSessions} session${numSessions>1?'s':''} at ${load}% 1RM, your form typically drops below 75 at rep ${avgDrop}. Consider stopping at rep ${Math.max(1,avgDrop-1)} or reducing weight for the final reps.`:
+    `Form held well across all ${numSessions} session${numSessions>1?'s':''} at ${load}% 1RM. Current load is manageable for ${reps} reps.`;
+  document.getElementById('p3-confidence').textContent=numSessions>=3?'High confidence — '+numSessions+' sessions':numSessions===2?'Medium confidence — 2 sessions':'Low confidence — 1 session only';
+
+  // Chart
+  const canvas=document.getElementById('p3-chart');if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||760,H=240;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const pad={l:36,r:16,t:16,b:28};
+  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){const y=pad.t+i*(ch/5);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();}
+  ctx.font='9px DM Mono';ctx.fillStyle='rgba(138,136,164,.7)';ctx.textAlign='right';
+  for(let i=0;i<=5;i++){ctx.fillText(100-i*20,pad.l-4,pad.t+i*(ch/5)+4);}
+  ctx.textAlign='center';
+  for(let r=1;r<=reps;r++){const x=pad.l+((r-1)/(reps-1))*cw;ctx.fillText(r,x,H-8);}
+
+  // Threshold
+  const ty=pad.t+ch-(75/100)*ch;
+  ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,61,90,.4)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,ty);ctx.lineTo(pad.l+cw,ty);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,61,90,.7)';ctx.textAlign='right';ctx.font='9px DM Mono';
+  ctx.fillText('75',pad.l-4,ty+4);
+
+  // Average line
+  if(numSessions>1){
+    ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=2.5;ctx.setLineDash([3,3]);
+    const avgScores=[];
+    for(let r=0;r<reps;r++){
+      avgScores.push(Math.round(allSessions.reduce((s,sess)=>s+(sess[r]?.score||0),0)/numSessions));
+    }
+    ctx.beginPath();
+    avgScores.forEach((v,i)=>{
+      const x=pad.l+(i/(reps-1))*cw;
+      const y=pad.t+ch-(v/100)*ch;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();ctx.setLineDash([]);
+  }
+
+  allSessions.forEach((sess,si)=>{
+    const col=sessionColors[si];
+    ctx.strokeStyle=col;ctx.lineWidth=si===0?2:1.2;ctx.globalAlpha=si===0?1:0.5;
+    ctx.beginPath();
+    sess.forEach((r,ri)=>{
+      const x=pad.l+(ri/(reps-1))*cw;
+      const y=pad.t+ch-(r.score/100)*ch;
+      ri===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();ctx.globalAlpha=1;
+  });
+
+  const legend=document.getElementById('p3-legend');
+  legend.innerHTML='';
+  allSessions.forEach((_,si)=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)';
+    d.innerHTML=`<div style="width:16px;height:2px;background:${sessionColors[si]};opacity:${si===0?1:0.5}"></div>${sessionNames[si]}`;
+    legend.appendChild(d);
+  });
+}
+
+['p3-sessions','p3-load','p3-reps'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',renderP3);
+});
+
+// ── P4 SESSION COMPARISON ─────────────────────────────────
+function renderP4(){
+  const imp=+document.getElementById('p4-improvement').value;
+  document.getElementById('p4-imp-v').textContent='+'+imp+' pts';
+
+  const prevData={score:76,valgusL:11,depth:88,symmetry:14,trunkLean:26};
+  const todayData={
+    score:Math.min(100,76+imp),
+    valgusL:Math.max(0,11-Math.round(imp*0.5)),
+    depth:Math.min(130,88+Math.round(imp*0.3)),
+    symmetry:Math.max(2,14-Math.round(imp*0.4)),
+    trunkLean:Math.max(15,26-Math.round(imp*0.2))
+  };
+
+  document.getElementById('prev-score').textContent=prevData.score;
+  document.getElementById('today-score').textContent=todayData.score;
+  document.getElementById('today-score').style.color=scoreColVar(todayData.score);
+
+  const metrics=[
+    {lbl:'Knee valgus L',prevVal:prevData.valgusL+'°',todayVal:todayData.valgusL+'°',
+     prevW:Math.min(100,prevData.valgusL*5),todayW:Math.min(100,todayData.valgusL*5),
+     improved:todayData.valgusL<prevData.valgusL,unit:'°',delta:prevData.valgusL-todayData.valgusL},
+    {lbl:'Depth',prevVal:prevData.depth+'°',todayVal:todayData.depth+'°',
+     prevW:prevData.depth/130*100,todayW:todayData.depth/130*100,
+     improved:todayData.depth>prevData.depth,unit:'°',delta:todayData.depth-prevData.depth},
+    {lbl:'Symmetry',prevVal:prevData.symmetry+'%',todayVal:todayData.symmetry+'%',
+     prevW:Math.min(100,prevData.symmetry*4),todayW:Math.min(100,todayData.symmetry*4),
+     improved:todayData.symmetry<prevData.symmetry,unit:'%',delta:prevData.symmetry-todayData.symmetry},
+    {lbl:'Trunk lean',prevVal:prevData.trunkLean+'°',todayVal:todayData.trunkLean+'°',
+     prevW:prevData.trunkLean/60*100,todayW:todayData.trunkLean/60*100,
+     improved:todayData.trunkLean<prevData.trunkLean,unit:'°',delta:prevData.trunkLean-todayData.trunkLean},
+  ];
+
+  const renderMetrics=(containerId,data,colorFn)=>{
+    const el=document.getElementById(containerId);el.innerHTML='';
+    metrics.forEach(m=>{
+      const d=document.createElement('div');d.className='sc-metric';
+      const val=containerId.includes('prev')?m.prevVal:m.todayVal;
+      const w=containerId.includes('prev')?m.prevW:m.todayW;
+      const col=containerId.includes('today')&&m.improved?'var(--teal)':'var(--tx2)';
+      d.innerHTML=`<span class="sc-metric-lbl">${m.lbl}</span>
+      <div class="sc-track"><div class="sc-fill" style="width:${w}%;background:${containerId.includes('today')&&m.improved?'var(--teal)':'var(--tx3)'}"></div></div>
+      <span class="sc-metric-val" style="color:${col}">${val}</span>`;
+      el.appendChild(d);
+    });
+  };
+  renderMetrics('prev-metrics',prevData,()=>'var(--tx3)');
+  renderMetrics('today-metrics',todayData,m=>m.improved?'var(--teal)':'var(--tx3)');
+
+  // Delta list
+  const deltaEl=document.getElementById('delta-list');deltaEl.innerHTML='';
+  metrics.forEach(m=>{
+    if(Math.abs(m.delta)<1)return;
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:10px';
+    const col=m.improved?'var(--teal)':'var(--red)';
+    const arrow=m.improved?'↑':'↓';
+    d.innerHTML=`<span style="font-size:18px;color:${col}">${arrow}</span>
+    <div><div style="font-size:13px;font-weight:600;color:var(--tx1)">${m.lbl} ${m.improved?'improved':'worsened'} by ${Math.abs(m.delta).toFixed(0)}${m.unit}</div>
+    <div style="font-size:11px;color:var(--tx2)">${prevData[m.lbl.replace(' L','').replace(' ','').toLowerCase()+'L']||''} → ${todayData[m.lbl.replace(' L','').replace(' ','').toLowerCase()+'L']||''}</div></div>`;
+    deltaEl.appendChild(d);
+  });
+
+  // Between-set card
+  const bigImp=metrics.filter(m=>m.improved&&m.delta>3)[0];
+  if(bigImp){
+    document.getElementById('bs-headline').textContent=`↑ ${bigImp.lbl} improved by ${bigImp.delta.toFixed(0)}${bigImp.unit}`;
+    document.getElementById('bs-body').textContent=bigImp.lbl.includes('valgus')?
+      `Knee tracking is ${todayData.valgusL}° today vs ${prevData.valgusL}° last session. You are now in the safe zone. The clamshell work is in the data.`:
+      `${bigImp.lbl} improved ${bigImp.delta.toFixed(0)}${bigImp.unit} since last session. Consistent improvement showing in the data.`;
+  }
+}
+
+document.getElementById('p4-improvement').addEventListener('input',renderP4);
+
+// ── P5 SCORE COMPOSITION ──────────────────────────────────
+function renderP5(){
+  const metrics=[
+    {lbl:'Knee valgus',weight:25,score:82,color:'var(--red)'},
+    {lbl:'Depth',weight:22,score:90,color:'var(--teal)'},
+    {lbl:'Trunk lean',weight:20,score:86,color:'var(--amber)'},
+    {lbl:'Symmetry',weight:18,score:78,color:'var(--purple)'},
+    {lbl:'Lumbar position',weight:15,score:88,color:'var(--blue)'},
+  ];
+
+  // Weight bars
+  const wbEl=document.getElementById('weight-bars');wbEl.innerHTML='';
+  metrics.forEach(m=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:6px';
+    d.innerHTML=`<span style="font-size:11px;color:var(--tx2);min-width:110px">${m.lbl}</span>
+    <div style="flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden">
+      <div style="width:${m.weight*4}%;height:100%;background:${m.color};border-radius:3px;transition:width .5s"></div>
+    </div>
+    <span style="font-size:10px;font-family:var(--mono);color:var(--tx3);min-width:28px">${m.weight}%</span>`;
+    wbEl.appendChild(d);
+  });
+
+  // Score composition
+  const compEl=document.getElementById('score-composition');compEl.innerHTML='';
+  let total=0;
+  metrics.forEach(m=>{
+    const contribution=Math.round(m.score*m.weight/100);total+=contribution;
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:8px';
+    d.innerHTML=`<span style="font-size:11px;color:var(--tx2);flex:1">${m.lbl} (${m.weight}% weight)</span>
+    <span style="font-size:12px;font-family:var(--mono);color:${m.color}">${m.score} × ${m.weight}% = ${contribution}</span>`;
+    compEl.appendChild(d);
+  });
+  document.getElementById('p5-final-score').textContent=total;
+
+  // Rep weighting visualisation
+  const rwEl=document.getElementById('rep-weight-viz');rwEl.innerHTML='';
+  for(let i=0;i<8;i++){
+    const weight=1.0+(i/7)*0.4;
+    const d=document.createElement('div');
+    d.style.cssText=`flex:1;border-radius:3px 3px 0 0;background:var(--lime);opacity:${0.3+weight*0.4};height:${Math.round(weight*40)}px;transition:height .3s`;
+    rwEl.appendChild(d);
+  }
+}
+
+buildP1();
+</script>
+</body>
+</html>
