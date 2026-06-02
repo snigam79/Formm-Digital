@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Page 2 Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── STAGE ───────────────────────────────────────────────── */
+body{
+  background:#0A0A0E;
+  font-family:'Cabinet Grotesk',sans-serif;
+  color:#F2F1EC;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+.stage-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 32px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  position:sticky;top:0;z-index:50;
+  background:#0A0A0E;
+}
+.stage-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:22px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:#F2F1EC;
+}
+.stage-sub{font-size:11px;color:#5A5870;margin-top:1px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px}
+.vote-bar{display:flex;gap:8px}
+.vote-btn{
+  padding:7px 16px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.12);
+  font-size:12px;font-weight:600;cursor:pointer;
+  background:transparent;color:#9896AE;
+  font-family:'Cabinet Grotesk',sans-serif;
+  transition:all .15s;
+}
+.vote-btn:hover{border-color:rgba(255,255,255,.25);color:#F2F1EC}
+.vote-btn.picked{background:#00E0B5;border-color:#00E0B5;color:#0A0A0E}
+
+/* ── COMPARISON GRID ─────────────────────────────────────── */
+.comparison{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+  padding:32px;
+  align-items:start;
+}
+.col-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 16px}
+.col-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:#5A5870;padding:0 4px;
+}
+.col-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:20px;
+  font-size:11px;font-weight:600;
+  font-family:'IBM Plex Mono',monospace;
+  border:1px solid;
+}
+
+/* ── PHONE SHELL ─────────────────────────────────────────── */
+.phone{
+  width:320px;
+  border-radius:40px;
+  border:1px solid rgba(255,255,255,.12);
+  overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04);
+  position:relative;
+}
+.notch{width:100px;height:24px;margin:0 auto;border-radius:0 0 18px 18px}
+
+/* scrollable phone content */
+.phone-scroll{max-height:680px;overflow-y:auto;overflow-x:hidden}
+.phone-scroll::-webkit-scrollbar{width:2px}
+.phone-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+
+/* ══════════════════════════════════════════════════════════
+   VARIANT A — Dark Editorial (existing v2 aesthetic)
+   ══════════════════════════════════════════════════════════ */
+.va{
+  background:#0F0F17;
+  --bg2:#15151F;--bg3:#1C1C28;--bg4:#242433;--bg5:#2D2D40;
+  --ln1:rgba(255,255,255,.06);--ln2:rgba(255,255,255,.10);
+  --teal:#00E0B5;--tb:rgba(0,224,181,.20);--td:rgba(0,224,181,.08);
+  --green:#36D99A;--amber:#F5A524;--red:#FF4560;--blue:#4DA3FF;--purp:#9B7FFF;
+  --tx1:#F2F1EC;--tx2:#9896AE;--tx3:#5A5870;
+  --disp:'Clash Display',sans-serif;--body:'Cabinet Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+.va-notch{background:#08080C}
+
+/* VA header */
+.va .va-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 0}
+.va .va-logo{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--tx1)}
+.va .va-logo span{color:var(--teal)}
+.va .va-streak{display:flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(245,165,36,.1);border:1px solid rgba(245,165,36,.22);border-radius:20px;font-family:var(--mono);font-size:9px;color:var(--amber)}
+
+/* VA welcome + water */
+.va .va-row1{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 16px 0}
+.va .va-name{font-family:var(--disp);font-size:19px;font-weight:700;letter-spacing:-.2px;color:var(--tx1)}
+.va .va-sub{font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px}
+.va .va-water{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.va .va-water-lbl{font-family:var(--mono);font-size:7px;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase}
+.va .va-drops{display:flex;gap:2px;align-items:center}
+.va .drop{width:6px;height:8px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%}
+.va .drop.on{background:var(--blue)}
+.va .drop.off{background:var(--bg5)}
+
+/* VA brief */
+.va .va-brief{margin:10px 14px 0;background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
+.va .va-brief-bar{position:absolute;left:0;top:0;bottom:0;width:2.5px;border-radius:2px;background:var(--green)}
+.va .va-brief-body{font-size:10px;color:var(--tx2);line-height:1.4;flex:1}
+.va .va-brief-val{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--green)}
+
+/* VA dual hero */
+.va .va-dual{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 14px 0}
+.va .va-score-card{background:radial-gradient(ellipse 90px 70px at 95% 10%,rgba(0,224,181,.14) 0%,transparent 60%),var(--bg2);border:1px solid var(--tb);border-radius:16px;padding:12px 11px;position:relative;overflow:hidden;cursor:pointer}
+.va .va-score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.4),transparent)}
+.va .va-ey{display:flex;align-items:center;gap:3px;margin-bottom:5px}
+.va .va-ey-dot{width:4px;height:4px;border-radius:50%;background:var(--teal);animation:blink-a 2s infinite}
+@keyframes blink-a{0%,100%{opacity:1}50%{opacity:.3}}
+.va .va-ey-txt{font-family:var(--mono);font-size:7px;color:var(--teal);letter-spacing:1px;text-transform:uppercase}
+.va .va-score-n{font-family:var(--disp);font-size:50px;font-weight:700;letter-spacing:-2px;line-height:.9;color:var(--tx1)}
+.va .va-score-sub{font-size:8px;color:var(--tx3);margin-top:4px;line-height:1.3}
+.va .va-delta{display:inline-flex;align-items:center;gap:2px;margin-top:5px;padding:2px 6px;border-radius:20px;background:rgba(54,217,154,.1);border:1px solid rgba(54,217,154,.2);font-family:var(--mono);font-size:8px;color:var(--green)}
+.va .va-spark{margin-top:7px}
+.va .va-sc-btn{width:100%;margin-top:8px;padding:7px 0;border-radius:8px;background:var(--teal);border:none;font-family:var(--body);font-size:10px;font-weight:700;color:#08080C;cursor:pointer}
+
+.va .va-live-card{background:radial-gradient(ellipse 100px 70px at 95% 10%,rgba(255,69,96,.10) 0%,transparent 60%),var(--bg2);border:1px solid rgba(255,69,96,.25);border-radius:16px;padding:12px 11px;position:relative;overflow:hidden;cursor:pointer}
+.va .va-live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,96,.4),transparent)}
+.va .va-rec{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 5px rgba(255,69,96,.6);animation:rec-a 1.2s infinite}
+@keyframes rec-a{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.va .va-live-title{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.2px;line-height:1.1;color:var(--tx1);margin:5px 0 4px}
+.va .va-live-sub{font-size:9px;color:var(--tx2);line-height:1.4;margin-bottom:7px}
+.va .va-rep-bars{display:flex;gap:2px;align-items:flex-end;height:32px;margin-bottom:7px}
+.va .va-rb{flex:1;border-radius:1px 1px 0 0;transition:height .4s ease}
+.va .va-fault{font-size:8px;color:var(--amber);margin-bottom:8px;line-height:1.3}
+.va .va-live-btn{width:100%;padding:7px 0;border-radius:8px;background:var(--red);border:none;font-family:var(--body);font-size:10px;font-weight:700;color:white;cursor:pointer}
+
+/* VA exercise strip */
+.va .va-exstrip{display:flex;gap:6px;overflow-x:auto;padding:10px 14px 0;scroll-snap-type:x mandatory}
+.va .va-exstrip::-webkit-scrollbar{display:none}
+.va .va-exc{min-width:96px;max-width:96px;background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:9px 9px;scroll-snap-align:start;flex-shrink:0;cursor:pointer}
+.va .va-exc.on{border-color:var(--tb);background:var(--td)}
+.va .va-exc-ic{font-size:14px;margin-bottom:4px}
+.va .va-exc-n{font-size:9px;font-weight:700;margin-bottom:2px;line-height:1.2;color:var(--tx1)}
+.va .va-exc-s{font-family:var(--disp);font-size:18px;font-weight:700;line-height:1}
+
+/* VA last session */
+.va .va-last{margin:10px 14px 0;background:var(--bg2);border:1px solid var(--ln1);border-radius:14px;padding:11px 12px}
+.va .va-last-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.va .va-last-t{font-family:var(--disp);font-size:13px;font-weight:700}
+.va .va-last-d{font-family:var(--mono);font-size:8px;color:var(--tx3)}
+.va .va-ls-inner{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:9px;padding:8px 10px;margin-bottom:8px}
+.va .va-ls-s{font-family:var(--disp);font-size:36px;font-weight:700;line-height:1;color:var(--teal)}
+.va .va-ls-ex{font-size:11px;font-weight:700;margin-bottom:1px}
+.va .va-ls-rp{font-family:var(--mono);font-size:8px;color:var(--tx3);margin-bottom:3px}
+.va .va-ls-imp{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:20px;background:rgba(54,217,154,.1);border:1px solid rgba(54,217,154,.2);font-family:var(--mono);font-size:7px;color:var(--green)}
+.va .va-mets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.va .va-met{background:var(--bg3);border-radius:7px;padding:6px 7px}
+.va .va-met-v{font-family:var(--mono);font-size:10px;font-weight:500;line-height:1;margin-bottom:1px}
+.va .va-met-l{font-size:7px;color:var(--tx3);line-height:1.3}
+
+/* VA load + mbs + community */
+.va .va-tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 14px 0}
+.va .va-tile{background:var(--bg2);border:1px solid var(--ln1);border-radius:12px;padding:10px 11px}
+.va .va-tile-ey{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.va .va-tile-v{font-family:var(--disp);font-size:24px;font-weight:700;line-height:1;margin-bottom:2px}
+.va .va-tile-l{font-size:9px;color:var(--tx3);margin-bottom:4px}
+.va .va-tile-bar{height:3px;background:var(--bg5);border-radius:2px;overflow:hidden;margin-bottom:3px}
+.va .va-tile-fill{height:100%;border-radius:2px}
+.va .va-tile-sub{font-family:var(--mono);font-size:7px;color:var(--tx3)}
+.va .va-mbs{margin:10px 14px 0}
+.va .va-mbs-tabs{display:flex;background:var(--bg3);padding:3px;border-radius:9px;margin-bottom:6px}
+.va .va-mt{flex:1;padding:4px 0;border-radius:6px;text-align:center;font-family:var(--body);font-size:10px;font-weight:500;color:var(--tx3);border:none;background:none;cursor:pointer;transition:all .15s}
+.va .va-mt.on{background:var(--teal);color:#08080C;font-weight:700}
+.va .va-mbs-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.va .va-mc{background:var(--bg2);border:1px solid var(--ln1);border-radius:10px;padding:9px 10px;cursor:pointer}
+.va .va-mc-ic{font-size:14px;margin-bottom:4px}
+.va .va-mc-n{font-size:10px;font-weight:700;margin-bottom:1px;line-height:1.2}
+.va .va-mc-s{font-size:8px;color:var(--tx3);line-height:1.3}
+.va .va-comm{margin:8px 14px 0;background:radial-gradient(ellipse 100px 60px at 90% 30%,rgba(77,163,255,.08) 0%,transparent 60%),var(--bg2);border:1px solid rgba(77,163,255,.18);border-radius:12px;padding:10px 12px;cursor:pointer}
+.va .va-comm-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.va .va-comm-t{font-family:var(--disp);font-size:15px;font-weight:700}
+.va .va-comm-s{font-size:9px;color:var(--tx2)}
+.va .va-avs{display:flex;align-items:center}
+.va .va-av{width:20px;height:20px;border-radius:50%;background:var(--bg3);border:2px solid var(--bg2);display:flex;align-items:center;justify-content:center;font-size:9px;margin-left:-5px}
+.va .va-av:first-child{margin-left:0}
+.va .va-ct{margin-left:6px;font-family:var(--mono);font-size:9px;color:var(--blue)}
+
+/* ══════════════════════════════════════════════════════════
+   VARIANT B — Scoreboard / Brutalist Sports
+   ══════════════════════════════════════════════════════════ */
+.vb{
+  background:#0B0B0C;
+  --acc:#E8FF00;--acc-d:rgba(232,255,0,.08);--acc-b:rgba(232,255,0,.22);
+  --red2:#FF2B47;--blue2:#00BFFF;--green2:#00E878;--amber2:#FF9500;
+  --bg2b:#111113;--bg3b:#1A1A1D;--bg4b:#222226;--bg5b:#2C2C32;
+  --ln1b:rgba(255,255,255,.07);--ln2b:rgba(255,255,255,.12);
+  --tx1b:#FAFAF8;--tx2b:#888892;--tx3b:#444450;
+  --dispb:'Barlow Condensed',sans-serif;--bodyb:'Barlow',sans-serif;--monob:'IBM Plex Mono',monospace;
+}
+.vb-notch{background:#000000}
+
+/* VB header */
+.vb .vb-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 0}
+.vb .vb-logo{font-family:var(--dispb);font-size:24px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--tx1b)}
+.vb .vb-logo span{color:var(--acc)}
+.vb .vb-streak{font-family:var(--monob);font-size:9px;color:var(--amber2);letter-spacing:1px;border:1px solid rgba(255,149,0,.3);padding:3px 8px;border-radius:4px}
+
+/* VB scoreboard hero — full width, number dominates */
+.vb .vb-scoreboard{
+  margin:8px 12px 0;
+  background:linear-gradient(135deg,#111113 0%,#141416 100%);
+  border:1px solid var(--acc-b);border-radius:14px;
+  padding:16px 14px 14px;
+  position:relative;overflow:hidden;
+}
+.vb .vb-scoreboard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc)}
+.vb .vb-sb-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.vb .vb-sb-eyebrow{font-family:var(--monob);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.vb .vb-sb-name{font-family:var(--dispb);font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--tx2b);margin-bottom:0}
+.vb .vb-sb-score{text-align:right}
+.vb .vb-sb-n{font-family:var(--dispb);font-size:80px;font-weight:900;letter-spacing:-3px;line-height:.85;color:var(--acc);text-align:right}
+.vb .vb-sb-max{font-family:var(--monob);font-size:9px;color:var(--tx3b);text-align:right;margin-top:3px}
+.vb .vb-sb-pct{font-family:var(--monob);font-size:9px;color:var(--green2);text-align:right}
+/* Rank bar */
+.vb .vb-rank-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.vb .vb-rank-lbl{font-family:var(--monob);font-size:8px;color:var(--tx3b);white-space:nowrap}
+.vb .vb-rank-track{flex:1;height:4px;background:var(--bg5b);border-radius:2px;overflow:hidden}
+.vb .vb-rank-fill{height:100%;width:71%;background:var(--acc);border-radius:2px}
+.vb .vb-rank-pct{font-family:var(--monob);font-size:8px;color:var(--acc);white-space:nowrap}
+/* Metric pills */
+.vb .vb-metrics{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.vb .vb-mp{padding:3px 7px;border-radius:4px;font-family:var(--monob);font-size:8px;letter-spacing:.3px}
+.vb .vb-mp.ok{background:rgba(0,232,120,.12);border:1px solid rgba(0,232,120,.25);color:var(--green2)}
+.vb .vb-mp.warn{background:rgba(255,149,0,.12);border:1px solid rgba(255,149,0,.25);color:var(--amber2)}
+.vb .vb-mp.bad{background:rgba(255,43,71,.12);border:1px solid rgba(255,43,71,.25);color:var(--red2)}
+/* CTA row */
+.vb .vb-sb-cta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.vb .vb-btn{padding:9px 0;border-radius:8px;border:none;font-family:var(--dispb);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.vb .vb-btn.primary{background:var(--acc);color:#0B0B0C}
+.vb .vb-btn.secondary{background:var(--bg3b);border:1px solid var(--ln2b);color:var(--tx2b)}
+.vb .vb-btn:hover{filter:brightness(1.1)}
+
+/* VB live analysis — bold red strip */
+.vb .vb-live{margin:8px 12px 0;background:var(--bg2b);border:1px solid rgba(255,43,71,.3);border-radius:14px;padding:12px 14px;position:relative;overflow:hidden;cursor:pointer}
+.vb .vb-live::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red2)}
+.vb .vb-live-inner{display:flex;align-items:center;gap:12px}
+.vb .vb-live-left{flex:1}
+.vb .vb-live-eyebrow{font-family:var(--monob);font-size:8px;color:var(--red2);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.vb .vb-live-rec{width:6px;height:6px;border-radius:50%;background:var(--red2);animation:rec-b 1.2s infinite}
+@keyframes rec-b{0%,100%{box-shadow:0 0 0 0 rgba(255,43,71,.6)}50%{box-shadow:0 0 0 4px rgba(255,43,71,0)}}
+.vb .vb-live-title{font-family:var(--dispb);font-size:22px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--tx1b);line-height:1;margin-bottom:3px}
+.vb .vb-live-sub{font-size:10px;color:var(--tx2b);line-height:1.4}
+.vb .vb-live-right{flex-shrink:0}
+.vb .vb-live-bars{display:flex;gap:3px;align-items:flex-end;height:40px;width:60px}
+.vb .vb-lrb{flex:1;border-radius:2px 2px 0 0;transition:height .3s}
+.vb .vb-live-startbtn{width:100%;margin-top:9px;padding:9px 0;border-radius:8px;background:var(--red2);border:none;font-family:var(--dispb);font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:white;cursor:pointer;transition:all .15s}
+
+/* VB exercise strip — horizontal scrolling score cards */
+.vb .vb-exstrip{display:flex;gap:6px;overflow-x:auto;padding:8px 12px 0;scroll-snap-type:x mandatory}
+.vb .vb-exstrip::-webkit-scrollbar{display:none}
+.vb .vb-exc{min-width:88px;max-width:88px;background:var(--bg2b);border:1px solid var(--ln1b);border-radius:10px;padding:9px 9px;scroll-snap-align:start;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden}
+.vb .vb-exc.on{border-color:var(--acc-b)}
+.vb .vb-exc.on::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc)}
+.vb .vb-exc-ic{font-size:14px;margin-bottom:4px}
+.vb .vb-exc-n{font-family:var(--dispb);font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;margin-bottom:3px;color:var(--tx1b);line-height:1.1}
+.vb .vb-exc-s{font-family:var(--dispb);font-size:24px;font-weight:900;line-height:1}
+.vb .vb-exc-f{font-size:8px;margin-top:2px;line-height:1.2}
+
+/* VB data row — last session + ACWR side by side */
+.vb .vb-datarow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 12px 0}
+.vb .vb-data-card{background:var(--bg2b);border:1px solid var(--ln1b);border-radius:12px;padding:10px 11px}
+.vb .vb-dc-ey{font-family:var(--monob);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3b);margin-bottom:4px}
+.vb .vb-dc-val{font-family:var(--dispb);font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1;margin-bottom:3px}
+.vb .vb-dc-sub{font-size:9px;color:var(--tx2b);line-height:1.4;margin-bottom:6px}
+.vb .vb-dc-bar{height:3px;background:var(--bg5b);border-radius:2px;overflow:hidden;margin-bottom:3px}
+.vb .vb-dc-fill{height:100%;border-radius:2px}
+.vb .vb-dc-foot{font-family:var(--monob);font-size:7px;color:var(--tx3b)}
+
+/* VB brief strip */
+.vb .vb-brief{margin:8px 12px 0;background:var(--bg2b);border:1px solid var(--ln1b);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
+.vb .vb-brief-bar{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green2)}
+.vb .vb-brief-body{font-size:10px;color:var(--tx2b);line-height:1.35;flex:1}
+.vb .vb-brief-val{font-family:var(--monob);font-size:12px;font-weight:500}
+.vb .vb-brief-lbl{font-family:var(--monob);font-size:7px;color:var(--tx3b);margin-bottom:1px;letter-spacing:1px;text-transform:uppercase}
+
+/* VB mbs */
+.vb .vb-mbs{margin:8px 12px 0;background:var(--bg2b);border:1px solid var(--ln1b);border-radius:12px;padding:10px 12px}
+.vb .vb-mbs-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.vb .vb-mbs-t{font-family:var(--dispb);font-size:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tx1b)}
+.vb .vb-mbs-tabs{display:flex;gap:4px}
+.vb .vb-mt{padding:3px 9px;border-radius:4px;font-family:var(--monob);font-size:8px;letter-spacing:.5px;text-transform:uppercase;border:1px solid var(--ln2b);background:none;color:var(--tx3b);cursor:pointer;transition:all .15s}
+.vb .vb-mt.on{background:var(--acc);border-color:var(--acc);color:#0B0B0C;font-weight:700}
+.vb .vb-mbs-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.vb .vb-mc{background:var(--bg3b);border:1px solid var(--ln1b);border-radius:8px;padding:8px 9px;cursor:pointer}
+.vb .vb-mc-ic{font-size:13px;margin-bottom:3px}
+.vb .vb-mc-n{font-family:var(--dispb);font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--tx1b);margin-bottom:1px;line-height:1.1}
+.vb .vb-mc-s{font-size:8px;color:var(--tx3b);line-height:1.3}
+
+/* VB community */
+.vb .vb-comm{margin:8px 12px 0;background:var(--bg2b);border:1px solid rgba(0,191,255,.2);border-radius:12px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.vb .vb-comm-t{font-family:var(--dispb);font-size:16px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--tx1b)}
+.vb .vb-comm-s{font-size:9px;color:var(--tx2b);margin-top:1px;font-family:var(--monob)}
+.vb .vb-avs{display:flex;align-items:center}
+.vb .vb-av{width:20px;height:20px;border-radius:50%;background:var(--bg4b);border:2px solid var(--bg2b);font-size:9px;display:flex;align-items:center;justify-content:center;margin-left:-5px}
+.vb .vb-av:first-child{margin-left:0}
+.vb .vb-ct{margin-left:5px;font-family:var(--monob);font-size:9px;color:var(--blue2)}
+
+/* ══════════════════════════════════════════════════════════
+   VARIANT C — Refined Athletic / Light Theme
+   ══════════════════════════════════════════════════════════ */
+.vc{
+  background:#F2EFE8;
+  --bg2c:#FFFFFF;--bg3c:#F5F2EB;--bg4c:#EAE6DF;--bg5c:#DDD9D2;
+  --ln1c:rgba(0,0,0,.07);--ln2c:rgba(0,0,0,.12);
+  --teaC:#006B55;--teaC-l:rgba(0,107,85,.08);--teaC-b:rgba(0,107,85,.2);
+  --grnC:#1A6B42;--grnC-l:rgba(26,107,66,.08);
+  --ambC:#9B5E00;--ambC-l:rgba(155,94,0,.08);
+  --redC:#C42B2B;--redC-l:rgba(196,43,43,.08);
+  --bluC:#0A5B8A;--bluC-l:rgba(10,91,138,.08);
+  --tx1c:#1A1814;--tx2c:#5C5850;--tx3c:#9B978E;
+  --dispc:'DM Serif Display',serif;--bodyc:'DM Sans',sans-serif;--monoc:'Inconsolata',monospace;
+}
+.vc-notch{background:#E8E4DC}
+
+.vc .vc-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 0}
+.vc .vc-logo{font-family:var(--dispc);font-size:20px;font-style:italic;color:var(--tx1c)}
+.vc .vc-logo span{color:var(--teaC);font-style:normal}
+.vc .vc-streak{display:flex;align-items:center;gap:4px;padding:3px 9px;background:var(--ambC-l);border:1px solid rgba(155,94,0,.18);border-radius:20px;font-family:var(--monoc);font-size:9px;color:var(--ambC)}
+
+.vc .vc-row1{display:flex;align-items:flex-start;justify-content:space-between;padding:8px 16px 0}
+.vc .vc-name{font-family:var(--dispc);font-size:21px;font-style:italic;color:var(--tx1c);line-height:1.1}
+.vc .vc-sub{font-family:var(--monoc);font-size:8px;color:var(--tx3c);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.vc .vc-water{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.vc .vc-wlbl{font-family:var(--monoc);font-size:7px;color:var(--tx3c);letter-spacing:.8px;text-transform:uppercase}
+.vc .vc-drops{display:flex;gap:2px;align-items:center}
+.vc .drop{width:6px;height:8px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%}
+.vc .drop.on{background:var(--bluC)}
+.vc .drop.off{background:var(--bg4c)}
+
+.vc .vc-brief{margin:10px 14px 0;background:var(--bg2c);border:1px solid var(--ln1c);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.vc .vc-brief-bar{position:absolute;left:0;top:0;bottom:0;width:2.5px;background:var(--grnC)}
+.vc .vc-brief-body{font-size:10px;color:var(--tx2c);line-height:1.4;flex:1}
+.vc .vc-brief-val{font-family:var(--monoc);font-size:13px;font-weight:500;color:var(--grnC)}
+
+/* VC score card — watch face feel */
+.vc .vc-score-card{
+  margin:10px 14px 0;
+  background:var(--bg2c);
+  border:1px solid var(--ln1c);
+  border-radius:18px;
+  padding:16px 16px 14px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.07);
+}
+.vc .vc-sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.vc .vc-sc-left{}
+.vc .vc-sc-eyebrow{font-family:var(--monoc);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3c);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.vc .vc-sc-dot{width:5px;height:5px;border-radius:50%;background:var(--teaC);animation:blink-c 2s infinite}
+@keyframes blink-c{0%,100%{opacity:1}50%{opacity:.3}}
+.vc .vc-sc-n{font-family:var(--dispc);font-size:72px;font-weight:400;letter-spacing:-3px;line-height:.85;color:var(--tx1c)}
+.vc .vc-sc-sub{font-family:var(--monoc);font-size:9px;color:var(--tx3c);margin-top:6px}
+.vc .vc-sc-right{text-align:right}
+.vc .vc-sc-trend-lbl{font-family:var(--monoc);font-size:7px;color:var(--tx3c);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.vc .vc-sc-delta{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;background:var(--grnC-l);border:1px solid rgba(26,107,66,.2);font-family:var(--monoc);font-size:9px;color:var(--grnC)}
+/* Thin breakdown bars */
+.vc .vc-bd{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.vc .vc-bd-row{display:flex;align-items:center;gap:8px}
+.vc .vc-bd-n{font-family:var(--monoc);font-size:9px;color:var(--tx3c);min-width:72px}
+.vc .vc-bd-track{flex:1;height:3px;background:var(--bg4c);border-radius:2px;overflow:hidden}
+.vc .vc-bd-fill{height:100%;border-radius:2px}
+.vc .vc-bd-v{font-family:var(--monoc);font-size:9px;min-width:20px;text-align:right}
+.vc .vc-sc-cta{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.vc .vc-btn{padding:9px 0;border-radius:10px;border:none;font-family:var(--bodyc);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.vc .vc-btn.primary{background:var(--teaC);color:white}
+.vc .vc-btn.secondary{background:var(--bg3c);border:1px solid var(--ln2c);color:var(--tx2c)}
+.vc .vc-btn:hover{filter:brightness(.94)}
+
+/* VC live analysis — clean card */
+.vc .vc-live{
+  margin:9px 14px 0;
+  background:var(--bg2c);border:1px solid var(--ln1c);border-radius:14px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  box-shadow:0 1px 6px rgba(0,0,0,.05);
+}
+.vc .vc-live-left{flex:1}
+.vc .vc-live-ey{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.vc .vc-live-rec{width:6px;height:6px;border-radius:50%;background:var(--redC);animation:rec-c 1.2s infinite}
+@keyframes rec-c{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.vc .vc-live-eylbl{font-family:var(--monoc);font-size:8px;color:var(--redC);letter-spacing:1.5px;text-transform:uppercase}
+.vc .vc-live-title{font-family:var(--dispc);font-size:20px;font-style:italic;color:var(--tx1c);line-height:1.1;margin-bottom:2px}
+.vc .vc-live-sub{font-size:10px;color:var(--tx2c);line-height:1.4;margin-bottom:9px}
+.vc .vc-live-btn{padding:8px 18px;border-radius:9px;background:var(--redC);border:none;font-family:var(--bodyc);font-size:11px;font-weight:600;color:white;cursor:pointer}
+.vc .vc-live-bars{flex-shrink:0;display:flex;gap:3px;align-items:flex-end;height:44px;width:56px}
+.vc .vc-lrb{flex:1;border-radius:2px 2px 0 0;transition:height .3s}
+
+/* VC exercise scroll */
+.vc .vc-exstrip{display:flex;gap:6px;overflow-x:auto;padding:9px 14px 0;scroll-snap-type:x mandatory}
+.vc .vc-exstrip::-webkit-scrollbar{display:none}
+.vc .vc-exc{min-width:96px;max-width:96px;background:var(--bg2c);border:1px solid var(--ln1c);border-radius:12px;padding:10px 10px;scroll-snap-align:start;flex-shrink:0;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.vc .vc-exc.on{border-color:var(--teaC-b);background:var(--teaC-l)}
+.vc .vc-exc-ic{font-size:15px;margin-bottom:4px}
+.vc .vc-exc-n{font-size:10px;font-weight:600;margin-bottom:2px;line-height:1.2;color:var(--tx1c)}
+.vc .vc-exc-s{font-family:var(--dispc);font-size:20px;font-weight:400;line-height:1}
+.vc .vc-exc-f{font-size:8px;margin-top:2px;line-height:1.3}
+
+/* VC last session */
+.vc .vc-last{margin:9px 14px 0;background:var(--bg2c);border:1px solid var(--ln1c);border-radius:14px;padding:12px 13px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.vc .vc-last-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.vc .vc-last-t{font-family:var(--dispc);font-size:14px;font-style:italic;color:var(--tx1c)}
+.vc .vc-last-d{font-family:var(--monoc);font-size:8px;color:var(--tx3c)}
+.vc .vc-ls-inner{display:flex;align-items:center;gap:10px;background:var(--bg3c);border-radius:9px;padding:8px 10px;margin-bottom:8px}
+.vc .vc-ls-s{font-family:var(--dispc);font-size:38px;font-weight:400;line-height:1;color:var(--teaC)}
+.vc .vc-ls-ex{font-size:11px;font-weight:600;margin-bottom:1px;color:var(--tx1c)}
+.vc .vc-ls-rp{font-family:var(--monoc);font-size:8px;color:var(--tx3c);margin-bottom:3px}
+.vc .vc-ls-imp{display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:20px;background:var(--grnC-l);border:1px solid rgba(26,107,66,.2);font-family:var(--monoc);font-size:8px;color:var(--grnC)}
+.vc .vc-mets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.vc .vc-met{background:var(--bg3c);border-radius:7px;padding:6px 7px}
+.vc .vc-met-v{font-family:var(--monoc);font-size:10px;font-weight:500;line-height:1;margin-bottom:1px}
+.vc .vc-met-l{font-size:7px;color:var(--tx3c);line-height:1.3}
+
+/* VC load tiles */
+.vc .vc-tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:9px 14px 0}
+.vc .vc-tile{background:var(--bg2c);border:1px solid var(--ln1c);border-radius:12px;padding:10px 11px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.vc .vc-tile-ey{font-family:var(--monoc);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3c);margin-bottom:3px}
+.vc .vc-tile-v{font-family:var(--dispc);font-size:24px;font-weight:400;line-height:1;margin-bottom:2px}
+.vc .vc-tile-l{font-size:9px;color:var(--tx3c);margin-bottom:5px}
+.vc .vc-tile-bar{height:3px;background:var(--bg4c);border-radius:2px;overflow:hidden;margin-bottom:3px}
+.vc .vc-tile-fill{height:100%;border-radius:2px}
+.vc .vc-tile-sub{font-family:var(--monoc);font-size:7px;color:var(--tx3c)}
+.vc .vc-acwr{grid-column:1/-1;background:var(--bg2c);border:1px solid var(--ln1c);border-radius:12px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.vc .vc-acwr-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px}
+.vc .vc-acwr-n{font-family:var(--dispc);font-size:26px;font-weight:400;line-height:1}
+.vc .vc-acwr-status{display:inline-flex;align-items:center;gap:3px;margin-top:3px;padding:2px 7px;border-radius:20px;font-family:var(--monoc);font-size:8px}
+.vc .vc-acwr-ey{font-family:var(--monoc);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3c);margin-bottom:2px}
+.vc .vc-acwr-desc{font-size:10px;color:var(--tx2c);line-height:1.5;flex:1}
+.vc .vc-acwr-gauge{height:3px;background:var(--bg4c);border-radius:2px;overflow:hidden;margin-top:8px}
+.vc .vc-acwr-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--teaC),var(--grnC))}
+
+/* VC mbs */
+.vc .vc-mbs{margin:9px 14px 0;background:var(--bg2c);border:1px solid var(--ln1c);border-radius:14px;padding:11px 12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.vc .vc-mbs-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.vc .vc-mbs-t{font-family:var(--dispc);font-size:14px;font-style:italic;color:var(--tx1c)}
+.vc .vc-mbs-tabs{display:flex;background:var(--bg3c);padding:3px;border-radius:8px;margin-bottom:7px}
+.vc .vc-mt{flex:1;padding:4px 0;border-radius:6px;text-align:center;font-family:var(--bodyc);font-size:10px;font-weight:500;color:var(--tx3c);border:none;background:none;cursor:pointer;transition:all .15s}
+.vc .vc-mt.on{background:var(--teaC);color:white;font-weight:600}
+.vc .vc-mbs-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.vc .vc-mc{background:var(--bg3c);border:1px solid var(--ln1c);border-radius:9px;padding:8px 10px;cursor:pointer}
+.vc .vc-mc-ic{font-size:14px;margin-bottom:3px}
+.vc .vc-mc-n{font-size:10px;font-weight:600;margin-bottom:1px;line-height:1.2;color:var(--tx1c)}
+.vc .vc-mc-s{font-size:8px;color:var(--tx3c);line-height:1.3}
+
+/* VC community */
+.vc .vc-comm{margin:8px 14px 0;background:var(--bg2c);border:1px solid var(--ln1c);border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.vc .vc-comm-t{font-family:var(--dispc);font-size:17px;font-style:italic;color:var(--tx1c)}
+.vc .vc-comm-s{font-size:9px;color:var(--tx2c)}
+.vc .vc-avs{display:flex;align-items:center}
+.vc .vc-av{width:20px;height:20px;border-radius:50%;background:var(--bg3c);border:2px solid var(--bg2c);font-size:9px;display:flex;align-items:center;justify-content:center;margin-left:-5px}
+.vc .vc-av:first-child{margin-left:0}
+.vc .vc-ct{margin-left:5px;font-family:var(--monoc);font-size:9px;color:var(--bluC)}
+
+/* ── BOTTOM NAV (shared style, overridden per variant) ───── */
+.bnav-shared{display:flex;padding:7px 0 16px;position:relative}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.bni-ic{font-size:16px;opacity:.3;transition:opacity .15s}
+.bni-lbl{font-size:7px;letter-spacing:.5px;text-transform:uppercase;opacity:0;transition:opacity .15s}
+.bni.on .bni-ic{opacity:1}
+.bni.on .bni-lbl{opacity:1}
+.fab{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:transform .15s;box-shadow:0 0 16px rgba(0,0,0,.3)}
+.fab:hover{transform:translateX(-50%) scale(1.1)}
+.va .bnav-shared{background:#0F0F17;border-top:1px solid rgba(255,255,255,.06)}
+.va .bni-lbl{font-family:var(--mono);color:#5A5870}
+.va .bni.on .bni-lbl{color:var(--teal)}
+.va .fab{background:var(--teal);box-shadow:0 0 16px rgba(0,224,181,.4)}
+.vb .bnav-shared{background:#0B0B0C;border-top:1px solid rgba(255,255,255,.08)}
+.vb .bni-lbl{font-family:var(--monob);color:#444450}
+.vb .bni.on .bni-lbl{color:var(--acc)}
+.vb .fab{background:var(--acc);box-shadow:0 0 16px rgba(232,255,0,.35)}
+.vc .bnav-shared{background:#FFFFFF;border-top:1px solid rgba(0,0,0,.08)}
+.vc .bni-lbl{font-family:var(--monoc);color:var(--tx3c)}
+.vc .bni.on .bni-lbl{color:var(--teaC)}
+.vc .fab{background:var(--teaC);box-shadow:0 2px 14px rgba(0,107,85,.25)}
+
+/* ── ANIMATE ─────────────────────────────────────────────── */
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.u0{animation:up .35s .00s both}.u1{animation:up .35s .06s both}.u2{animation:up .35s .12s both}
+.u3{animation:up .35s .18s both}.u4{animation:up .35s .24s both}.u5{animation:up .35s .30s both}
+.u6{animation:up .35s .36s both}.u7{animation:up .35s .42s both}
+</style>
+</head>
+<body>
+
+<!-- ── STAGE HEADER ─────────────────────────────────────── -->
+<div class="stage-header">
+  <div>
+    <div class="stage-title">Formm — Page 2 Comparison</div>
+    <div class="stage-sub">3 design directions · scroll each phone independently</div>
+  </div>
+  <div class="vote-bar">
+    <button class="vote-btn" id="vbA" onclick="vote('A')">A — Dark Editorial</button>
+    <button class="vote-btn" id="vbB" onclick="vote('B')">B — Scoreboard</button>
+    <button class="vote-btn" id="vbC" onclick="vote('C')">C — Clean Athletic</button>
+  </div>
+</div>
+
+<!-- ── COMPARISON GRID ──────────────────────────────────── -->
+<div class="comparison">
+
+  <!-- ════ VARIANT A ════ -->
+  <div class="col-wrap">
+    <span class="col-label">Variant A</span>
+    <div class="col-tag" style="color:#00E0B5;background:rgba(0,224,181,.08);border-color:rgba(0,224,181,.25)">Dark · Editorial · Teal</div>
+    <div class="phone">
+      <div class="notch va-notch"></div>
+      <div class="phone-scroll va">
+        <!-- VA HEADER -->
+        <div class="va-hdr u0">
+          <div class="va-logo"><span>F</span>ormm</div>
+          <div class="va-streak">🔥 14 streak</div>
+        </div>
+        <!-- VA WELCOME + WATER -->
+        <div class="va-row1 u0">
+          <div><div class="va-name">Morning, Samrat</div><div class="va-sub">Monday · Training day</div></div>
+          <div class="va-water">
+            <div class="va-water-lbl">Hydration</div>
+            <div class="va-drops" id="va-drops"></div>
+          </div>
+        </div>
+        <!-- VA BRIEF -->
+        <div class="va-brief u1">
+          <div class="va-brief-bar" id="va-brief-bar"></div>
+          <div style="font-size:18px;flex-shrink:0">✅</div>
+          <div class="va-brief-body" id="va-brief-body">ACWR 1.1 — optimal zone. Good day to push.</div>
+          <div class="va-brief-val" id="va-brief-val">1.1</div>
+        </div>
+        <!-- VA DUAL HERO -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 6px">
+          <div style="font-family:var(--disp);font-size:14px;font-weight:700;letter-spacing:-.2px">Form Analysis</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--teal);cursor:pointer">History →</div>
+        </div>
+        <div class="va-dual u2">
+          <div class="va-score-card">
+            <div class="va-ey"><div class="va-ey-dot"></div><span class="va-ey-txt">Formm Score</span></div>
+            <div class="va-score-n" id="va-score-n">84</div>
+            <div class="va-score-sub">Top 29%<br>Intermediate</div>
+            <div class="va-delta">↑ +8 this month</div>
+            <div class="va-spark"><svg width="100%" height="30" viewBox="0 0 100 30" id="va-spark" preserveAspectRatio="none"></svg></div>
+            <button class="va-sc-btn">View score →</button>
+          </div>
+          <div class="va-live-card">
+            <div class="va-ey"><div class="va-rec"></div><span class="va-ey-txt" style="color:var(--red)">Live</span></div>
+            <div class="va-live-title">Analyse<br>a set</div>
+            <div class="va-live-sub">Real-time form<br>score per rep</div>
+            <div class="va-rep-bars" id="va-rbars"></div>
+            <div class="va-fault">⚠ Knee valgus<br>last session</div>
+            <button class="va-live-btn">📸 Start</button>
+          </div>
+        </div>
+        <!-- VA EXERCISE STRIP -->
+        <div class="va-exstrip u3" id="va-exstrip"></div>
+        <!-- VA LAST SESSION -->
+        <div class="va-last u4">
+          <div class="va-last-hd"><div class="va-last-t">Last session</div><div class="va-last-d">Friday</div></div>
+          <div class="va-ls-inner">
+            <div class="va-ls-s">82</div>
+            <div><div class="va-ls-ex">Back squat · 80kg</div><div class="va-ls-rp">8 reps · side view</div><div class="va-ls-imp">↑ +6 pts</div></div>
+          </div>
+          <div class="va-mets" id="va-mets"></div>
+        </div>
+        <!-- VA TILES -->
+        <div class="va-tiles u5">
+          <div class="va-tile" style="border-color:var(--tb)">
+            <div class="va-tile-ey" style="color:var(--teal)">Volume</div>
+            <div class="va-tile-v" style="color:var(--teal)">9.4<span style="font-size:11px;color:var(--tx3)">t</span></div>
+            <div class="va-tile-l">Tonnes lifted</div>
+            <div class="va-tile-bar"><div class="va-tile-fill" style="width:74%;background:var(--teal)"></div></div>
+            <div class="va-tile-sub">↑ 8% vs last week</div>
+          </div>
+          <div class="va-tile" style="border-color:rgba(155,127,255,.25)">
+            <div class="va-tile-ey" style="color:var(--purp)">Move Age</div>
+            <div class="va-tile-v" style="color:var(--purp)">26<span style="font-size:11px;color:var(--tx3)">yr</span></div>
+            <div class="va-tile-l">34 days to go</div>
+            <div class="va-tile-bar"><div class="va-tile-fill" style="width:38%;background:var(--purp)"></div></div>
+            <div class="va-tile-sub">56 days logged</div>
+          </div>
+        </div>
+        <!-- VA MBS -->
+        <div class="va-mbs u6">
+          <div style="font-family:var(--disp);font-size:13px;font-weight:700;margin-bottom:6px">Explore</div>
+          <div class="va-mbs-tabs">
+            <button class="va-mt on" onclick="vaMBS(this,'Mind')">Mind</button>
+            <button class="va-mt" onclick="vaMBS(this,'Body')">Body</button>
+            <button class="va-mt" onclick="vaMBS(this,'Soul')">Soul</button>
+          </div>
+          <div class="va-mbs-grid" id="va-mbs-grid"></div>
+        </div>
+        <!-- VA COMMUNITY -->
+        <div class="va-comm u7">
+          <div class="va-comm-row">
+            <div><div class="va-comm-t">Community</div><div class="va-comm-s" style="font-size:9px;color:var(--tx2)">312 athletes today</div></div>
+            <div style="display:flex;align-items:center">
+              <div class="va-avs"><div class="va-av">🧑</div><div class="va-av">👩</div><div class="va-av">🧑‍🦱</div></div>
+              <div class="va-ct">+309</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- VA BNAV -->
+      <div class="bnav-shared va">
+        <div class="bni"><div class="bni-ic">🏠</div><div class="bni-lbl">Home</div></div>
+        <div class="bni on"><div class="bni-ic">📊</div><div class="bni-lbl">Progress</div></div>
+        <div class="bni" style="position:relative"><div class="fab">📸</div><div class="bni-ic" style="opacity:0">📸</div><div class="bni-lbl" style="opacity:1;color:var(--teal)">Analyse</div></div>
+        <div class="bni"><div class="bni-ic">📅</div><div class="bni-lbl">Log</div></div>
+        <div class="bni"><div class="bni-ic">⚙️</div><div class="bni-lbl">Profile</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ VARIANT B ════ -->
+  <div class="col-wrap">
+    <span class="col-label">Variant B</span>
+    <div class="col-tag" style="color:#E8FF00;background:rgba(232,255,0,.08);border-color:rgba(232,255,0,.25)">Scoreboard · Brutalist · Electric</div>
+    <div class="phone">
+      <div class="notch vb-notch"></div>
+      <div class="phone-scroll vb">
+        <!-- VB HEADER -->
+        <div class="vb-hdr u0">
+          <div class="vb-logo"><span>F</span>ormm</div>
+          <div class="vb-streak">🔥 14 DAY STREAK</div>
+        </div>
+        <!-- VB WELCOME + WATER -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:8px 12px 0" class="u0">
+          <div>
+            <div style="font-family:var(--dispb);font-size:22px;font-weight:900;letter-spacing:-.5px;text-transform:uppercase;color:var(--tx1b);line-height:1.05">Morning,<br>Samrat</div>
+            <div style="font-family:var(--monob);font-size:8px;color:var(--tx3b);letter-spacing:1px;text-transform:uppercase;margin-top:2px">Monday · Training day</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+            <div style="font-family:var(--monob);font-size:7px;color:var(--tx3b);letter-spacing:.8px;text-transform:uppercase">Hydration</div>
+            <div id="vb-drops" style="display:flex;gap:2px;align-items:center"></div>
+          </div>
+        </div>
+        <!-- VB BRIEF -->
+        <div class="vb-brief u1">
+          <div class="vb-brief-bar" id="vb-brief-bar"></div>
+          <div><div class="vb-brief-lbl">Readiness</div><div class="vb-brief-body" id="vb-brief-body">ACWR 1.1 — optimal. Train hard today.</div></div>
+          <div><div class="vb-brief-lbl">ACWR</div><div class="vb-brief-val" id="vb-brief-val" style="color:var(--green2)">1.1</div></div>
+        </div>
+        <!-- VB SCOREBOARD HERO -->
+        <div style="padding:8px 12px 0" class="u2">
+          <div style="font-family:var(--monob);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3b);margin-bottom:4px">Form Analysis</div>
+        </div>
+        <div style="padding:0 12px" class="u2">
+          <div class="vb-scoreboard">
+            <div class="vb-sb-top">
+              <div>
+                <div class="vb-sb-eyebrow">Formm Score</div>
+                <div class="vb-sb-name">Samrat Nigam · Intermediate</div>
+              </div>
+              <div class="vb-sb-score">
+                <div class="vb-sb-n" id="vb-score-n">84</div>
+                <div class="vb-sb-max">/ 100</div>
+                <div class="vb-sb-pct">TOP 29%</div>
+              </div>
+            </div>
+            <div class="vb-rank-row">
+              <div class="vb-rank-lbl">RANK</div>
+              <div class="vb-rank-track"><div class="vb-rank-fill"></div></div>
+              <div class="vb-rank-pct">71st PCTILE</div>
+            </div>
+            <div class="vb-metrics">
+              <div class="vb-mp ok">KNEES OK</div>
+              <div class="vb-mp ok">DEPTH OK</div>
+              <div class="vb-mp warn">TRUNK LEAN</div>
+              <div class="vb-mp ok">SYMMETRY</div>
+              <div class="vb-mp warn">LUMBAR</div>
+            </div>
+            <div class="vb-sb-cta">
+              <button class="vb-btn secondary">TRENDS →</button>
+              <button class="vb-btn primary">📸 ANALYSE</button>
+            </div>
+          </div>
+        </div>
+        <!-- VB LIVE -->
+        <div style="padding:0 12px;margin-top:8px" class="u2">
+          <div class="vb-live">
+            <div class="vb-live-inner">
+              <div class="vb-live-left">
+                <div class="vb-live-eyebrow"><div class="vb-live-rec"></div>LIVE ANALYSIS</div>
+                <div class="vb-live-title">Start a<br>live set</div>
+                <div class="vb-live-sub">Rep-by-rep form score in real time</div>
+              </div>
+              <div class="vb-live-right">
+                <div class="vb-live-bars" id="vb-rbars"></div>
+              </div>
+            </div>
+            <button class="vb-live-startbtn">📸 START NOW</button>
+          </div>
+        </div>
+        <!-- VB EXERCISE STRIP -->
+        <div style="padding:8px 12px 0;font-family:var(--monob);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3b)" class="u3">By Exercise</div>
+        <div class="vb-exstrip u3" id="vb-exstrip"></div>
+        <!-- VB DATA ROW -->
+        <div class="vb-datarow u4">
+          <div class="vb-data-card">
+            <div class="vb-dc-ey">Last Session</div>
+            <div class="vb-dc-val" style="color:var(--acc)">82</div>
+            <div class="vb-dc-sub">Squat · 80kg × 8</div>
+            <div class="vb-dc-bar"><div class="vb-dc-fill" style="width:82%;background:var(--acc)"></div></div>
+            <div class="vb-dc-foot">↑ +6 vs PREV</div>
+          </div>
+          <div class="vb-data-card">
+            <div class="vb-dc-ey">ACWR</div>
+            <div class="vb-dc-val" style="color:var(--green2)">1.1</div>
+            <div class="vb-dc-sub">Optimal zone</div>
+            <div class="vb-dc-bar"><div class="vb-dc-fill" style="width:55%;background:var(--green2)"></div></div>
+            <div class="vb-dc-foot">WEEKLY 1,680 AU</div>
+          </div>
+        </div>
+        <!-- VB MBS -->
+        <div class="vb-mbs u5">
+          <div class="vb-mbs-row">
+            <div class="vb-mbs-t">Explore</div>
+            <div class="vb-mbs-tabs">
+              <button class="vb-mt on" onclick="vbMBS(this,'Mind')">MIND</button>
+              <button class="vb-mt" onclick="vbMBS(this,'Body')">BODY</button>
+              <button class="vb-mt" onclick="vbMBS(this,'Soul')">SOUL</button>
+            </div>
+          </div>
+          <div class="vb-mbs-grid" id="vb-mbs-grid"></div>
+        </div>
+        <!-- VB COMMUNITY -->
+        <div class="vb-comm u6">
+          <div><div class="vb-comm-t">Community</div><div class="vb-comm-s">312 Athletes Online</div></div>
+          <div style="display:flex;align-items:center">
+            <div class="vb-avs"><div class="vb-av">🧑</div><div class="vb-av">👩</div><div class="vb-av">🧑‍🦱</div></div>
+            <div class="vb-ct">+309</div>
+          </div>
+        </div>
+      </div>
+      <!-- VB BNAV -->
+      <div class="bnav-shared vb">
+        <div class="bni"><div class="bni-ic">🏠</div><div class="bni-lbl">Home</div></div>
+        <div class="bni on"><div class="bni-ic">📊</div><div class="bni-lbl">Progress</div></div>
+        <div class="bni" style="position:relative"><div class="fab vb">📸</div><div class="bni-ic" style="opacity:0">📸</div><div class="bni-lbl" style="opacity:1;color:var(--acc)">Analyse</div></div>
+        <div class="bni"><div class="bni-ic">📅</div><div class="bni-lbl">Log</div></div>
+        <div class="bni"><div class="bni-ic">⚙️</div><div class="bni-lbl">Profile</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ VARIANT C ════ -->
+  <div class="col-wrap">
+    <span class="col-label">Variant C</span>
+    <div class="col-tag" style="color:#006B55;background:rgba(0,107,85,.08);border-color:rgba(0,107,85,.25)">Clean · Athletic · Light</div>
+    <div class="phone">
+      <div class="notch vc-notch"></div>
+      <div class="phone-scroll vc">
+        <!-- VC HEADER -->
+        <div class="vc-hdr u0">
+          <div class="vc-logo"><span>F</span>ormm</div>
+          <div class="vc-streak">🔥 14 streak</div>
+        </div>
+        <!-- VC WELCOME + WATER -->
+        <div class="vc-row1 u0">
+          <div><div class="vc-name">Morning, Samrat</div><div class="vc-sub">Monday · Training</div></div>
+          <div class="vc-water">
+            <div class="vc-wlbl">Hydration</div>
+            <div class="vc-drops" id="vc-drops"></div>
+          </div>
+        </div>
+        <!-- VC BRIEF -->
+        <div class="vc-brief u1">
+          <div class="vc-brief-bar" id="vc-brief-bar"></div>
+          <div style="font-size:14px;flex-shrink:0">✅</div>
+          <div class="vc-brief-body" id="vc-brief-body">ACWR 1.1 — optimal zone. Good day to push.</div>
+          <div class="vc-brief-val" id="vc-brief-val">1.1</div>
+        </div>
+        <!-- VC SCORE CARD -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0" class="u2">
+          <div style="font-family:var(--dispc);font-size:15px;font-style:italic;color:var(--tx1c)">Form Analysis</div>
+          <div style="font-family:var(--monoc);font-size:8px;color:var(--teaC);cursor:pointer">History →</div>
+        </div>
+        <div class="vc-score-card u2">
+          <div class="vc-sc-top">
+            <div class="vc-sc-left">
+              <div class="vc-sc-eyebrow"><div class="vc-sc-dot"></div>Formm Score</div>
+              <div class="vc-sc-n" id="vc-score-n">84</div>
+              <div class="vc-sc-sub">Top 29% · Intermediate</div>
+            </div>
+            <div class="vc-sc-right">
+              <div class="vc-sc-trend-lbl">12 sessions</div>
+              <svg width="80" height="32" viewBox="0 0 80 32" id="vc-spark" preserveAspectRatio="none" style="display:block;margin-bottom:5px"></svg>
+              <div class="vc-sc-delta">↑ +8 this month</div>
+            </div>
+          </div>
+          <div class="vc-bd" id="vc-bd"></div>
+          <div class="vc-sc-cta">
+            <button class="vc-btn primary">📸 Analyse a set</button>
+            <button class="vc-btn secondary">View trends</button>
+          </div>
+        </div>
+        <!-- VC LIVE -->
+        <div class="vc-live u2">
+          <div class="vc-live-left">
+            <div class="vc-live-ey"><div class="vc-live-rec"></div><div class="vc-live-eylbl">Live analysis</div></div>
+            <div class="vc-live-title">Analyse<br>a set</div>
+            <div class="vc-live-sub">Real-time score<br>per rep</div>
+            <button class="vc-live-btn">📸 Start</button>
+          </div>
+          <div class="vc-live-bars" id="vc-rbars"></div>
+        </div>
+        <!-- VC EXERCISE STRIP -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px 0" class="u3">
+          <div style="font-family:var(--dispc);font-size:14px;font-style:italic;color:var(--tx1c)">By exercise</div>
+          <div style="font-family:var(--monoc);font-size:8px;color:var(--teaC)">All →</div>
+        </div>
+        <div class="vc-exstrip u3" id="vc-exstrip"></div>
+        <!-- VC LAST SESSION -->
+        <div class="vc-last u4">
+          <div class="vc-last-hd"><div class="vc-last-t">Last session</div><div class="vc-last-d">Friday · 3 days ago</div></div>
+          <div class="vc-ls-inner">
+            <div class="vc-ls-s">82</div>
+            <div><div class="vc-ls-ex">Back squat · 80kg × 6</div><div class="vc-ls-rp">8 reps · side view</div><div class="vc-ls-imp">↑ +6 pts vs last</div></div>
+          </div>
+          <div class="vc-mets" id="vc-mets"></div>
+        </div>
+        <!-- VC TILES -->
+        <div class="vc-tiles u5">
+          <div class="vc-tile">
+            <div class="vc-tile-ey" style="color:var(--teaC)">Weekly vol</div>
+            <div class="vc-tile-v" style="color:var(--teaC)">9.4<span style="font-size:11px;color:var(--tx3c)">t</span></div>
+            <div class="vc-tile-l">Tonnes lifted</div>
+            <div class="vc-tile-bar"><div class="vc-tile-fill" style="width:74%;background:var(--teaC)"></div></div>
+            <div class="vc-tile-sub">↑ 8% last week</div>
+          </div>
+          <div class="vc-tile">
+            <div class="vc-tile-ey" style="color:#6B4FA8">Move Age</div>
+            <div class="vc-tile-v" style="color:#6B4FA8">26<span style="font-size:11px;color:var(--tx3c)">yr</span></div>
+            <div class="vc-tile-l">34 days to unlock</div>
+            <div class="vc-tile-bar"><div class="vc-tile-fill" style="width:38%;background:#6B4FA8"></div></div>
+            <div class="vc-tile-sub">56 days logged</div>
+          </div>
+          <div class="vc-acwr">
+            <div class="vc-acwr-row">
+              <div>
+                <div class="vc-acwr-ey">Training Load · ACWR</div>
+                <div class="vc-acwr-n" style="color:var(--grnC)">1.1</div>
+                <div class="vc-acwr-status" style="background:var(--grnC-l);border:1px solid rgba(26,107,66,.2);color:var(--grnC)">● Optimal zone</div>
+              </div>
+              <div class="vc-acwr-desc">Load building well. Safe zone. Train as planned today.</div>
+            </div>
+            <div class="vc-acwr-gauge"><div class="vc-acwr-fill" style="width:55%"></div></div>
+          </div>
+        </div>
+        <!-- VC MBS -->
+        <div class="vc-mbs u6">
+          <div class="vc-mbs-hd"><div class="vc-mbs-t">Explore</div></div>
+          <div class="vc-mbs-tabs">
+            <button class="vc-mt on" onclick="vcMBS(this,'Mind')">Mind</button>
+            <button class="vc-mt" onclick="vcMBS(this,'Body')">Body</button>
+            <button class="vc-mt" onclick="vcMBS(this,'Soul')">Soul</button>
+          </div>
+          <div class="vc-mbs-grid" id="vc-mbs-grid"></div>
+        </div>
+        <!-- VC COMMUNITY -->
+        <div class="vc-comm u7">
+          <div><div class="vc-comm-t">Community</div><div class="vc-comm-s">312 athletes today</div></div>
+          <div style="display:flex;align-items:center">
+            <div class="vc-avs"><div class="vc-av">🧑</div><div class="vc-av">👩</div><div class="vc-av">🧑‍🦱</div></div>
+            <div class="vc-ct">+309</div>
+          </div>
+        </div>
+      </div>
+      <!-- VC BNAV -->
+      <div class="bnav-shared vc">
+        <div class="bni"><div class="bni-ic">🏠</div><div class="bni-lbl" style="font-family:var(--monoc)">Home</div></div>
+        <div class="bni on"><div class="bni-ic">📊</div><div class="bni-lbl" style="font-family:var(--monoc)">Progress</div></div>
+        <div class="bni" style="position:relative"><div class="fab vc">📸</div><div class="bni-ic" style="opacity:0">📸</div><div class="bni-lbl" style="opacity:1;color:var(--teaC);font-family:var(--monoc)">Analyse</div></div>
+        <div class="bni"><div class="bni-ic">📅</div><div class="bni-lbl" style="font-family:var(--monoc)">Log</div></div>
+        <div class="bni"><div class="bni-ic">⚙️</div><div class="bni-lbl" style="font-family:var(--monoc)">Profile</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /comparison -->
+
+<script>
+// ── HELPERS ───────────────────────────────────────────────
+function scoreCol(s,variant){
+  if(variant==='b') return s>=80?'#E8FF00':s>=68?'#00E878':s>=55?'#FF9500':'#FF2B47';
+  if(variant==='c') return s>=80?'#006B55':s>=68?'#1A6B42':s>=55?'#9B5E00':'#C42B2B';
+  return s>=80?'#00E0B5':s>=68?'#36D99A':s>=55?'#F5A524':'#FF4560';
+}
+
+// ── SPARKLINE ─────────────────────────────────────────────
+function drawSpark(id,col,bg){
+  const sc=[61,65,68,72,70,74,76,78,80,82,82,84];
+  const svg=document.getElementById(id);
+  if(!svg)return;
+  const W=100,H=30,p=2;
+  const mn=Math.min(...sc)-2,mx=Math.max(...sc)+2;
+  const pts=sc.map((v,i)=>[p+(i/(sc.length-1))*(W-p*2),H-p-(v-mn)/(mx-mn)*(H-p*2)]);
+  const path='M'+pts.map(p=>p.join(',')).join('L');
+  const area=path+`L${pts[pts.length-1][0]},${H}L${pts[0][0]},${H}Z`;
+  svg.innerHTML=`<defs><linearGradient id="${id}G" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="${col}" stop-opacity="0.25"/>
+    <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+  </linearGradient></defs>
+  <path d="${area}" fill="url(#${id}G)"/>
+  <path d="${path}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="2.5" fill="${col}"/>`;
+}
+drawSpark('va-spark','#00E0B5'); drawSpark('vc-spark','#006B55');
+
+// ── WATER DROPS ───────────────────────────────────────────
+function makeDrops(id,onCol,offCol,borderOnAdd){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML='';
+  for(let i=0;i<8;i++){
+    const d=document.createElement('div');
+    d.className='drop '+(i<6?'on':'off');
+    if(i<6){d.style.background=onCol;}else{d.style.background=offCol;}
+    el.appendChild(d);
+  }
+}
+makeDrops('va-drops','#4DA3FF','#2D2D40');
+makeDrops('vb-drops','#00BFFF','#2C2C32');
+makeDrops('vc-drops','#0A5B8A','#DDD9D2');
+
+// ── EXERCISES ─────────────────────────────────────────────
+const exercises=[
+  {icon:'🏋️',name:'Squat',sessions:12,score:84,faultOk:true,history:[70,74,78,80,82,84]},
+  {icon:'🦵',name:'Deadlift',sessions:8,score:79,faultOk:true,history:[65,68,72,75,77,79]},
+  {icon:'💪',name:'Bench',sessions:6,score:91,faultOk:true,history:[84,86,88,89,90,91]},
+  {icon:'🔼',name:'OHP',sessions:5,score:72,faultOk:false,history:[60,63,66,68,72]},
+  {icon:'🏃',name:'RDL',sessions:4,score:68,faultOk:false,history:[55,60,63,68]},
+];
+
+function renderExStrip(containerId,variant,activeCls,scoreFn){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML='';
+  exercises.forEach((ex,i)=>{
+    const col=scoreFn(ex.score);
+    const h=ex.history;
+    const maxH=Math.max(...h);
+    const bars=h.map(v=>`<div style="flex:1;height:${Math.round((v/maxH)*100)}%;border-radius:1px 1px 0 0;background:${v===maxH?col:'rgba(128,128,128,.2)'};min-width:0"></div>`).join('');
+    const d=document.createElement('div');
+    d.className=(variant==='a'?'va-exc':(variant==='b'?'vb-exc':'vc-exc'))+(i===0?' on':'');
+    const nameEl=variant==='b'?`<div class="vb-exc-n">${ex.name}</div>`:variant==='c'?`<div class="vc-exc-n">${ex.name}</div>`:`<div class="va-exc-n">${ex.name}</div>`;
+    const scoreEl=variant==='b'?`<div class="vb-exc-s" style="color:${col}">${ex.score}</div>`:variant==='c'?`<div class="vc-exc-s" style="color:${col}">${ex.score}</div>`:`<div class="va-exc-s" style="color:${col}">${ex.score}</div>`;
+    const faultEl=variant==='a'?`<div class="va-exc-f" style="font-family:var(--mono);color:${ex.faultOk?'#36D99A':'#FF4560'}">${ex.faultOk?'✓':''}</div>`:
+      variant==='b'?`<div class="vb-exc-f" style="font-family:var(--monob);color:${ex.faultOk?'#00E878':'#FF2B47'}">${ex.faultOk?'OK':'FLT'}</div>`:
+      `<div class="vc-exc-f" style="font-family:var(--monoc);color:${ex.faultOk?'#1A6B42':'#C42B2B'}">${ex.faultOk?'✓ Clean':'⚠ Watch'}</div>`;
+    d.innerHTML=`<div style="font-size:14px;margin-bottom:3px">${ex.icon}</div>${nameEl}${scoreEl}${faultEl}<div style="display:flex;gap:2px;align-items:flex-end;height:14px;margin-top:3px">${bars}</div>`;
+    el.appendChild(d);
+  });
+}
+renderExStrip('va-exstrip','a','.va-exc.on',s=>scoreCol(s,'a'));
+renderExStrip('vb-exstrip','b','.vb-exc.on',s=>scoreCol(s,'b'));
+renderExStrip('vc-exstrip','c','.vc-exc.on',s=>scoreCol(s,'c'));
+
+// ── METRICS ───────────────────────────────────────────────
+function renderMets(id,variant){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const data=[{v:'6°',l:'Valgus L',c:variant==='b'?'#E8FF00':variant==='c'?'#006B55':'#00E0B5'},{v:'108°',l:'Depth',c:variant==='b'?'#E8FF00':variant==='c'?'#006B55':'#00E0B5'},{v:'22%',l:'Asymmetry',c:variant==='b'?'#FF9500':variant==='c'?'#9B5E00':'#F5A524'}];
+  el.innerHTML=data.map(m=>`<div class="${variant==='a'?'va-met':variant==='b'?'vb-data-card':'vc-met'}"><div style="font-family:${variant==='b'?"'IBM Plex Mono'":variant==='c'?"'Inconsolata'":"'JetBrains Mono'"};font-size:10px;font-weight:500;color:${m.c};margin-bottom:1px">${m.v}</div><div style="font-size:7px;color:${variant==='b'?'#888892':variant==='c'?'#9B978E':'#5A5870'};line-height:1.25">${m.l}</div></div>`).join('');
+}
+renderMets('va-mets','a'); renderMets('vb-mets','b'); renderMets('vc-mets','c');
+
+// ── ANIMATED REP BARS ─────────────────────────────────────
+const repBase=[88,86,84,81,78,74,68];
+function animBars(id,variant,baseScores){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML='';
+  const maxV=Math.max(...baseScores);
+  baseScores.forEach((v,i)=>{
+    const col=v>=80?scoreCol(80,variant):v>=70?scoreCol(70,variant):scoreCol(50,variant);
+    const d=document.createElement('div');
+    d.className=variant==='a'?'va-rb':variant==='b'?'vb-lrb':'vc-lrb';
+    d.style.cssText=`height:0;background:${col};border-radius:2px 2px 0 0;flex:1;min-width:0;transition:height .4s ease`;
+    el.appendChild(d);
+    setTimeout(()=>{d.style.height=Math.round((v/maxV)*100)+'%'},80+i*60);
+  });
+}
+function refreshBars(){
+  const scores=[...repBase];
+  for(let i=1;i<scores.length;i++) scores[i]=Math.max(45,scores[i-1]-(Math.random()*5+1));
+  animBars('va-rbars','a',scores);
+  animBars('vb-rbars','b',scores);
+  animBars('vc-rbars','c',scores);
+}
+refreshBars();
+setInterval(()=>{refreshBars()},3500);
+
+// ── SCORE ANIMATIONS ──────────────────────────────────────
+function animScore(id,target){
+  const el=document.getElementById(id);
+  if(!el)return;
+  let n=55;
+  const step=()=>{if(n<target){n+=Math.ceil((target-n)/5);el.textContent=n;requestAnimationFrame(step);}else el.textContent=target;};
+  step();
+}
+setTimeout(()=>{animScore('va-score-n',84);animScore('vb-score-n',84);animScore('vc-score-n',84)},500);
+
+// ── VA BREAKDOWN ──────────────────────────────────────────
+// (rendered inline in VA via the dual hero card — done via CSS classes)
+
+// ── VC BREAKDOWN ──────────────────────────────────────────
+function renderVCBD(){
+  const el=document.getElementById('vc-bd');
+  if(!el)return;
+  const bd=[['Knee tracking',88,'#006B55'],['Depth',82,'#1A6B42'],['Trunk lean',79,'#9B5E00'],['Symmetry',91,'#006B55'],['Lumbar',76,'#9B5E00']];
+  el.innerHTML=bd.map(([n,v,c])=>`<div class="vc-bd-row"><div class="vc-bd-n">${n}</div><div class="vc-bd-track"><div class="vc-bd-fill" style="width:${v}%;background:${c}"></div></div><div class="vc-bd-v" style="color:${c}">${v}</div></div>`).join('');
+}
+renderVCBD();
+
+// ── MBS DATA ──────────────────────────────────────────────
+const MBSD={
+  Mind:[{ic:'🧠',n:'Mental conditioning',s:'Focus & resilience'},{ic:'📖',n:'Sport psych',s:'Mindset tools'}],
+  Body:[{ic:'🏋️',n:'Bespoke training',s:'Form-perfect plans'},{ic:'🔄',n:'Recovery',s:'Move without pain'}],
+  Soul:[{ic:'🥗',n:'Food & fuel',s:'Eat for performance'},{ic:'🧘',n:'Meditation',s:'Stress & sleep'}],
+};
+function vaMBS(btn,cat){document.querySelectorAll('.va-mt').forEach(t=>t.classList.remove('on'));btn.classList.add('on');document.getElementById('va-mbs-grid').innerHTML=MBSD[cat].map(m=>`<div class="va-mc"><div class="va-mc-ic">${m.ic}</div><div class="va-mc-n">${m.n}</div><div class="va-mc-s">${m.s}</div></div>`).join('');}
+function vbMBS(btn,cat){document.querySelectorAll('.vb-mt').forEach(t=>t.classList.remove('on'));btn.classList.add('on');document.getElementById('vb-mbs-grid').innerHTML=MBSD[cat].map(m=>`<div class="vb-mc"><div class="vb-mc-ic">${m.ic}</div><div class="vb-mc-n">${m.n}</div><div class="vb-mc-s">${m.s}</div></div>`).join('');}
+function vcMBS(btn,cat){document.querySelectorAll('.vc-mt').forEach(t=>t.classList.remove('on'));btn.classList.add('on');document.getElementById('vc-mbs-grid').innerHTML=MBSD[cat].map(m=>`<div class="vc-mc"><div class="vc-mc-ic">${m.ic}</div><div class="vc-mc-n">${m.n}</div><div class="vc-mc-s">${m.s}</div></div>`).join('');}
+vaMBS(document.querySelector('.va-mt.on'),'Mind');
+vbMBS(document.querySelector('.vb-mt.on'),'Mind');
+vcMBS(document.querySelector('.vc-mt.on'),'Mind');
+
+// ── VOTE ──────────────────────────────────────────────────
+function vote(v){
+  ['A','B','C'].forEach(x=>{
+    const el=document.getElementById('vb'+x);
+    el.classList.toggle('picked',x===v);
+    el.textContent=x===v?`✓ Picked — Variant ${x}`:el.textContent.replace('✓ Picked — ','');
+  });
+  // Highlight chosen phone
+  document.querySelectorAll('.phone').forEach((p,i)=>{
+    const chosen=['A','B','C'][i]===v;
+    p.style.boxShadow=chosen?'0 0 0 2px '+(v==='A'?'#00E0B5':v==='B'?'#E8FF00':'#006B55')+', 0 32px 80px rgba(0,0,0,.6)':'0 32px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04)';
+  });
+}
+</script>
+</body>
+</html>
