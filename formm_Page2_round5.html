@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Page 2 Round 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#08080C;--bg1:#0F0F17;--bg2:#15151F;--bg3:#1C1C28;--bg4:#242433;--bg5:#2D2D40;
+  --ln1:rgba(255,255,255,.06);--ln2:rgba(255,255,255,.10);--ln3:rgba(255,255,255,.18);
+  --tx1:#F2F1EC;--tx2:#9896AE;--tx3:#5A5870;
+  --teal:#00E0B5;--teal2:#00C49E;--td:rgba(0,224,181,.08);--tb:rgba(0,224,181,.20);
+  --green:#36D99A;--gd:rgba(54,217,154,.10);
+  --amber:#F5A524;--ad:rgba(245,165,36,.10);
+  --red:#FF4560;--rd:rgba(255,69,96,.10);
+  --blue:#4DA3FF;--bd:rgba(77,163,255,.10);
+  --purp:#9B7FFF;--pd:rgba(155,127,255,.10);
+  --disp:'Clash Display',sans-serif;
+  --body:'Cabinet Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+body{background:#0A0A0E;font-family:var(--body);color:var(--tx1);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* ── STAGE ─────────────────────────────────────────── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 28px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:#0A0A0E;position:sticky;top:0;z-index:50}
+.hdr-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--tx2)}
+.hdr-sub{font-size:10px;color:var(--tx3);margin-top:2px;font-family:var(--mono)}
+.vote-row{display:flex;gap:7px}
+.vbtn{padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.10);font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--tx2);font-family:var(--body);transition:all .15s}
+.vbtn:hover{color:var(--tx1);border-color:rgba(255,255,255,.2)}
+.vbtn.on{background:var(--teal);border-color:var(--teal);color:var(--bg0)}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:32px;align-items:start}
+.col{display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 16px}
+.col-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3)}
+.col-tag{display:inline-flex;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--mono);border:1px solid}
+
+/* ── PHONE ─────────────────────────────────────────── */
+.phone{width:310px;border-radius:40px;border:1px solid rgba(255,255,255,.10);overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.65);transition:box-shadow .3s;background:var(--bg1)}
+.notch{width:100px;height:22px;margin:0 auto;border-radius:0 0 16px 16px;background:var(--bg0)}
+.scroll{max-height:720px;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.scroll::-webkit-scrollbar{width:0}
+
+/* ── SHARED ATOMS ─────────────────────────────────── */
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:5px 18px 0;font-family:var(--mono);font-size:10px}
+.sbar-r{color:var(--tx3)}
+
+.logo-row{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 0}
+.logo{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.3px}
+.logo span{color:var(--teal)}
+.streak{display:flex;align-items:center;gap:4px;padding:3px 9px;background:var(--ad);border:1px solid rgba(245,165,36,.22);border-radius:20px;font-family:var(--mono);font-size:8px;color:var(--amber)}
+
+.bnav{display:flex;background:var(--bg1);border-top:1px solid var(--ln1);padding:6px 0 18px;position:relative}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.bni-ic{font-size:16px;opacity:.3;transition:opacity .15s}
+.bni-lbl{font-family:var(--mono);font-size:7px;color:var(--tx3);letter-spacing:.5px;text-transform:uppercase;opacity:0;transition:opacity .15s}
+.bni.on .bni-ic{opacity:1}
+.bni.on .bni-lbl{opacity:1;color:var(--teal)}
+.fab{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 18px rgba(0,224,181,.4);cursor:pointer;transition:transform .15s}
+.fab:hover{transform:translateX(-50%) scale(1.08)}
+
+/* shared cards */
+.card{background:var(--bg2);border:1px solid var(--ln1);border-radius:16px;margin:12px 14px 0;padding:14px}
+.card.teal{background:radial-gradient(ellipse 140px 100px at 98% 8%,rgba(0,224,181,.13) 0%,transparent 60%),var(--bg2);border-color:var(--tb);position:relative;overflow:hidden}
+.card.teal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.45),transparent)}
+.card.red{background:radial-gradient(ellipse 130px 90px at 98% 8%,rgba(255,69,96,.11) 0%,transparent 60%),var(--bg2);border-color:rgba(255,69,96,.25);position:relative;overflow:hidden}
+.card.red::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,96,.4),transparent)}
+.card.left-accent{position:relative;overflow:hidden}
+.card.left-accent::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px}
+
+.ey{font-family:var(--mono);font-size:8px;letter-spacing:1.2px;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-bottom:8px}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.blink{animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 6px rgba(255,69,96,.5);animation:recPulse 1.2s infinite;flex-shrink:0}
+@keyframes recPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-family:var(--mono);font-size:8px;font-weight:500;border:1px solid}
+.pill.green{background:var(--gd);border-color:rgba(54,217,154,.2);color:var(--green)}
+.pill.teal{background:var(--td);border-color:var(--tb);color:var(--teal)}
+.pill.amber{background:var(--ad);border-color:rgba(245,165,36,.2);color:var(--amber)}
+.pill.purp{background:var(--pd);border-color:rgba(155,127,255,.2);color:var(--purp)}
+
+/* rep bars */
+.rbars{display:flex;gap:3px;align-items:flex-end}
+.rb{flex:1;border-radius:2px 2px 0 0;transition:height .35s ease;min-width:0}
+
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 0}
+.sec-hd-t{font-family:var(--disp);font-size:14px;font-weight:700;letter-spacing:-.2px}
+.sec-hd-l{font-family:var(--mono);font-size:8px;color:var(--teal);cursor:pointer}
+
+/* ex scroll */
+.exscroll{display:flex;gap:6px;overflow-x:auto;padding:6px 14px 0;scroll-snap-type:x mandatory}
+.exscroll::-webkit-scrollbar{display:none}
+.exc{min-width:90px;max-width:90px;background:var(--bg2);border:1px solid var(--ln1);border-radius:13px;padding:10px 10px;scroll-snap-align:start;flex-shrink:0;cursor:pointer}
+.exc.on{border-color:var(--tb);background:var(--td)}
+
+/* tiles 2-col */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 14px 0}
+.tile{background:var(--bg2);border:1px solid var(--ln1);border-radius:13px;padding:11px 12px}
+.tile-ey{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.tile-v{font-family:var(--disp);font-size:22px;font-weight:700;line-height:1;margin-bottom:3px}
+.tile-l{font-size:9px;color:var(--tx3);margin-bottom:5px;line-height:1.3}
+.tile-bar{height:3px;background:var(--bg5);border-radius:2px;overflow:hidden}
+.tile-fill{height:100%;border-radius:2px}
+
+/* water drops */
+.drops{display:flex;gap:2px;align-items:center}
+.drop{width:6px;height:9px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%}
+.drop.on{background:var(--blue)}
+.drop.off{background:var(--bg5)}
+
+/* mbs */
+.mbs-tabs{display:flex;background:var(--bg3);padding:3px;border-radius:9px;margin-bottom:6px}
+.mt{flex:1;padding:4px 0;border-radius:6px;text-align:center;font-family:var(--body);font-size:10px;font-weight:500;color:var(--tx3);border:none;background:none;cursor:pointer;transition:all .15s}
+.mt.on{background:var(--teal);color:var(--bg0);font-weight:700}
+.mbs-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mc{background:var(--bg2);border:1px solid var(--ln1);border-radius:10px;padding:9px 10px;cursor:pointer}
+.mc-ic{font-size:13px;margin-bottom:3px}
+.mc-n{font-size:9px;font-weight:700;margin-bottom:1px;line-height:1.2;color:var(--tx1)}
+.mc-s{font-size:8px;color:var(--tx3);line-height:1.3}
+
+/* community */
+.comm{background:radial-gradient(ellipse 80px 55px at 92% 30%,rgba(77,163,255,.08) 0%,transparent 60%),var(--bg2);border:1px solid rgba(77,163,255,.18);border-radius:13px;margin:12px 14px 0;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.comm-t{font-family:var(--disp);font-size:14px;font-weight:700}
+.comm-s{font-size:9px;color:var(--tx2);margin-top:1px}
+.cavs{display:flex;align-items:center}
+.cav{width:19px;height:19px;border-radius:50%;background:var(--bg3);border:2px solid var(--bg2);font-size:8px;display:flex;align-items:center;justify-content:center;margin-left:-4px}
+.cav:first-child{margin-left:0}
+
+/* animate */
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.u0{animation:up .3s 0.00s both}.u1{animation:up .3s 0.07s both}.u2{animation:up .3s 0.14s both}
+.u3{animation:up .3s 0.21s both}.u4{animation:up .3s 0.28s both}.u5{animation:up .3s 0.35s both}
+.u6{animation:up .3s 0.42s both}
+
+/* btn */
+.btn-p{width:100%;padding:10px 0;border-radius:10px;background:var(--teal);border:none;font-family:var(--body);font-size:11px;font-weight:700;color:var(--bg0);cursor:pointer;transition:background .15s}
+.btn-p:hover{background:var(--teal2)}
+.btn-s{width:100%;padding:9px 0;border-radius:10px;background:var(--bg4);border:1px solid var(--ln2);font-family:var(--body);font-size:11px;font-weight:600;color:var(--tx2);cursor:pointer;transition:all .15s}
+.btn-s:hover{color:var(--tx1);border-color:var(--ln3)}
+.btn-red{width:100%;padding:9px 0;border-radius:10px;background:var(--red);border:none;font-family:var(--body);font-size:11px;font-weight:700;color:white;cursor:pointer;transition:filter .15s}
+.btn-red:hover{filter:brightness(1.1)}
+
+/* divider */
+.div{height:1px;background:var(--ln1);margin:12px 0}
+
+/* ══════════════════════════════════════════════════════
+   A — INSIGHT FIRST
+   Single clear insight at the top. Form analysis below.
+   Everything has room to breathe.
+   ══════════════════════════════════════════════════════ */
+
+/* big insight number + sentence */
+.a-insight-num{font-family:var(--disp);font-size:56px;font-weight:700;letter-spacing:-2px;line-height:.9;color:var(--teal)}
+.a-insight-sent{font-size:13px;color:var(--tx1);line-height:1.65;margin-top:8px;font-weight:500}
+.a-insight-why{font-size:11px;color:var(--tx2);line-height:1.65;margin-top:6px}
+
+/* acwr bar inside insight card */
+.a-acwr-track{height:5px;background:var(--bg4);border-radius:3px;overflow:visible;margin:10px 0 4px;position:relative}
+.a-acwr-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.a-acwr-zones{display:flex;justify-content:space-between;font-family:var(--mono);font-size:7px;color:var(--tx3)}
+.a-acwr-marker{position:absolute;top:-7px;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;border:2px solid var(--bg2);transition:left .5s ease}
+
+/* score + live side by side, compact */
+.a-dual{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 14px 0}
+.a-score-c{background:var(--bg2);border:1px solid var(--tb);border-radius:14px;padding:12px 12px;position:relative;overflow:hidden;cursor:pointer}
+.a-score-c::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.4),transparent)}
+.a-live-c{background:var(--bg2);border:1px solid rgba(255,69,96,.25);border-radius:14px;padding:12px 12px;cursor:pointer;position:relative;overflow:hidden}
+.a-live-c::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,96,.4),transparent)}
+.a-score-n{font-family:var(--disp);font-size:46px;font-weight:700;letter-spacing:-2px;line-height:.9;color:var(--tx1)}
+.a-live-title{font-family:var(--disp);font-size:17px;font-weight:700;letter-spacing:-.2px;line-height:1.1;color:var(--tx1);margin:5px 0 3px}
+.a-live-sub{font-size:9px;color:var(--tx2);line-height:1.4;margin-bottom:8px}
+
+/* ══════════════════════════════════════════════════════
+   B — ULTRA SIMPLE
+   One message. One number. One action.
+   Plain language. No jargon.
+   ══════════════════════════════════════════════════════ */
+
+.b-big{margin:12px 14px 0;border-radius:18px;padding:20px 16px;position:relative;overflow:hidden}
+.b-big.good{background:radial-gradient(ellipse 220px 140px at 100% 0%,rgba(54,217,154,.15) 0%,transparent 55%),var(--bg2);border:1px solid rgba(54,217,154,.25)}
+.b-big.good::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.b-big-icon{font-size:36px;margin-bottom:12px;display:block;line-height:1}
+.b-big-headline{font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:-.3px;line-height:1.15;margin-bottom:10px}
+.b-big-body{font-size:12px;color:var(--tx2);line-height:1.75;margin-bottom:16px}
+/* the one data point */
+.b-data-row{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:10px;padding:10px 12px;margin-bottom:16px}
+.b-data-n{font-family:var(--disp);font-size:34px;font-weight:700;letter-spacing:-1px;line-height:1}
+.b-data-txt{flex:1}
+.b-data-label{font-size:9px;color:var(--tx3);margin-bottom:2px;font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase}
+.b-data-meaning{font-size:10px;color:var(--tx2);line-height:1.5}
+
+/* score card — simple */
+.b-score-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.b-score-n{font-family:var(--disp);font-size:60px;font-weight:700;letter-spacing:-2px;line-height:.9}
+.b-score-context{flex:1;padding-left:12px;padding-top:4px}
+.b-score-ctx-lbl{font-size:9px;color:var(--tx3);margin-bottom:4px;line-height:1.4}
+.b-fix-lbl{font-family:var(--mono);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);margin-bottom:7px}
+.b-fix-row{display:flex;align-items:flex-start;gap:9px}
+.b-fix-ic{font-size:20px;flex-shrink:0;margin-top:2px}
+.b-fix-txt{font-size:11px;color:var(--tx1);line-height:1.55;font-weight:500}
+.b-fix-why{font-size:10px;color:var(--tx2);margin-top:3px;line-height:1.5}
+
+/* live card — simple horizontal */
+.b-live{display:flex;align-items:center;gap:12px}
+.b-live-txt{flex:1}
+.b-live-ttl{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.2px;line-height:1.1;margin:5px 0 4px}
+.b-live-sub{font-size:10px;color:var(--tx2);line-height:1.5;margin-bottom:10px}
+.b-live-bars{flex-shrink:0;display:flex;gap:3px;align-items:flex-end;height:44px;width:52px}
+
+/* ══════════════════════════════════════════════════════
+   C — POWER USER
+   Insight ticker. Dense but structured.
+   Data table. Two-column metrics.
+   ══════════════════════════════════════════════════════ */
+
+/* ticker — 2 visible, hint of 3rd */
+.c-ticker{display:flex;gap:7px;overflow-x:auto;padding:6px 14px 0;scroll-snap-type:x mandatory}
+.c-ticker::-webkit-scrollbar{display:none}
+.c-tick{min-width:210px;max-width:210px;border-radius:14px;padding:12px 13px;scroll-snap-align:start;flex-shrink:0;position:relative;overflow:hidden}
+.c-tick.t1{background:radial-gradient(ellipse 100px 70px at 98% 8%,rgba(0,224,181,.13) 0%,transparent 60%),var(--bg2);border:1px solid var(--tb)}
+.c-tick.t2{background:radial-gradient(ellipse 100px 70px at 98% 8%,rgba(245,165,36,.10) 0%,transparent 60%),var(--bg2);border:1px solid rgba(245,165,36,.25)}
+.c-tick.t3{background:radial-gradient(ellipse 100px 70px at 98% 8%,rgba(155,127,255,.10) 0%,transparent 60%),var(--bg2);border:1px solid rgba(155,127,255,.25)}
+.c-tick::before{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.c-tick.t1::before{background:linear-gradient(90deg,transparent,rgba(0,224,181,.4),transparent)}
+.c-tick.t2::before{background:linear-gradient(90deg,transparent,rgba(245,165,36,.4),transparent)}
+.c-tick.t3::before{background:linear-gradient(90deg,transparent,rgba(155,127,255,.4),transparent)}
+.c-tick-ey{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.c-tick-hl{font-family:var(--disp);font-size:14px;font-weight:700;letter-spacing:-.2px;line-height:1.2;color:var(--tx1);margin-bottom:4px}
+.c-tick-body{font-size:9px;color:var(--tx2);line-height:1.55}
+.c-tick-n{font-family:var(--disp);font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;margin-top:5px}
+
+/* score + live dual */
+.c-dual{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 14px 0}
+.c-score{background:var(--bg2);border:1px solid var(--tb);border-radius:14px;padding:12px 11px;position:relative;overflow:hidden;cursor:pointer}
+.c-score::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.4),transparent)}
+.c-live{background:var(--bg2);border:1px solid rgba(255,69,96,.25);border-radius:14px;padding:12px 11px;cursor:pointer;position:relative;overflow:hidden}
+.c-live::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,96,.4),transparent)}
+.c-score-n{font-family:var(--disp);font-size:46px;font-weight:700;letter-spacing:-2px;line-height:.9;color:var(--tx1)}
+
+/* metric dots */
+.c-dots{display:flex;gap:3px;margin-top:7px}
+.cdot{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:var(--mono);font-weight:500}
+.cdot.ok{background:var(--gd);color:var(--green)}
+.cdot.w{background:var(--ad);color:var(--amber)}
+
+/* data table */
+.c-table{width:100%;border-collapse:collapse}
+.c-table th{font-family:var(--mono);font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);padding:5px 0;border-bottom:1px solid var(--ln1);text-align:left;font-weight:400}
+.c-table td{padding:7px 0;border-bottom:1px solid var(--ln1);font-size:10px;vertical-align:middle}
+.c-table tr:last-child td{border:none}
+.c-table td:first-child{font-family:var(--mono);font-size:9px;font-weight:500;color:var(--tx1)}
+
+/* load tiles 2-col */
+.c-load{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 14px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="hdr-title">Formm · Page 2 · Round 5</div>
+    <div class="hdr-sub">Samrat Nigam · Cleaner · Dark theme</div>
+  </div>
+  <div class="vote-row">
+    <button class="vbtn" id="vA" onclick="vote('A')">A · Insight first</button>
+    <button class="vbtn" id="vB" onclick="vote('B')">B · Ultra simple</button>
+    <button class="vbtn" id="vC" onclick="vote('C')">C · Power user</button>
+  </div>
+</div>
+
+<div class="grid">
+
+<!-- ══ VARIANT A ══ -->
+<div class="col">
+  <span class="col-label">Variant A</span>
+  <div class="col-tag" style="color:var(--teal);background:var(--td);border-color:var(--tb)">Insight · Score · Live</div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="scroll">
+
+      <div class="sbar u0"><span>9:41</span><span class="sbar-r">●●● ⚡</span></div>
+      <div class="logo-row u0">
+        <div class="logo"><span>F</span>ormm</div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <div class="streak">🔥 14</div>
+          <div id="a-water" style="display:flex;gap:2px;align-items:center"></div>
+        </div>
+      </div>
+
+      <div style="padding:8px 18px 0" class="u0">
+        <div style="font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-.3px">Morning, Samrat</div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px">Monday · Training day</div>
+      </div>
+
+      <!-- INSIGHT CARD — single clear message -->
+      <div class="card teal u1" style="padding:16px 15px">
+        <div class="ey">
+          <div class="dot blink" style="background:var(--teal)"></div>
+          <span style="color:var(--teal)">Today's insight</span>
+        </div>
+        <div class="a-insight-num" id="a-acwr-n">1.1</div>
+        <div class="a-insight-sent" id="a-insight-sent">The movement standard for India. Starting with yours.</div>
+        <div class="a-insight-why" id="a-insight-why">Formm tells you how well you moved, not just what you did. Your Movement Age unlocks in 34 days.</div>
+
+        <!-- ACWR gauge -->
+        <div class="a-acwr-track" id="a-track">
+          <div class="a-acwr-fill" id="a-fill" style="width:55%;background:linear-gradient(90deg,var(--teal),var(--green))"></div>
+          <div class="a-acwr-marker" id="a-marker" style="left:55%;background:var(--green);width:12px;height:12px;border-radius:50%;top:-4px;position:absolute;border:2px solid var(--bg2)"></div>
+        </div>
+        <div class="a-acwr-zones">
+          <span>Low</span><span style="color:var(--green)">Optimal</span><span style="color:var(--amber)">Caution</span><span style="color:var(--red)">High</span>
+        </div>
+      </div>
+
+      <!-- FORM + LIVE — equal billing, compact -->
+      <div class="sec-hd u2">
+        <div class="sec-hd-t">Form analysis</div>
+        <span class="sec-hd-l">History →</span>
+      </div>
+      <div class="a-dual u2">
+        <div class="a-score-c">
+          <div class="ey" style="margin-bottom:5px">
+            <div class="dot blink" style="background:var(--teal)"></div>
+            <span style="font-family:var(--mono);font-size:7px;color:var(--teal);letter-spacing:1px;text-transform:uppercase">Score</span>
+          </div>
+          <div class="a-score-n" id="a-score-n">84</div>
+          <div style="font-size:8px;color:var(--tx3);margin-top:4px;line-height:1.3">Top 29%<br>Intermediate</div>
+          <div class="pill green" style="margin-top:7px">↑ +8 this month</div>
+          <button class="btn-p" style="margin-top:10px;font-size:10px;padding:8px 0">See score →</button>
+        </div>
+        <div class="a-live-c">
+          <div class="ey" style="margin-bottom:3px">
+            <div class="rec-dot"></div>
+            <span style="font-family:var(--mono);font-size:7px;color:var(--red);letter-spacing:1px;text-transform:uppercase">Live</span>
+          </div>
+          <div class="a-live-title">Analyse<br>your Formm</div>
+          <div class="a-live-sub">Formm scores every rep against India's movement standard</div>
+          <div class="rbars" id="a-rbars" style="height:32px;margin-bottom:8px"></div>
+          <button class="btn-red" style="font-size:10px;padding:8px 0">Analyse</button>
+        </div>
+      </div>
+
+      <!-- EXERCISE STRIP -->
+      <div class="sec-hd u3">
+        <div class="sec-hd-t">By exercise</div>
+        <span class="sec-hd-l">All →</span>
+      </div>
+      <div class="exscroll u3" id="a-exs"></div>
+
+      <!-- LOAD TILES -->
+      <div class="tiles u4">
+        <div class="tile" style="border-color:var(--tb)">
+          <div class="tile-ey" style="color:var(--teal)">Weekly volume</div>
+          <div class="tile-v" style="color:var(--teal)">9.4<span style="font-size:10px;color:var(--tx3)">t</span></div>
+          <div class="tile-l">Tonnes lifted</div>
+          <div class="tile-bar"><div class="tile-fill" style="width:74%;background:var(--teal)"></div></div>
+        </div>
+        <div class="tile" style="border-color:var(--pd)">
+          <div class="tile-ey" style="color:var(--purp)">Movement Age</div>
+          <div class="tile-v" style="color:var(--purp)">34<span style="font-size:10px;color:var(--tx3)">d</span></div>
+          <div class="tile-l">Days to Movement Age</div>
+          <div class="tile-bar"><div class="tile-fill" style="width:38%;background:var(--purp)"></div></div>
+        </div>
+      </div>
+
+      <!-- LOG CTA -->
+      <div class="card u4" style="margin-top:10px;display:flex;align-items:center;gap:10px;padding:11px 13px">
+        <div style="font-size:20px">⏱️</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;margin-bottom:2px">Log this session</div>
+          <div style="font-size:9px;color:var(--tx3);line-height:1.35">Enables the readiness brief</div>
+        </div>
+        <button style="padding:7px 13px;border-radius:9px;background:var(--teal);border:none;font-family:var(--body);font-size:10px;font-weight:700;color:var(--bg0);cursor:pointer">Log RPE</button>
+      </div>
+
+      <!-- MBS -->
+      <div style="padding:14px 14px 0" class="u5">
+        <div style="font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:7px">Explore</div>
+        <div class="mbs-tabs">
+          <button class="mt on" onclick="mbsA(this,'Mind')">Mind</button>
+          <button class="mt" onclick="mbsA(this,'Body')">Body</button>
+          <button class="mt" onclick="mbsA(this,'Soul')">Soul</button>
+        </div>
+        <div class="mbs-grid" id="a-mbs"></div>
+      </div>
+      <div class="comm u6">
+        <div><div class="comm-t">Community</div><div class="comm-s">312 athletes today</div></div>
+        <div style="display:flex;align-items:center">
+          <div class="cavs"><div class="cav">🧑</div><div class="cav">👩</div><div class="cav">🧑‍🦱</div></div>
+          <span style="margin-left:5px;font-family:var(--mono);font-size:9px;color:var(--blue)">+309</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="bnav">
+      <div class="bni"><div class="bni-ic">🏠</div><div class="bni-lbl">Home</div></div>
+      <div class="bni on"><div class="bni-ic">📊</div><div class="bni-lbl">Progress</div></div>
+      <div class="bni" style="position:relative"><div class="fab">📸</div><div class="bni-ic" style="opacity:0">📸</div><div class="bni-lbl" style="opacity:1;color:var(--teal)">Analyse</div></div>
+      <div class="bni"><div class="bni-ic">📅</div><div class="bni-lbl">Log</div></div>
+      <div class="bni"><div class="bni-ic">⚙️</div><div class="bni-lbl">Profile</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VARIANT B ══ -->
+<div class="col">
+  <span class="col-label">Variant B</span>
+  <div class="col-tag" style="color:var(--green);background:var(--gd);border-color:rgba(54,217,154,.3)">One message · Plain English</div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="scroll">
+
+      <div class="sbar u0"><span>9:41</span><span class="sbar-r">●●● ⚡</span></div>
+      <div class="logo-row u0">
+        <div class="logo"><span>F</span>ormm</div>
+        <div class="streak">🔥 14</div>
+      </div>
+      <div style="padding:8px 18px 0" class="u0">
+        <div style="font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-.3px">Hi Samrat 👋</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:3px;line-height:1.5">Here's what Formm found out about your training this week.</div>
+      </div>
+
+      <!-- THE ONE MESSAGE -->
+      <div class="b-big good u1">
+        <span class="b-big-icon">🏃</span>
+        <div class="b-big-headline" style="color:var(--green)">What's your movement age?</div>
+        <div class="b-big-body">Formm is building India's movement standard — starting with you. Every set brings you closer to your Movement Age.</div>
+        <!-- The one number, explained simply -->
+        <div class="b-data-row">
+          <div class="b-data-n" id="b-acwr-n" style="color:var(--purp)">34<span style="font-size:16px;color:var(--tx3)">d</span></div>
+          <div class="b-data-txt">
+            <div class="b-data-label">Movement age countdown</div>
+            <div class="b-data-meaning">34 more days of analysis unlocks your Movement Age — a biological score for how well you move.</div>
+          </div>
+        </div>
+        <button class="btn-p">Analyse your Formm →</button>
+      </div>
+
+      <!-- SCORE — big + simple -->
+      <div class="card u2" style="padding:15px">
+        <div class="b-score-row">
+          <div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">Your form score</div>
+            <div class="b-score-n" id="b-score-n" style="color:var(--teal)">84</div>
+          </div>
+          <div class="b-score-context">
+            <div class="b-score-ctx-lbl">You're in the top 29% for movement quality at your level. Your form has improved in 10 of the last 12 sessions.</div>
+            <div class="pill green" style="margin-top:6px">↑ Getting better</div>
+          </div>
+        </div>
+        <div class="div" style="margin:10px 0 10px"></div>
+        <!-- One thing to fix — no jargon -->
+        <div class="b-fix-lbl">One thing to work on today</div>
+        <div class="b-fix-row">
+          <div class="b-fix-ic">🦵</div>
+          <div>
+            <div class="b-fix-txt">Your left knee drifts inward when you squat.</div>
+            <div class="b-fix-why">Hip muscles fatiguing. Try widening your stance slightly today.</div>
+          </div>
+        </div>
+        <button class="btn-p" style="margin-top:12px">Analyse your Formm</button>
+      </div>
+
+      <!-- LIVE — simple horizontal -->
+      <div class="card u2" style="padding:13px 14px">
+        <div class="b-live">
+          <div class="b-live-txt">
+            <div class="ey" style="margin-bottom:0">
+              <div class="rec-dot"></div>
+              <span style="font-family:var(--mono);font-size:7px;color:var(--red);letter-spacing:1.2px;text-transform:uppercase">Live analysis</span>
+            </div>
+            <div class="b-live-ttl">Analyse<br>your Formm</div>
+            <div class="b-live-sub">Point your phone at your next set. Formm scores your movement in real time.</div>
+            <button class="btn-red" style="width:auto;padding:7px 14px">Analyse your Formm</button>
+          </div>
+          <div class="b-live-bars" id="b-rbars"></div>
+        </div>
+      </div>
+
+      <!-- WATER + LOG strip -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 14px" class="u3">
+        <div class="tile">
+          <div class="tile-ey" style="color:var(--blue)">Water today</div>
+          <div id="b-water" class="drops" style="margin-bottom:4px"></div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--blue)">6 of 8 glasses</div>
+        </div>
+        <div class="tile" style="cursor:pointer">
+          <div class="tile-ey" style="color:var(--amber)">Log session</div>
+          <div style="font-size:22px;margin-bottom:2px">⏱️</div>
+          <div style="font-size:9px;color:var(--tx2);line-height:1.4">10 seconds after your session.</div>
+        </div>
+      </div>
+
+      <!-- MBS -->
+      <div style="padding:10px 14px 0" class="u4">
+        <div style="font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:7px">Explore</div>
+        <div class="mbs-tabs">
+          <button class="mt on" onclick="mbsB(this,'Mind')">Mind</button>
+          <button class="mt" onclick="mbsB(this,'Body')">Body</button>
+          <button class="mt" onclick="mbsB(this,'Soul')">Soul</button>
+        </div>
+        <div class="mbs-grid" id="b-mbs"></div>
+      </div>
+      <div class="comm u5">
+        <div><div class="comm-t">Community</div><div class="comm-s">312 athletes today</div></div>
+        <div style="display:flex;align-items:center">
+          <div class="cavs"><div class="cav">🧑</div><div class="cav">👩</div><div class="cav">🧑‍🦱</div></div>
+          <span style="margin-left:5px;font-family:var(--mono);font-size:9px;color:var(--blue)">+309</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="bnav">
+      <div class="bni"><div class="bni-ic">🏠</div><div class="bni-lbl">Home</div></div>
+      <div class="bni on"><div class="bni-ic">📊</div><div class="bni-lbl">Progress</div></div>
+      <div class="bni" style="position:relative"><div class="fab">📸</div><div class="bni-ic" style="opacity:0">📸</div><div class="bni-lbl" style="opacity:1;color:var(--teal)">Analyse</div></div>
+      <div class="bni"><div class="bni-ic">📅</div><div class="bni-lbl">Log</div></div>
+      <div class="bni"><div class="bni-ic">⚙️</div><div class="bni-lbl">Profile</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VARIANT C ══ -->
+<div class="col">
+  <span class="col-label">Variant C</span>
+  <div class="col-tag" style="color:var(--purp);background:var(--pd);border-color:rgba(155,127,255,.3)">Insight ticker · Power user</div>
+
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="scroll">
+
+      <div class="sbar u0"><span>9:41</span><span class="sbar-r">●●● ⚡</span></div>
+      <div class="logo-row u0">
+        <div class="logo"><span>F</span>ormm</div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <div id="c-water" class="drops"></div>
+          <div class="streak">🔥 14</div>
+        </div>
+      </div>
+      <div style="padding:7px 18px 0" class="u0">
+        <div style="font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-.3px">Samrat Nigam</div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--tx3);letter-spacing:1.2px;text-transform:uppercase;margin-top:2px">Monday · Training day</div>
+      </div>
+
+      <!-- INSIGHT TICKER -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px 0" class="u1">
+        <div style="font-family:var(--disp);font-size:14px;font-weight:700">Insights</div>
+        <span style="font-family:var(--mono);font-size:8px;color:var(--tx3)">scroll →</span>
+      </div>
+      <div class="c-ticker u1">
+        <div class="c-tick t1">
+          <div class="c-tick-ey"><div class="dot blink" style="background:var(--teal)"></div><span style="font-family:var(--mono);font-size:7px;color:var(--teal);letter-spacing:1px">Form × Load</span></div>
+          <div class="c-tick-hl">14% better form when load is right</div>
+          <div class="c-tick-body">Squat score: 84 at ACWR ≤1.3 vs 72 above it. 15 sessions of data. This is your movement standard.</div>
+          <div class="c-tick-n" style="color:var(--teal)">−14<span style="font-size:11px">pts</span></div>
+        </div>
+        <div class="c-tick t2">
+          <div class="c-tick-ey"><div class="dot blink" style="background:var(--amber)"></div><span style="font-family:var(--mono);font-size:7px;color:var(--amber);letter-spacing:1px">Fatigue</span></div>
+          <div class="c-tick-hl">Your form breaks at rep 6</div>
+          <div class="c-tick-body">Knee valgus crosses threshold at rep 6 in 8 of 10 squat sessions. Stop at 5 to protect your standard.</div>
+          <div class="c-tick-n" style="color:var(--amber)">Rep 6</div>
+        </div>
+        <div class="c-tick t3">
+          <div class="c-tick-ey"><div class="dot blink" style="background:var(--purp)"></div><span style="font-family:var(--mono);font-size:7px;color:var(--purp);letter-spacing:1px">Progress</span></div>
+          <div class="c-tick-hl">Movement Age unlocks in 34 days</div>
+          <div class="c-tick-body">A biological age for how well you move. On track for top 40% in your category.</div>
+          <div class="c-tick-n" style="color:var(--purp)">34<span style="font-size:11px">d</span></div>
+        </div>
+      </div>
+
+      <!-- SCORE + LIVE -->
+      <div class="sec-hd u2">
+        <div class="sec-hd-t">Form analysis</div>
+        <span class="sec-hd-l">History →</span>
+      </div>
+      <div class="c-dual u2">
+        <div class="c-score">
+          <div class="ey" style="margin-bottom:4px">
+            <div class="dot blink" style="background:var(--teal)"></div>
+            <span style="font-family:var(--mono);font-size:7px;color:var(--teal);letter-spacing:1px;text-transform:uppercase">Score</span>
+          </div>
+          <div class="c-score-n" id="c-score-n">84</div>
+          <div style="font-size:8px;color:var(--tx3);margin-top:3px;line-height:1.3">Top 29%<br>Intermediate</div>
+          <div class="pill green" style="margin-top:5px">↑ +8 this month</div>
+          <!-- metric dots -->
+          <div class="c-dots">
+            <div class="cdot ok" title="Knee">K</div>
+            <div class="cdot ok" title="Depth">D</div>
+            <div class="cdot w" title="Trunk">T</div>
+            <div class="cdot ok" title="Symmetry">S</div>
+            <div class="cdot w" title="Lumbar">L</div>
+          </div>
+          <button class="btn-p" style="margin-top:8px;font-size:10px;padding:7px 0">See score →</button>
+        </div>
+        <div class="c-live">
+          <div class="ey" style="margin-bottom:3px">
+            <div class="rec-dot"></div>
+            <span style="font-family:var(--mono);font-size:7px;color:var(--red);letter-spacing:1px;text-transform:uppercase">Live</span>
+          </div>
+          <div style="font-family:var(--disp);font-size:17px;font-weight:700;letter-spacing:-.2px;line-height:1.1;color:var(--tx1);margin-bottom:3px">Analyse<br>a set</div>
+          <div style="font-size:9px;color:var(--tx2);line-height:1.45;margin-bottom:7px">Score every rep · build your standard</div>
+          <div class="rbars" id="c-rbars" style="height:30px;margin-bottom:7px"></div>
+          <div style="font-size:8px;color:var(--amber);margin-bottom:7px">⚠ Valgus last session</div>
+          <button class="btn-red" style="font-size:10px;padding:7px 0">Analyse</button>
+        </div>
+      </div>
+
+      <!-- EXERCISE SCROLL -->
+      <div class="sec-hd u3">
+        <div class="sec-hd-t">By exercise</div>
+        <span class="sec-hd-l">All →</span>
+      </div>
+      <div class="exscroll u3" id="c-exs"></div>
+
+      <!-- SESSION HISTORY TABLE -->
+      <div class="card u3" style="padding:12px 13px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:var(--disp);font-size:13px;font-weight:700">Session history</div>
+          <span style="font-family:var(--mono);font-size:8px;color:var(--teal);cursor:pointer">All →</span>
+        </div>
+        <table class="c-table">
+          <thead><tr><th>Date</th><th>Exercise</th><th>Score</th><th>Change</th></tr></thead>
+          <tbody>
+            <tr><td>Fri</td><td style="color:var(--tx2)">Squat</td><td style="color:var(--teal)">82</td><td style="color:var(--green)">+6</td></tr>
+            <tr><td>Wed</td><td style="color:var(--tx2)">Deadlift</td><td style="color:var(--green)">79</td><td style="color:var(--green)">+4</td></tr>
+            <tr><td>Mon</td><td style="color:var(--tx2)">Bench</td><td style="color:var(--teal)">91</td><td style="color:var(--green)">+2</td></tr>
+            <tr><td>Fri−1</td><td style="color:var(--tx2)">Squat</td><td style="color:var(--amber)">76</td><td style="color:var(--red)">−2</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- LOAD -->
+      <div class="c-load u4">
+        <div class="tile" style="border-color:var(--tb)">
+          <div class="tile-ey" style="color:var(--teal)">ACWR</div>
+          <div class="tile-v" style="color:var(--green)">1.1</div>
+          <div class="tile-l">Optimal zone</div>
+          <div class="tile-bar"><div class="tile-fill" style="width:55%;background:linear-gradient(90deg,var(--teal),var(--green))"></div></div>
+        </div>
+        <div class="tile" style="border-color:var(--pd)">
+          <div class="tile-ey" style="color:var(--purp)">Volume</div>
+          <div class="tile-v" style="color:var(--purp)">9.4<span style="font-size:10px;color:var(--tx3)">t</span></div>
+          <div class="tile-l">↑ 8% vs last week</div>
+          <div class="tile-bar"><div class="tile-fill" style="width:74%;background:var(--purp)"></div></div>
+        </div>
+      </div>
+
+      <!-- MBS -->
+      <div style="padding:14px 14px 0" class="u5">
+        <div style="font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:7px">Explore</div>
+        <div class="mbs-tabs">
+          <button class="mt on" onclick="mbsC(this,'Mind')">Mind</button>
+          <button class="mt" onclick="mbsC(this,'Body')">Body</button>
+          <button class="mt" onclick="mbsC(this,'Soul')">Soul</button>
+        </div>
+        <div class="mbs-grid" id="c-mbs"></div>
+      </div>
+      <div class="comm u6">
+        <div><div class="comm-t">Community</div><div class="comm-s">312 athletes today</div></div>
+        <div style="display:flex;align-items:center">
+          <div class="cavs"><div class="cav">🧑</div><div class="cav">👩</div><div class="cav">🧑‍🦱</div></div>
+          <span style="margin-left:5px;font-family:var(--mono);font-size:9px;color:var(--blue)">+309</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="bnav">
+      <div class="bni"><div class="bni-ic">🏠</div><div class="bni-lbl">Home</div></div>
+      <div class="bni on"><div class="bni-ic">📊</div><div class="bni-lbl">Progress</div></div>
+      <div class="bni" style="position:relative"><div class="fab">📸</div><div class="bni-ic" style="opacity:0">📸</div><div class="bni-lbl" style="opacity:1;color:var(--teal)">Analyse</div></div>
+      <div class="bni"><div class="bni-ic">📅</div><div class="bni-lbl">Log</div></div>
+      <div class="bni"><div class="bni-ic">⚙️</div><div class="bni-lbl">Profile</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const sc = s => s>=80?'#00E0B5':s>=68?'#36D99A':s>=55?'#F5A524':'#FF4560';
+
+// Water drops
+['a-water','b-water','c-water'].forEach(id=>{
+  const el=document.getElementById(id); if(!el)return;
+  for(let i=0;i<8;i++){
+    const d=document.createElement('div');
+    d.className='drop '+(i<6?'on':'off');
+    el.appendChild(d);
+  }
+});
+
+// Score animations
+function animScore(id,t){
+  const el=document.getElementById(id); if(!el)return;
+  let n=55; const step=()=>{if(n<t){n+=Math.ceil((t-n)/5);el.textContent=n;requestAnimationFrame(step);}else el.textContent=t;};
+  step();
+}
+setTimeout(()=>{animScore('a-score-n',84);animScore('b-score-n',84);animScore('c-score-n',84);},350);
+
+// Rep bars
+const baseScores=[88,85,82,79,76,72,67];
+function animBars(id,h){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML='';
+  const scores=[...baseScores];
+  for(let i=1;i<scores.length;i++) scores[i]=Math.max(44,scores[i-1]-(Math.random()*5+1.5));
+  const maxV=Math.max(...scores);
+  scores.forEach((v,i)=>{
+    const col=v>=80?'#00E0B5':v>=68?'#36D99A':v>=55?'#F5A524':'#FF4560';
+    const d=document.createElement('div');
+    d.className='rb';
+    d.style.cssText=`height:0;background:${col};min-width:0;flex:1`;
+    el.appendChild(d);
+    setTimeout(()=>{d.style.height=Math.round((v/maxV)*100)+'%';},80+i*55);
+  });
+}
+function refreshBars(){['a-rbars','b-rbars','c-rbars'].forEach(id=>animBars(id));}
+refreshBars();
+setInterval(refreshBars,3500);
+
+// Exercise strips
+const exercises=[
+  {ic:'🏋️',n:'Squat',s:84,ok:true,hist:[70,74,78,80,82,84]},
+  {ic:'🦵',n:'Deadlift',s:79,ok:true,hist:[65,68,72,75,77,79]},
+  {ic:'💪',n:'Bench',s:91,ok:true,hist:[84,86,88,89,90,91]},
+  {ic:'🔼',n:'OHP',s:72,ok:false,hist:[60,63,66,68,72]},
+  {ic:'🏃',n:'RDL',s:68,ok:false,hist:[55,60,63,68]},
+];
+function renderEx(id){
+  const el=document.getElementById(id); if(!el)return;
+  exercises.forEach((ex,i)=>{
+    const col=sc(ex.s), h=ex.hist, mH=Math.max(...h);
+    const bars=h.map(v=>`<div style="flex:1;height:${Math.round((v/mH)*100)}%;border-radius:1px 1px 0 0;background:${v===mH?col:'rgba(128,128,128,.2)'};min-width:0"></div>`).join('');
+    const d=document.createElement('div');
+    d.className='exc'+(i===0?' on':'');
+    d.innerHTML=`<div style="font-size:13px;margin-bottom:3px">${ex.ic}</div>
+      <div style="font-size:9px;font-weight:700;color:var(--tx1);margin-bottom:2px;line-height:1.2">${ex.n}</div>
+      <div style="font-family:var(--disp);font-size:20px;font-weight:700;color:${col};line-height:1">${ex.s}</div>
+      <div style="font-size:7px;color:${ex.ok?'#36D99A':'#FF4560'};margin-top:1px">${ex.ok?'✓':'⚠'}</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;height:14px;margin-top:4px">${bars}</div>`;
+    el.appendChild(d);
+  });
+}
+['a-exs','c-exs'].forEach(renderEx);
+
+// MBS
+const MBSD={
+  Mind:[{ic:'🧠',n:'Mental conditioning',s:'Focus & resilience'},{ic:'📖',n:'Sport psychology',s:'Mindset tools'}],
+  Body:[{ic:'🏋️',n:'Bespoke training',s:'Form-perfect programs'},{ic:'🔄',n:'Recovery',s:'Move without pain'}],
+  Soul:[{ic:'🥗',n:'Food & fuel',s:'Eat for performance'},{ic:'🧘',n:'Meditation',s:'Stress & sleep'}],
+};
+function mbsRender(gridId, cat){
+  document.getElementById(gridId).innerHTML=MBSD[cat].map(m=>`
+    <div class="mc"><div class="mc-ic">${m.ic}</div><div class="mc-n">${m.n}</div><div class="mc-s">${m.s}</div></div>`).join('');
+}
+function mbsA(btn,cat){document.querySelectorAll('#a-mbs').forEach(()=>{});document.querySelectorAll('.col:nth-child(1) .mt').forEach(t=>t.classList.remove('on'));btn.classList.add('on');mbsRender('a-mbs',cat);}
+function mbsB(btn,cat){document.querySelectorAll('.col:nth-child(2) .mt').forEach(t=>t.classList.remove('on'));btn.classList.add('on');mbsRender('b-mbs',cat);}
+function mbsC(btn,cat){document.querySelectorAll('.col:nth-child(3) .mt').forEach(t=>t.classList.remove('on'));btn.classList.add('on');mbsRender('c-mbs',cat);}
+mbsRender('a-mbs','Mind'); mbsRender('b-mbs','Mind'); mbsRender('c-mbs','Mind');
+
+// ACWR cycle (Variant A)
+const acwrStates=[
+  {val:'1.1',col:'var(--green)',fill:55,grad:'linear-gradient(90deg,var(--teal),var(--green))',sent:'You\'re in the optimal training zone.',why:'Formm tells you how well you moved, not just what you did. Your Movement Age unlocks in 34 days.'},
+  {val:'1.4',col:'var(--amber)',fill:80,grad:'var(--amber)',sent:'Go moderate today — your load is elevated.',why:'Your ACWR is above 1.3. Formm recommends RPE 5–6 max. High load is the #1 reason form scores drop.'},
+  {val:'1.7',col:'var(--red)',fill:96,grad:'linear-gradient(90deg,var(--amber),var(--red))',sent:'Rest or active recovery today.',why:'Your acute load is significantly above your chronic baseline. Your movement quality will suffer — and Formm will record it.'},
+  {val:'0.6',col:'var(--blue)',fill:18,grad:'linear-gradient(90deg,var(--blue),var(--teal))',sent:'Your body is ready for more.',why:'You\'re below your training baseline. A good day to push hard and build towards your movement standard.'},
+];
+let acwrIdx=0;
+document.querySelector('.card.teal').addEventListener('click',()=>{
+  acwrIdx=(acwrIdx+1)%acwrStates.length;
+  const s=acwrStates[acwrIdx];
+  document.getElementById('a-acwr-n').textContent=s.val;
+  document.getElementById('a-acwr-n').style.color=s.col;
+  document.getElementById('a-insight-sent').textContent=s.sent;
+  document.getElementById('a-insight-why').textContent=s.why;
+  document.getElementById('a-fill').style.width=s.fill+'%';
+  document.getElementById('a-fill').style.background=s.grad;
+  document.getElementById('a-marker').style.left=s.fill+'%';
+  document.getElementById('a-marker').style.background=s.col.includes('green')?'#36D99A':s.col.includes('amber')?'#F5A524':s.col.includes('red')?'#FF4560':'#4DA3FF';
+});
+
+// Vote
+function vote(v){
+  ['A','B','C'].forEach(x=>{
+    document.getElementById('v'+x).classList.toggle('on',x===v);
+  });
+  document.querySelectorAll('.phone').forEach((p,i)=>{
+    const chosen=['A','B','C'][i]===v;
+    p.style.boxShadow=chosen?`0 0 0 2px var(--teal),0 28px 70px rgba(0,0,0,.65)`:`0 28px 70px rgba(0,0,0,.65)`;
+  });
+}
+</script>
+</body>
+</html>
