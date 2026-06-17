@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Fix Your Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg0:#08080C;--bg1:#0F0F17;--bg2:#15151F;--bg3:#1C1C28;--bg4:#242433;--bg5:#2D2D40;
+  --ln1:rgba(255,255,255,0.06);--ln2:rgba(255,255,255,0.10);--ln3:rgba(255,255,255,0.18);
+  --tx1:#F2F1EC;--tx2:#9896AE;--tx3:#5A5870;
+  --teal:#00E0B5;--teal2:#00C49E;
+  --teal-dim:rgba(0,224,181,0.08);--teal-bdr:rgba(0,224,181,0.20);
+  --green:#36D99A;--green-d:rgba(54,217,154,0.10);
+  --amber:#F5A524;--amber-d:rgba(245,165,36,0.10);
+  --purp:#9B7FFF;
+  --r6:6px;--r10:10px;--r14:14px;--r18:18px;--r24:24px;
+  --disp:'Clash Display',sans-serif;
+  --body:'Cabinet Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+html,body{
+  min-height:100vh;
+  background:var(--bg0);
+  font-family:var(--body);
+  color:var(--tx1);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── VIEW TOGGLE STAGE ─────────────────────────────────────── */
+.stage{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;
+  background:#04040A;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  position:sticky;top:0;z-index:200;
+}
+.stage-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3)}
+.view-tabs{display:flex;gap:4px}
+.view-tab{
+  padding:5px 14px;border-radius:20px;border:1px solid var(--ln2);
+  background:transparent;font-family:var(--body);font-size:11px;font-weight:600;
+  color:var(--tx3);cursor:pointer;transition:all .15s;
+}
+.view-tab:hover{color:var(--tx1);border-color:var(--ln3)}
+.view-tab.on{background:var(--teal);border-color:var(--teal);color:var(--bg0)}
+
+/* ─── VIEWS ─────────────────────────────────────────────────── */
+.view{display:none}
+.view.on{display:block}
+
+/* ════════════════════════════════════════════════════════════════
+   MOBILE VIEW — phone frame, exact original design
+════════════════════════════════════════════════════════════════ */
+.shell-mobile{
+  min-height:calc(100vh - 41px);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:32px 16px 56px;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 0%,rgba(0,224,181,0.035) 0%,transparent 65%),
+    radial-gradient(ellipse 400px 300px at 85% 95%,rgba(155,127,255,0.03) 0%,transparent 65%),
+    var(--bg0);
+}
+
+/* ── PHONE FRAME ── */
+.phone{
+  width:100%;max-width:375px;
+  background:var(--bg1);
+  border-radius:var(--r24);
+  border:1px solid var(--ln2);
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.025),
+    0 48px 100px rgba(0,0,0,0.75),
+    0 0 60px rgba(0,224,181,0.035);
+}
+.notch{width:100px;height:24px;background:var(--bg0);border-radius:0 0 16px 16px;margin:0 auto}
+.phone-page{padding-bottom:36px}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;padding:20px 20px 0;
+}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-wordmark{font-family:var(--disp);font-size:28px;font-weight:700;letter-spacing:-0.5px;color:var(--tx1)}
+.tagline{font-size:11.5px;color:var(--tx2);line-height:1.5;margin-top:7px;max-width:200px}
+.tagline b{color:var(--tx1);font-weight:500}
+.tagline .spec{color:var(--tx3);font-size:10.5px}
+.try-btn{
+  flex-shrink:0;margin-top:8px;height:32px;padding:0 13px;
+  border:1.5px solid var(--ln3);border-radius:var(--r6);
+  background:transparent;color:var(--tx1);
+  font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:0.3px;
+  cursor:pointer;white-space:nowrap;transition:all 0.15s;
+  display:flex;align-items:center;
+}
+.try-btn:hover,.try-btn:active{background:var(--teal);border-color:var(--teal);color:var(--bg0)}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--ln1);margin:18px 20px 0}
+
+/* ── HERO ── */
+.hero{padding:18px 20px 0;text-align:center}
+.hero-tag{font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.hero-title{font-family:var(--disp);font-size:32px;font-weight:700;letter-spacing:-0.5px;line-height:1.05;color:var(--tx1)}
+.hero-title .accent{color:var(--teal)}
+.hero-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.demo-chip{
+  display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;
+  border:1px solid var(--ln2);border-radius:var(--r6);background:var(--bg2);
+  font-family:var(--body);font-size:12px;font-weight:500;color:var(--tx1);
+  cursor:pointer;transition:border-color 0.15s;
+}
+.demo-chip:hover{border-color:var(--teal);color:var(--teal)}
+.hero-sep{color:var(--tx3);font-size:11px}
+.hero-link{font-size:12px;color:var(--tx2);cursor:pointer;transition:color 0.15s}
+.hero-link:hover{color:var(--teal)}
+.analysis-sub{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-top:7px}
+
+/* ── SECTION ── */
+.section{padding:16px 20px 0}
+
+/* ── TIER CARDS ── */
+.tier-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tier-card{
+  background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);
+  height:88px;cursor:pointer;transition:all 0.15s;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding-top:14px;position:relative;overflow:hidden;
+}
+.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background 0.15s}
+.tier-card:hover{border-color:var(--ln2);transform:translateY(-1px)}
+.tier-card:hover::before{background:var(--teal)}
+.tier-card.active{border-color:var(--teal-bdr);background:var(--teal-dim)}
+.tier-card.active::before{background:var(--teal)}
+.tier-name{font-family:var(--disp);font-size:9.5px;font-weight:600;letter-spacing:0.2px;color:var(--tx2);transition:color 0.15s;text-align:center;line-height:1.2;padding:0 4px}
+.tier-card.active .tier-name,.tier-card:hover .tier-name{color:var(--teal)}
+.tier-icon{font-size:20px;margin-top:8px;opacity:0.5}
+.tier-card.active .tier-icon{opacity:1}
+
+/* ── BESPOKE ── */
+.bespoke-hd{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;text-align:center;margin-bottom:8px}
+.bespoke-strip{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r10);overflow:hidden}
+.bespoke-item{
+  padding:11px 4px;text-align:center;
+  font-family:var(--body);font-size:12px;font-weight:500;color:var(--tx2);
+  cursor:pointer;transition:all 0.15s;border-right:1px solid var(--ln1);
+}
+.bespoke-item:last-child{border-right:none}
+.bespoke-item:hover{background:var(--bg3);color:var(--teal)}
+
+/* ── BIG CARDS ── */
+.big-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big-card{
+  border-radius:var(--r18);height:148px;padding:0 18px 18px;
+  cursor:pointer;transition:transform 0.15s;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  position:relative;overflow:hidden;
+}
+.big-card:hover{transform:scale(1.018)}
+.big-card.training{
+  background:radial-gradient(ellipse 130px 90px at 85% 15%,rgba(54,217,154,0.12) 0%,transparent 55%),linear-gradient(155deg,#0D1E0E 0%,#080E08 100%);
+  border:1px solid rgba(54,217,154,0.16);
+}
+.big-card.nutrition{
+  background:radial-gradient(ellipse 130px 90px at 85% 15%,rgba(245,165,36,0.12) 0%,transparent 55%),linear-gradient(155deg,#1E160A 0%,#0F0A04 100%);
+  border:1px solid rgba(245,165,36,0.16);
+}
+.big-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.big-card.training::after{background:linear-gradient(90deg,transparent,rgba(54,217,154,0.3),transparent)}
+.big-card.nutrition::after{background:linear-gradient(90deg,transparent,rgba(245,165,36,0.3),transparent)}
+.bc-name{font-family:var(--disp);font-size:27px;font-weight:700;letter-spacing:-0.5px;line-height:1}
+.big-card.training .bc-name{color:var(--green)}
+.big-card.nutrition .bc-name{color:var(--amber)}
+.bc-sub{font-size:10px;color:var(--tx3);margin-top:4px}
+
+/* ── PHONE FOOTER ── */
+.phone-footer{padding:16px 20px 0;border-top:1px solid var(--ln1);margin-top:20px}
+.footer-links{display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;overflow:hidden;gap:0}
+.fl{font-size:9.5px;color:var(--tx3);cursor:pointer;padding:2px 3px;transition:color 0.15s;white-space:nowrap}
+.fl:hover{color:var(--tx1)}
+.fsep{font-size:9.5px;color:var(--tx3);padding:2px 1px}
+.footer-help{display:flex;align-items:center;justify-content:flex-end;margin-top:10px}
+.help-btn{
+  width:22px;height:22px;border-radius:50%;
+  border:1px solid var(--ln2);background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-size:11px;font-weight:700;color:var(--tx3);cursor:pointer;
+}
+.help-btn:hover{border-color:var(--teal);color:var(--teal)}
+
+/* ── ANIMATIONS ── */
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.a0{animation:up 0.38s 0.00s both}
+.a1{animation:up 0.38s 0.06s both}
+.a2{animation:up 0.38s 0.11s both}
+.a3{animation:up 0.38s 0.16s both}
+.a4{animation:up 0.38s 0.21s both}
+.a5{animation:up 0.38s 0.26s both}
+
+/* ════════════════════════════════════════════════════════════════
+   DESKTOP VIEW — sidebar + content, same tokens
+════════════════════════════════════════════════════════════════ */
+.shell-desktop{
+  min-height:calc(100vh - 41px);
+  background:
+    radial-gradient(ellipse 700px 450px at 15% 0%,rgba(0,224,181,0.03) 0%,transparent 65%),
+    radial-gradient(ellipse 500px 350px at 88% 95%,rgba(155,127,255,0.025) 0%,transparent 65%),
+    var(--bg0);
+}
+
+/* ── DESKTOP TOP NAV ── */
+.d-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:58px;
+  background:rgba(8,8,12,0.92);
+  border-bottom:1px solid var(--ln1);
+  backdrop-filter:blur(12px);
+  position:sticky;top:41px;z-index:100;
+}
+.d-logo{display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none}
+.d-logo-wordmark{font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:-0.3px;color:var(--tx1)}
+.d-navlinks{display:flex;align-items:center;gap:2px}
+.d-navlink{
+  padding:6px 13px;border-radius:var(--r6);border:none;background:transparent;
+  font-family:var(--body);font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all .15s;
+}
+.d-navlink:hover{color:var(--tx1);background:var(--bg3)}
+.d-navlink.on{color:var(--teal);background:var(--teal-dim)}
+.d-nav-right{display:flex;gap:8px}
+.d-btn{padding:7px 15px;border-radius:var(--r6);font-family:var(--body);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.d-btn-s{background:transparent;border:1px solid var(--ln2);color:var(--tx2)}
+.d-btn-s:hover{border-color:var(--ln3);color:var(--tx1)}
+.d-btn-p{background:var(--teal);border:1px solid var(--teal);color:var(--bg0)}
+.d-btn-p:hover{background:var(--teal2)}
+
+/* ── DESKTOP BODY ── */
+.d-body{display:flex;min-height:calc(100vh - 99px)}
+
+/* ── SIDEBAR ── */
+.d-sidebar{
+  width:208px;flex-shrink:0;
+  background:var(--bg0);
+  border-right:1px solid var(--ln1);
+  padding:14px 0 24px;
+  position:sticky;top:99px;
+  height:calc(100vh - 99px);
+  overflow-y:auto;
+}
+.d-sidebar::-webkit-scrollbar{width:3px}
+.d-sidebar::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.d-sb-section{
+  font-family:var(--mono);font-size:8px;font-weight:500;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--tx3);padding:10px 16px 4px;
+}
+.d-sb-item{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 16px;font-family:var(--body);font-size:13px;font-weight:500;color:var(--tx2);
+  cursor:pointer;transition:all .12s;border:none;background:transparent;
+  width:100%;text-align:left;position:relative;
+}
+.d-sb-item:hover{background:var(--bg2);color:var(--tx1)}
+.d-sb-item.on{background:var(--teal-dim);color:var(--teal)}
+.d-sb-item.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--teal);border-radius:0 2px 2px 0}
+.d-sb-badge{margin-left:auto;font-family:var(--mono);font-size:7px;padding:1px 5px;border-radius:20px;background:var(--teal);color:var(--bg0);font-weight:700}
+
+/* ── CONTENT ── */
+.d-content{flex:1;padding:28px 32px;overflow-y:auto;max-width:900px}
+
+/* ── D-TOPBAR (inside content) ── */
+.d-topbar-inner{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;margin-bottom:18px;
+  padding-bottom:18px;border-bottom:1px solid var(--ln1);
+}
+.d-logo-big{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.d-logo-big-wordmark{font-family:var(--disp);font-size:44px;font-weight:700;letter-spacing:-1.5px;line-height:1;color:var(--tx1)}
+.d-tagline{font-size:12px;color:var(--tx2);line-height:1.5;margin-top:8px;max-width:240px}
+.d-tagline b{color:var(--tx1);font-weight:500}
+.d-tagline .spec{color:var(--tx3);font-size:11px}
+.d-try-btn{
+  flex-shrink:0;margin-top:8px;height:34px;padding:0 16px;
+  border:1.5px solid var(--ln3);border-radius:var(--r6);
+  background:transparent;color:var(--tx1);
+  font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:0.3px;
+  cursor:pointer;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;
+}
+.d-try-btn:hover{background:var(--teal);border-color:var(--teal);color:var(--bg0)}
+
+/* ── D-HERO ── */
+.d-hero{text-align:center;padding:8px 0 20px}
+.d-hero-tag{font-family:var(--mono);font-size:9px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.d-hero-title{font-family:var(--disp);font-size:48px;font-weight:700;letter-spacing:-1.5px;line-height:1.0;color:var(--tx1);margin-bottom:14px}
+.d-hero-title .accent{color:var(--teal)}
+.d-hero-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.d-demo-chip{
+  display:flex;align-items:center;gap:6px;height:32px;padding:0 14px;
+  border:1px solid var(--ln2);border-radius:var(--r6);background:var(--bg2);
+  font-family:var(--body);font-size:13px;font-weight:500;color:var(--tx1);
+  cursor:pointer;transition:border-color 0.15s;
+}
+.d-demo-chip:hover{border-color:var(--teal);color:var(--teal)}
+.d-hero-sep{color:var(--tx3);font-size:12px}
+.d-hero-link{font-size:13px;color:var(--tx2);cursor:pointer;transition:color 0.15s}
+.d-hero-link:hover{color:var(--teal)}
+.d-analysis-sub{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-top:6px}
+.d-divider{height:1px;background:var(--ln1);margin:20px 0}
+
+/* ── D-TIER CARDS ── */
+.d-tier-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.d-tier-card{
+  background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);
+  height:96px;cursor:pointer;transition:all 0.15s;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding-top:16px;position:relative;overflow:hidden;
+}
+.d-tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background 0.15s}
+.d-tier-card:hover{border-color:var(--ln2);transform:translateY(-1px)}
+.d-tier-card:hover::before{background:var(--teal)}
+.d-tier-card.active{border-color:var(--teal-bdr);background:var(--teal-dim)}
+.d-tier-card.active::before{background:var(--teal)}
+.d-tier-name{font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:0.2px;color:var(--tx2);transition:color 0.15s;text-align:center;line-height:1.2;padding:0 6px}
+.d-tier-card.active .d-tier-name,.d-tier-card:hover .d-tier-name{color:var(--teal)}
+.d-tier-icon{font-size:22px;margin-top:8px;opacity:0.5}
+.d-tier-card.active .d-tier-icon{opacity:1}
+
+/* ── D-BESPOKE ── */
+.d-bespoke-hd{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;text-align:center;margin-bottom:8px}
+.d-bespoke-strip{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r10);overflow:hidden;margin-bottom:20px}
+.d-bespoke-item{
+  padding:13px 4px;text-align:center;
+  font-family:var(--body);font-size:13px;font-weight:500;color:var(--tx2);
+  cursor:pointer;transition:all 0.15s;border-right:1px solid var(--ln1);
+}
+.d-bespoke-item:last-child{border-right:none}
+.d-bespoke-item:hover{background:var(--bg3);color:var(--teal)}
+
+/* ── D-BIG CARDS ── */
+.d-big-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.d-big-card{
+  border-radius:var(--r18);height:168px;padding:0 22px 22px;
+  cursor:pointer;transition:transform 0.15s;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  position:relative;overflow:hidden;
+}
+.d-big-card:hover{transform:scale(1.016)}
+.d-big-card.training{
+  background:radial-gradient(ellipse 160px 110px at 85% 15%,rgba(54,217,154,0.13) 0%,transparent 55%),linear-gradient(155deg,#0D1E0E 0%,#080E08 100%);
+  border:1px solid rgba(54,217,154,0.16);
+}
+.d-big-card.nutrition{
+  background:radial-gradient(ellipse 160px 110px at 85% 15%,rgba(245,165,36,0.13) 0%,transparent 55%),linear-gradient(155deg,#1E160A 0%,#0F0A04 100%);
+  border:1px solid rgba(245,165,36,0.16);
+}
+.d-big-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.d-big-card.training::after{background:linear-gradient(90deg,transparent,rgba(54,217,154,0.3),transparent)}
+.d-big-card.nutrition::after{background:linear-gradient(90deg,transparent,rgba(245,165,36,0.3),transparent)}
+.d-bc-name{font-family:var(--disp);font-size:32px;font-weight:700;letter-spacing:-0.5px;line-height:1}
+.d-big-card.training .d-bc-name{color:var(--green)}
+.d-big-card.nutrition .d-bc-name{color:var(--amber)}
+.d-bc-sub{font-size:11px;color:var(--tx3);margin-top:5px}
+
+/* ── D-FOOTER ── */
+.d-footer{
+  padding:14px 0 0;border-top:1px solid var(--ln1);margin-top:4px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.d-footer-links{display:flex;align-items:center;flex-wrap:wrap;gap:0}
+.d-fl{font-size:11px;color:var(--tx3);cursor:pointer;padding:2px 4px;transition:color 0.15s;white-space:nowrap}
+.d-fl:hover{color:var(--tx1)}
+.d-fsep{font-size:10px;color:var(--tx3);padding:2px 1px}
+.d-footer-right{display:flex;align-items:center;gap:10px}
+.d-footer-copy{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:0.3px}
+.d-help-btn{
+  width:24px;height:24px;border-radius:50%;border:1px solid var(--ln2);
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-size:11px;font-weight:700;color:var(--tx3);cursor:pointer;
+}
+.d-help-btn:hover{border-color:var(--teal);color:var(--teal)}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r10);
+  padding:11px 20px;font-size:13px;color:var(--tx1);z-index:9999;
+  opacity:0;pointer-events:none;white-space:nowrap;
+  transition:opacity .2s,transform .2s;font-weight:500;
+  box-shadow:0 8px 30px rgba(0,0,0,.55);font-family:var(--body);
+}
+</style>
+</head>
+<body>
+
+<!-- ── STAGE BAR ─────────────────────────────────────────────── -->
+<div class="stage">
+  <div class="stage-label">Formm — Page 1 Prototype</div>
+  <div class="view-tabs">
+    <button class="view-tab on"  onclick="setView('mobile',this)">📱 Mobile</button>
+    <button class="view-tab"     onclick="setView('desktop',this)">🖥 Desktop</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MOBILE VIEW
+═══════════════════════════════════════════════════════════════ -->
+<div class="view on" id="view-mobile">
+  <div class="shell-mobile">
+    <div class="phone">
+      <div class="notch"></div>
+      <div id="m-subpage" style="display:none;overflow-y:auto;padding:0 0 36px;max-height:680px"></div>
+      <div class="phone-page" id="m-home">
+
+        <!-- Topbar -->
+        <div class="topbar a0">
+          <div>
+            <div class="logo">
+              <svg width="32" height="32" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Formm mark">
+                <circle cx="28" cy="46" r="5" fill="#00E0B5"/>
+                <path d="M 28 72 A 26 26 0 0 1 54 46" stroke="#00E0B5" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+                <line x1="54" y1="34" x2="54" y2="58" stroke="#00E0B5" stroke-width="5.5" stroke-linecap="round"/>
+                <path d="M 28 61 A 15 15 0 0 1 43 46" stroke="#0F0F17" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <line x1="28" y1="46" x2="54" y2="46" stroke="#0F0F17" stroke-width="2" stroke-linecap="round"/>
+                <line x1="28" y1="46" x2="28" y2="72" stroke="#0F0F17" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="logo-wordmark">FORMM</span>
+            </div>
+            <div class="tagline">
+              <b>Train Smarter. Recover Better.</b><br>
+              Powered By Sports Science <span class="spec">Specialists</span>
+            </div>
+          </div>
+          <button class="try-btn" onclick="mPage('liveanalysis')">Try Formm</button>
+        </div>
+
+        <div class="divider a1"></div>
+
+        <!-- Hero -->
+        <div class="hero a1">
+          <div class="hero-tag">Movement Intelligence</div>
+          <div class="hero-title">Fix Your <span class="accent">Form</span></div>
+          <div class="hero-row">
+            <div class="demo-chip" onclick="toast('Opening live demo →')">[Demo]</div>
+            <span class="hero-sep">—</span>
+            <span class="hero-link" onclick="toast('Stats →')">Stats</span>
+            <span class="hero-sep">·</span>
+            <span class="hero-link" onclick="toast('Did You Know? →')">Did You Know?</span>
+          </div>
+          <div class="analysis-sub">Analysis Form</div>
+        </div>
+
+        <!-- Tier Cards -->
+        <div class="section a2">
+          <div class="tier-grid">
+            <div class="tier-card" onclick="mTier(this,'Athlete');mPage('athlete')">
+              <div class="tier-name">Athlete</div>
+              <div class="tier-icon">🏅</div>
+            </div>
+            <div class="tier-card" onclick="mTier(this,'Amateur Athlete');mPage('amateur')">
+              <div class="tier-name">Amateur Athlete</div>
+              <div class="tier-icon">🎽</div>
+            </div>
+            <div class="tier-card" onclick="mTier(this,'Professional');mPage('professional')">
+              <div class="tier-name">Professional</div>
+              <div class="tier-icon">🏆</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bespoke -->
+        <div class="section a3">
+          <div class="bespoke-hd">Bespoke</div>
+          <div class="bespoke-strip">
+            <div class="bespoke-item" onclick="mPage('programs')">Programs</div>
+            <div class="bespoke-item" onclick="mPage('coaching')">Coaching</div>
+            <div class="bespoke-item" onclick="mPage('tracking')">Tracking</div>
+          </div>
+        </div>
+
+        <!-- Big Cards -->
+        <div class="section a4">
+          <div class="big-grid">
+            <div class="big-card training" onclick="mPage('training')">
+              <div class="bc-name">Training</div>
+              <div class="bc-sub">Bespoke Programmes</div>
+            </div>
+            <div class="big-card nutrition" onclick="mPage('nutrition')">
+              <div class="bc-name">Nutrition</div>
+              <div class="bc-sub">Fuel Your Goals</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="phone-footer a5">
+          <div class="footer-links">
+            <span class="fl" onclick="mPage('about')">About Us</span>
+            <span class="fsep">|</span>
+            <span class="fl" onclick="mPage('team')">Team</span>
+            <span class="fsep">|</span>
+            <span class="fl" onclick="mPage('legal')">Legal</span>
+            <span class="fsep">|</span>
+            <span class="fl" onclick="mPage('contact')">Contact Us</span>
+            <span class="fsep">|</span>
+            <span class="fl" onclick="mPage('faq')">FAQ</span>
+            <span class="fsep">|</span>
+            <span class="fl" onclick="mPage('terms')">Terms</span>
+            <span class="fsep">|</span>
+            <span class="fl" onclick="mPage('privacy')">Privacy</span>
+          </div>
+          <div class="footer-help">
+            <div class="help-btn" onclick="toast('Help →')">?</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DESKTOP VIEW
+═══════════════════════════════════════════════════════════════ -->
+<div class="view" id="view-desktop">
+  <div class="shell-desktop">
+
+    <!-- Top Nav -->
+    <nav class="d-nav">
+      <div class="d-logo" onclick="dPage('overview')">
+        <svg width="26" height="26" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Formm mark">
+          <circle cx="28" cy="46" r="5" fill="#00E0B5"/>
+          <path d="M 28 72 A 26 26 0 0 1 54 46" stroke="#00E0B5" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+          <line x1="54" y1="34" x2="54" y2="58" stroke="#00E0B5" stroke-width="5.5" stroke-linecap="round"/>
+          <path d="M 28 61 A 15 15 0 0 1 43 46" stroke="#08080C" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <line x1="28" y1="46" x2="54" y2="46" stroke="#08080C" stroke-width="2" stroke-linecap="round"/>
+          <line x1="28" y1="46" x2="28" y2="72" stroke="#08080C" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="d-logo-wordmark">FORMM</span>
+      </div>
+      <div class="d-navlinks">
+        <button class="d-navlink on"  onclick="dNav(this,'Home')">Home</button>
+        <button class="d-navlink"     onclick="dNav(this,'Training')">Training</button>
+        <button class="d-navlink"     onclick="dNav(this,'Nutrition')">Nutrition</button>
+        <button class="d-navlink"     onclick="dNav(this,'Community')">Community</button>
+        <button class="d-navlink"     onclick="dNav(this,'Stats')">Stats</button>
+      </div>
+      <div class="d-nav-right">
+        <button class="d-btn d-btn-s" onclick="toast('Opening Demo →')">Try Demo</button>
+        <button class="d-btn d-btn-p" onclick="toast('Get Started →')">Get Started →</button>
+      </div>
+    </nav>
+
+    <div class="d-body">
+
+      <!-- Sidebar -->
+      <aside class="d-sidebar">
+        <div class="d-sb-section">Discover</div>
+        <button class="d-sb-item on"  onclick="dPage('overview',this)"><span>🏠</span> Overview <span class="d-sb-badge">New</span></button>
+        <button class="d-sb-item"     onclick="dPage('liveanalysis',this)"><span>📹</span> Fix Your Form Live</button>
+        <button class="d-sb-item"     onclick="dPage('analysis',this)"><span>📊</span> Analysis</button>
+
+        <div class="d-sb-section">Bespoke</div>
+        <button class="d-sb-item"     onclick="dPage('training',this)"><span>🏋️</span> Training Programs</button>
+        <button class="d-sb-item"     onclick="dPage('coaching',this)"><span>👨‍🏫</span> Coaching</button>
+        <button class="d-sb-item"     onclick="dPage('tracking',this)"><span>📈</span> Progress Tracking</button>
+        <button class="d-sb-item"     onclick="dPage('nutrition',this)"><span>🥗</span> Nutrition</button>
+
+        <div class="d-sb-section">Athlete Tier</div>
+        <button class="d-sb-item"     onclick="dPage('athlete',this)"><span>🏅</span> Athlete</button>
+        <button class="d-sb-item"     onclick="dPage('amateur',this)"><span>🎽</span> Amateur Athlete</button>
+        <button class="d-sb-item"     onclick="dPage('professional',this)"><span>🏆</span> Professional</button>
+
+        <div class="d-sb-section">Account</div>
+        <button class="d-sb-item"     onclick="dPage('faq',this)"><span>❓</span> Help &amp; FAQ</button>
+        <button class="d-sb-item"     onclick="dPage('settings',this)"><span>⚙️</span> Settings</button>
+      </aside>
+
+      <!-- Content -->
+      <div class="d-content" id="d-content">
+
+        <!-- Logo + tagline block (mirrors phone topbar) -->
+        <div class="d-topbar-inner a0">
+          <div>
+            <div class="d-logo-big">
+              <svg width="48" height="48" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Formm mark">
+                <circle cx="28" cy="46" r="5" fill="#00E0B5"/>
+                <path d="M 28 72 A 26 26 0 0 1 54 46" stroke="#00E0B5" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+                <line x1="54" y1="34" x2="54" y2="58" stroke="#00E0B5" stroke-width="5.5" stroke-linecap="round"/>
+                <path d="M 28 61 A 15 15 0 0 1 43 46" stroke="#0F0F17" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <line x1="28" y1="46" x2="54" y2="46" stroke="#0F0F17" stroke-width="2" stroke-linecap="round"/>
+                <line x1="28" y1="46" x2="28" y2="72" stroke="#0F0F17" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="d-logo-big-wordmark">FORMM</span>
+            </div>
+            <div class="d-tagline">
+              <b>Train Smarter. Recover Better.</b><br>
+              Powered By Sports Science <span class="spec">Specialists</span>
+            </div>
+          </div>
+          <button class="d-try-btn" onclick="dPage('liveanalysis')">Try Formm</button>
+        </div>
+
+        <!-- Hero -->
+        <div class="d-hero a1">
+          <div class="d-hero-tag">Movement Intelligence</div>
+          <div class="d-hero-title">Fix Your <span class="accent">Form</span></div>
+          <div class="d-hero-row">
+            <div class="d-demo-chip" onclick="toast('Opening Live Demo →')">[Demo]</div>
+            <span class="d-hero-sep">—</span>
+            <span class="d-hero-link" onclick="toast('Stats →')">Stats</span>
+            <span class="d-hero-sep">·</span>
+            <span class="d-hero-link" onclick="toast('Did You Know? →')">Did You Know?</span>
+          </div>
+          <div class="d-analysis-sub">Analysis Form</div>
+        </div>
+
+        <div class="d-divider"></div>
+
+        <!-- Tier Cards -->
+        <div class="a2">
+          <div class="d-tier-grid">
+            <div class="d-tier-card" onclick="dTier(this,'Athlete');dPage('athlete')">
+              <div class="d-tier-name">Athlete</div>
+              <div class="d-tier-icon">🏅</div>
+            </div>
+            <div class="d-tier-card" onclick="dTier(this,'Amateur Athlete');dPage('amateur')">
+              <div class="d-tier-name">Amateur Athlete</div>
+              <div class="d-tier-icon">🎽</div>
+            </div>
+            <div class="d-tier-card" onclick="dTier(this,'Professional');dPage('professional')">
+              <div class="d-tier-name">Professional</div>
+              <div class="d-tier-icon">🏆</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bespoke -->
+        <div class="a3">
+          <div class="d-bespoke-hd">Bespoke</div>
+          <div class="d-bespoke-strip">
+            <div class="d-bespoke-item" onclick="dPage('programs')">Programs</div>
+            <div class="d-bespoke-item" onclick="dPage('coaching')">Coaching</div>
+            <div class="d-bespoke-item" onclick="dPage('tracking')">Tracking</div>
+          </div>
+        </div>
+
+        <!-- Big Cards -->
+        <div class="a4">
+          <div class="d-big-grid">
+            <div class="d-big-card training" onclick="dPage('training')">
+              <div class="d-bc-name">Training</div>
+              <div class="d-bc-sub">Bespoke Programmes Tailored To Your Form &amp; Goals</div>
+            </div>
+            <div class="d-big-card nutrition" onclick="dPage('nutrition')">
+              <div class="d-bc-name">Nutrition</div>
+              <div class="d-bc-sub">Fuel Your Performance With Precision Diet Plans</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="d-footer a5">
+          <div class="d-footer-links">
+            <span class="d-fl" onclick="dPage('about')">About Us</span><span class="d-fsep">|</span>
+            <span class="d-fl" onclick="dPage('team')">Team</span><span class="d-fsep">|</span>
+            <span class="d-fl" onclick="dPage('legal')">Legal</span><span class="d-fsep">|</span>
+            <span class="d-fl" onclick="dPage('contact')">Contact Us</span><span class="d-fsep">|</span>
+            <span class="d-fl" onclick="dPage('faq')">FAQ</span><span class="d-fsep">|</span>
+            <span class="d-fl" onclick="dPage('terms')">Terms</span><span class="d-fsep">|</span>
+            <span class="d-fl" onclick="dPage('privacy')">Privacy</span>
+          </div>
+          <div class="d-footer-right">
+            <span class="d-footer-copy">© 2025 Formm · Sports Science Specialists</span>
+            <div class="d-help-btn" onclick="toast('Help →')">?</div>
+          </div>
+        </div>
+
+      </div><!-- /d-content -->
+    </div><!-- /d-body -->
+  </div><!-- /shell-desktop -->
+</div><!-- /view-desktop -->
+
+<div id="toast"></div>
+
+<style>
+/* ── INNER PAGE STYLES ──────────────────────────────────── */
+.pg{padding:20px}
+.pg-ey{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.pg-dot{width:4px;height:4px;border-radius:50%;background:var(--teal)}
+.pg-h1{font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.1;margin-bottom:8px}
+.pg-h1 span{color:var(--teal)}
+.pg-sub{font-size:13px;color:var(--tx2);line-height:1.65;margin-bottom:16px}
+.pg-back{display:flex;align-items:center;gap:4px;font-family:var(--body);font-size:13px;font-weight:600;color:var(--teal);cursor:pointer;margin-bottom:16px;background:none;border:none;padding:0}
+.pg-back:active{opacity:.7}
+/* Feature cards */
+.pg-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.pg-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:16px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden}
+.pg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.15),transparent)}
+.pg-card:hover{border-color:var(--ln2)}
+.pg-card-ic{font-size:22px;margin-bottom:8px}
+.pg-card-t{font-family:var(--disp);font-size:14px;font-weight:700;margin-bottom:4px;letter-spacing:-.2px}
+.pg-card-d{font-size:12px;color:var(--tx2);line-height:1.6}
+.pg-tag{display:inline-flex;margin-top:8px;font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:20px;background:var(--teal-dim);border:1px solid var(--teal-bdr);color:var(--teal)}
+/* Team cards */
+.pg-team{display:flex;flex-direction:column;gap:12px}
+.pg-team-card{background:var(--bg2);border:1px solid var(--ln1);border-radius:var(--r14);padding:16px;position:relative;overflow:hidden}
+.pg-team-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.12),transparent)}
+.pg-av{width:44px;height:44px;border-radius:50%;background:var(--teal-dim);border:2px solid var(--teal-bdr);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:16px;font-weight:700;color:var(--teal);margin-bottom:10px}
+.pg-team-name{font-family:var(--disp);font-size:15px;font-weight:700;margin-bottom:2px}
+.pg-team-role{font-size:10px;font-weight:600;color:var(--teal);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.pg-team-tag{font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:10px}
+.pg-div{height:1px;background:var(--ln1);margin-bottom:10px}
+.pg-bullets{display:flex;flex-direction:column;gap:5px}
+.pg-bullet{display:flex;gap:7px;font-size:12px;color:var(--tx2);line-height:1.55}
+.pg-bullet::before{content:'·';color:var(--teal);font-size:16px;line-height:1;flex-shrink:0}
+/* Contact form */
+.pg-form{display:flex;flex-direction:column;gap:10px}
+.pg-label{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);margin-bottom:4px}
+.pg-input,.pg-textarea,.pg-select{background:var(--bg2);border:1px solid var(--ln2);border-radius:var(--r10);padding:10px 12px;font-size:13px;color:var(--tx1);font-family:var(--body);outline:none;transition:border-color .15s;width:100%}
+.pg-input:focus,.pg-textarea:focus,.pg-select:focus{border-color:var(--teal)}
+.pg-input::placeholder,.pg-textarea::placeholder{color:var(--tx3)}
+.pg-textarea{resize:vertical;min-height:90px;line-height:1.5}
+.pg-select option{background:var(--bg2)}
+.pg-submit{width:100%;padding:12px;border-radius:var(--r10);background:var(--teal);border:none;font-family:var(--body);font-size:14px;font-weight:700;color:var(--bg0);cursor:pointer;transition:background .15s;margin-top:4px}
+.pg-submit:hover{background:var(--teal2)}
+/* FAQ */
+.pg-faq-item{border-bottom:1px solid var(--ln1)}
+.pg-faq-q{display:flex;align-items:center;justify-content:space-between;padding:14px 0;cursor:pointer;font-size:13px;font-weight:600;gap:12px;transition:color .15s}
+.pg-faq-q:hover,.pg-faq-q.open{color:var(--teal)}
+.pg-faq-ic{font-size:16px;color:var(--tx3);transition:transform .2s;flex-shrink:0}
+.pg-faq-ic.open{transform:rotate(45deg);color:var(--teal)}
+.pg-faq-a{font-size:12px;color:var(--tx2);line-height:1.7;padding-bottom:14px;display:none}
+.pg-faq-a.show{display:block}
+/* Legal */
+.pg-legal-h{font-family:var(--disp);font-size:15px;font-weight:700;margin-bottom:6px;margin-top:20px}
+.pg-legal-p{font-size:12px;color:var(--tx2);line-height:1.7;margin-bottom:8px}
+.pg-legal-ul{list-style:none;margin-bottom:10px}
+.pg-legal-ul li{font-size:12px;color:var(--tx2);line-height:1.65;padding:2px 0;display:flex;gap:6px}
+.pg-legal-ul li::before{content:'·';color:var(--teal);font-size:14px;line-height:1.2;flex-shrink:0}
+.pg-callout{background:var(--teal-dim);border:1px solid var(--teal-bdr);border-radius:var(--r10);padding:12px 14px;font-size:12px;color:var(--teal);line-height:1.6;margin-bottom:14px}
+/* Tier page */
+.pg-tier-feats{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.pg-tier-feat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx2)}
+.pg-tier-feat::before{content:'✓';color:var(--teal);font-size:11px;flex-shrink:0;font-weight:700}
+/* Desktop inner page overrides */
+#d-content .pg{padding:0}
+#d-content .pg-h1{font-size:32px;margin-bottom:12px}
+#d-content .pg-sub{font-size:15px}
+#d-content .pg-card-t{font-size:16px}
+#d-content .pg-card-d{font-size:13px}
+#d-content .pg-cards{gap:12px}
+#d-content .pg-team{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#d-content .pg-back{font-size:14px;margin-bottom:20px}
+#d-content .pg-team-name{font-size:17px}
+#d-content .pg-bullet{font-size:13px}
+#d-content .pg-faq-q{font-size:14px;padding:16px 0}
+#d-content .pg-faq-a{font-size:13px}
+#d-content .pg-legal-h{font-size:17px}
+#d-content .pg-legal-p{font-size:14px}
+#d-content .pg-legal-ul li{font-size:14px}
+#d-content .pg-callout{font-size:13px;padding:14px 16px}
+</style>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════ */
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.style.opacity='1';el.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(-50%) translateY(12px)'},2400);
+}
+
+/* ══════════════════════════════════════════════════════
+   VIEW TOGGLE
+══════════════════════════════════════════════════════ */
+function setView(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.view-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('view-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+/* ══════════════════════════════════════════════════════
+   TIER CARD STATE
+══════════════════════════════════════════════════════ */
+function mTier(card,name){
+  document.querySelectorAll('.phone .tier-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+}
+function dTier(card,name){
+  document.querySelectorAll('.d-tier-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+}
+function dNav(btn,label){
+  document.querySelectorAll('.d-navlink').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* ══════════════════════════════════════════════════════
+   CONTENT PAGES
+══════════════════════════════════════════════════════ */
+const PAGES = {
+
+  overview: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Overview</div>
+    <div class="pg-h1">Fix Your <span>Form</span>.<br>Train Smarter.</div>
+    <div class="pg-sub">AI-powered sports science that identifies movement faults, prevents injury, and builds bespoke programmes around your body — in real time.</div>
+    <div class="pg-cards">
+      ${fcard('📹','Real-Time Form Analysis','AI identifies movement faults as you train — knee valgus, lumbar rounding, depth, symmetry.','Live')}
+      ${fcard('📊','The Formm Score','Every rep scored 0–100. Every session tracked longitudinally. Measure exactly how much your movement improves.','Longitudinal')}
+      ${fcard('🧬','Movement Age','Your biological age for movement quality. Unlocks after 90 days of analysis.','Coming Soon')}
+      ${fcard('⚡','Load Management','ACWR from your session RPE. Daily readiness brief. Know when to train hard and when to pull back.','Daily Brief')}
+      ${fcard('👨‍🏫','Expert Coaching','One-to-one with qualified sports physiotherapists. Your data gives your coach a complete picture.','Bespoke')}
+    </div>
+  </div>`,
+
+  liveanalysis: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Fix Your Form Live</div>
+    <div class="pg-h1">📹 Live <span>Analysis</span></div>
+    <div class="pg-sub">Point your phone camera at your movement. Formm's AI identifies faults in real time and scores each rep before your next set.</div>
+    <div class="pg-cards">
+      ${fcard('🎯','Real-Time Fault Detection','20+ movement faults detected as you move — before they become injuries.','Live')}
+      ${fcard('📊','Rep-By-Rep Scoring','Every rep scored 0–100. See exactly when your form breaks down under fatigue.','Per Rep')}
+      ${fcard('🗣️','Instant Coaching Cue','One specific correction after each set. Built from your exact fault pattern.','AI-Powered')}
+      ${fcard('📈','Session Formm Score','Your overall movement quality for the session, tracked over time.','Longitudinal')}
+    </div>
+    <button class="pg-submit" onclick="toast('Opening Camera →')">📹 Start Live Analysis</button>
+  </div>`,
+
+  analysis: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Analysis</div>
+    <div class="pg-h1">Deep <span>Analysis</span></div>
+    <div class="pg-sub">Every session generates a movement quality report. Longitudinal trends, ACWR, load management, and sport-specific benchmarks.</div>
+    <div class="pg-cards">
+      ${fcard('🔬','Biomechanical Breakdown','Joint angles, symmetry scores, depth, trunk lean — measured across every exercise.','Science')}
+      ${fcard('📉','Load Management (ACWR)','Acute:Chronic Workload Ratio from your RPE. Green 0.8–1.3 is optimal. Above 1.5 is injury risk.','ACWR')}
+      ${fcard('🧬','Movement Age','Your biological movement age. Unlocks after 90 days of consistent analysis.','Coming Soon')}
+      ${fcard('🏏','Sport-Specific Benchmarks','Compare your movement quality against normative data for your sport and training age.','Benchmarks')}
+    </div>
+  </div>`,
+
+  training: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Training Programs</div>
+    <div class="pg-h1">🏋️ Bespoke <span>Training</span></div>
+    <div class="pg-sub">Programmes built around your movement data — not generic templates. Load only increases when your technique holds.</div>
+    <div class="pg-cards">
+      ${fcard('💪','Strength & Hypertrophy','12-week compound movement programme. Every session analysed for form quality.','Most Popular')}
+      ${fcard('⚡','Athletic Performance','Power and speed block. Sport-specific movement patterns with biomechanical analysis.','Athlete Tier')}
+      ${fcard('🔥','Fat Loss & Conditioning','10-week resistance and conditioning programme. Caloric targets synced with your nutrition plan.','Amateur Tier')}
+      ${fcard('🩺','Rehabilitation & Return To Sport','Supervised return-to-sport with movement quality gating at each stage.','With Physio')}
+    </div>
+  </div>`,
+
+  coaching: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Coaching</div>
+    <div class="pg-h1">👨‍🏫 Expert <span>Coaching</span></div>
+    <div class="pg-sub">One-to-one with qualified sports physiotherapists. Your Formm data gives your coach a complete picture before your first session.</div>
+    <div class="pg-cards">
+      ${fcard('👩‍⚕️','Sports Physiotherapy','Assessment, injury screening, and movement correction from qualified physiotherapists with elite sport experience.','Qualified')}
+      ${fcard('🏅','Performance Coaching','One-to-one for athletes looking to improve technique, increase training load, and reduce injury risk.','Elite')}
+      ${fcard('📱','Remote Coaching','Your coach reviews your Formm analysis data. Feedback delivered in the app within 24 hours.','Async')}
+      ${fcard('📊','Data-Informed Sessions','Every coaching session starts with your latest Formm data. No guesswork.','Evidence-Based')}
+    </div>
+  </div>`,
+
+  tracking: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Progress Tracking</div>
+    <div class="pg-h1">📈 Track Your <span>Progress</span></div>
+    <div class="pg-sub">Longitudinal movement quality data across every session, exercise, and body part. See exactly how you improve over weeks and months.</div>
+    <div class="pg-cards">
+      ${fcard('📊','Session History','Complete record of every analysed session. Filter by exercise, date, or movement quality score.','Full History')}
+      ${fcard('📉','Trend Analysis','7-session rolling average, weekly summaries, and monthly progress reports.','Longitudinal')}
+      ${fcard('🧬','Movement Age Countdown','Tracks your progress toward the 90-day Movement Age unlock.','Coming Soon')}
+      ${fcard('🔔','ACWR Alerts','Daily readiness brief based on your acute:chronic workload ratio.','Daily Brief')}
+    </div>
+  </div>`,
+
+  nutrition: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Nutrition</div>
+    <div class="pg-h1">🥗 Fuel Your <span>Performance</span></div>
+    <div class="pg-sub">Precision nutrition guidance informed by your training load, movement quality data, and recovery metrics.</div>
+    <div class="pg-cards">
+      ${fcard('⚡','Training-Day Nutrition','Calories, macros, and meal timing adjusted for your session intensity.','Adaptive')}
+      ${fcard('🔄','Recovery Nutrition','Post-session nutrition protocols timed to your ACWR and session RPE.','Science-Based')}
+      ${fcard('🧬','Body Composition','Precision tracking of energy balance relative to your training goals.','Goal-Based')}
+      ${fcard('🥦','India-First Context','Plans built around Indian food culture, seasonal produce, and regional eating patterns.','India-First')}
+    </div>
+  </div>`,
+
+  programs: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Bespoke</div>
+    <div class="pg-h1">📋 Bespoke <span>Programs</span></div>
+    <div class="pg-sub">Every programme is built from your movement data. Not a template — a living plan that adapts to how well you move.</div>
+    <div class="pg-cards">
+      ${fcard('💪','Strength & Hypertrophy','12-week progressive overload. Form score gates each block.','Most Popular')}
+      ${fcard('⚡','Athletic Performance','8-week power and speed block. Biomechanical analysis at every session.','Athlete Tier')}
+      ${fcard('🔥','Fat Loss & Conditioning','10-week combined resistance and conditioning. Nutrition synced.','Amateur Tier')}
+      ${fcard('🩺','Rehabilitation','Supervised return-to-sport with movement quality gating.','With Physio')}
+    </div>
+  </div>`,
+
+  athlete: (tier='Athlete')=>{
+    const cfg = {
+      'Athlete':   {ic:'🏅',sub:'For competitive athletes looking to optimise performance and reduce injury risk.',feats:['Real-Time Form Analysis','Bespoke Training Plans','Weekly Progress Reports','Sport-Specific Benchmarks']},
+      'Amateur':   {ic:'🎽',sub:'For dedicated enthusiasts who train regularly and want to level up safely.',feats:['Form Feedback & Corrections','Goal-Based Programming','Nutrition Guidance','Progress Tracking']},
+      'Professional':{ic:'🏆',sub:'Elite-level tools for pros and coaches managing high-performance athletes.',feats:['Multi-Athlete Dashboards','Advanced Biomechanics','Dedicated Sports Scientist','Custom Reporting']},
+    };
+    const t=cfg[tier]||cfg['Athlete'];
+    return `<div class="pg">
+      <div class="pg-ey"><div class="pg-dot"></div>Athlete Tier</div>
+      <div class="pg-h1">${t.ic} ${tier} <span>Tier</span></div>
+      <div class="pg-sub">${t.sub}</div>
+      <div class="pg-tier-feats">${t.feats.map(f=>`<div class="pg-tier-feat">${f}</div>`).join('')}</div>
+      <button class="pg-submit" style="margin-top:20px" onclick="toast('Get Started On ${tier} Tier →')">Get Started →</button>
+    </div>`;
+  },
+
+  about: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>About Formm</div>
+    <div class="pg-h1">We're Tired Of<br><span>Vibe-Based Training.</span></div>
+    <div class="pg-sub">At Formm, we've built the HPC OS — the high-performance brain your body has been waiting for. We're tired of the training that leads to plateauing results and mysterious knee pain.</div>
+    <div class="pg-cards">
+      ${fcard('🏛️','Democratisation — Elite Tech For The Rest Of Us','Unless you have a professional athlete&#39;s contract, you don&#39;t get access to high-performance labs. We&#39;re changing that. Your pocket, their tools.','')}
+      ${fcard('🔬','Sports Science — No Magic Pills','We don&#39;t do hacks. We do biomechanics. Built on actual sports science — the kind found in peer-reviewed journals, not 30-second viral clips.','')}
+      ${fcard('🔗','The Integrated Approach — Everything Is Connected','Your body isn&#39;t separate parts — it&#39;s an ecosystem. Training, nutrition, recovery, stress — one closed-loop system.','')}
+      ${fcard('⭐','Specialist-Curated — Expertise, Not Algorithms','Our content is curated by people with degrees in kinesiology and sports medicine. High-fidelity advice for high-performance humans.','')}
+      ${fcard('💤','Recovery — Permission To Nap','Recovery is a strategic mandate. You don&#39;t get stronger in the gym — you get stronger while you&#39;re sleeping.','')}
+    </div>
+    <div style="background:var(--teal-dim);border:1px solid var(--teal-bdr);border-radius:var(--r14);padding:16px;margin-top:4px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,181,.4),transparent)"></div>
+      <div style="font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:8px">The Formm Promise</div>
+      <div style="font-family:var(--disp);font-size:16px;font-weight:700;margin-bottom:6px">We Can't Do The Literal Heavy Lifting For You.</div>
+      <div style="font-size:13px;color:var(--tx2);line-height:1.65">But we can make sure every rep you do actually counts toward something better than a participation trophy.</div>
+    </div>
+  </div>`,
+
+  team: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>The Team</div>
+    <div class="pg-h1">Built By <span>Operators</span>.<br>Grounded In Science.</div>
+    <div class="pg-sub">Sports scientists, engineers, and business builders. 15+ years in elite sport. 20 years scaling businesses across three sectors.</div>
+    <div class="pg-team">
+      ${tmember('P','Dr. Poornima Raman Ngomdir','Co-Founder · Sports Science Lead','Sports Physiotherapist · Anti-Doping Expert',['15+ years in sports science and physiotherapy. MPT (Musculoskeletal & Sports).','Head of Sports Sciences & Medical Services, Olympic Gold Quest (2017–2023).','Worked with Olympians. Doping Control Officer — ICC, ITF, BWF.','MPT from RGUHS, Mangalore. Currently pursuing PhD in Sports Physiotherapy.'])}
+      ${tmember('S','Samrat Nigam','Co-Founder · Strategy & Operations','20 Years Building At Scale',['Scaled businesses across Accenture, Citigroup, Times Group, Reliance.','Operator, not advisor: has run P&amp;Ls, built teams, closed enterprise deals.','MBA, Cardiff Business School (UK). BA, St. Stephen\'s College, Delhi University.'])}
+      ${tmember('Sn','Sneh Jha Nigam','Co-Founder · Brand & Growth','18+ Years Driving Brand Transformation',['Marketing and communications leader driving growth and consumer behaviour change.','10 years in startups. Director at Accor.','Expertise in strategic planning, brand storytelling, and creative execution.','Masters from IIM Bengaluru.'])}
+      ${tmember('A','Adhir Aima','CTO · AI & Systems Architecture','Built At BCG, McKinsey, HelloFresh',['20 years turning hard engineering problems into shipped product.','Specialist in Agentic AI & MLOps: Formm Score Engine, pose estimation pipeline, data flywheel.','TypeScript, Python, Java, Golang · Kafka, MongoDB, Postgres, ApacheMQ.'])}
+    </div>
+  </div>`,
+
+  faq: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>FAQ</div>
+    <div class="pg-h1">Frequently Asked <span>Questions</span></div>
+    ${[
+      ['What Is Formm?','Formm is India\'s first AI-powered movement standard. We analyse your exercise form in real time using your phone camera, score your movement quality (the Formm Score), and build bespoke training programmes around how you actually move. No wearables. No lab.'],
+      ['What Is The Formm Score?','A 0–100 measure of your movement quality for a given exercise session. Based on joint angles, symmetry, depth, and technique consistency — scored against sport-specific normative data calibrated to Indian athletes.'],
+      ['Do I Need Special Equipment?','No. Your phone camera is all you need. Formm\'s AI runs on-device via your phone\'s GPU — no upload delay, no privacy concern, no wearable required.'],
+      ['What Is ACWR?','Acute:Chronic Workload Ratio — how much you trained this week relative to your average over the past four weeks. Values between 0.8–1.3 are optimal. Above 1.5 significantly increases injury risk.'],
+      ['What Is Movement Age?','Your biological age for movement quality. After 90 days of consistent analysis, Formm tells you how old your movement patterns are compared to a population of Indian athletes your age.'],
+      ['Is My Data Private?','Yes. All movement analysis runs on your device. Your video never leaves your phone — only numerical joint angle data is uploaded. We never sell your data to third parties.'],
+      ['When Does Formm Launch Publicly?','Alpha is live now for selected Delhi/NCR gym athletes. Beta — including the first paid cohort and App Store launch — is planned for later in 2026.'],
+      ['How Do I Join?','Contact us at hello@formm.in or click Get Started. We\'re onboarding alpha users from Delhi/NCR right now.'],
+    ].map(([q,a])=>`
+    <div class="pg-faq-item">
+      <div class="pg-faq-q" onclick="faqToggle(this)"><span>${q}</span><span class="pg-faq-ic">+</span></div>
+      <div class="pg-faq-a">${a}</div>
+    </div>`).join('')}
+  </div>`,
+
+  contact: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Contact</div>
+    <div class="pg-h1">Get In <span>Touch</span></div>
+    <div class="pg-sub">We respond to every message within 24 hours.</div>
+    <div id="cf-wrap">
+      <form class="pg-form" onsubmit="submitContact(event)">
+        <div><div class="pg-label">Your Name *</div><input class="pg-input" name="name" placeholder="Samrat Nigam" required></div>
+        <div><div class="pg-label">Email Address *</div><input class="pg-input" type="email" name="email" placeholder="you@example.com" required></div>
+        <div><div class="pg-label">I Am Interested In *</div>
+          <select class="pg-select" name="interest" required>
+            <option value="" disabled selected>Select an option…</option>
+            <option>Joining The Alpha Programme</option>
+            <option>Trainer / Coach Access</option>
+            <option>Corporate Wellness</option>
+            <option>Cricket Academy Partnership</option>
+            <option>Investor Enquiry</option>
+            <option>Press / Media</option>
+            <option>Something Else</option>
+          </select>
+        </div>
+        <div><div class="pg-label">Message *</div><textarea class="pg-textarea" name="message" placeholder="Tell us about yourself and what you&#39;re looking for…" required></textarea></div>
+        <button type="submit" class="pg-submit">Send Message →</button>
+        <div style="font-size:11px;color:var(--tx3);margin-top:8px">Or email directly: <strong style="color:var(--teal)">hello@formm.in</strong></div>
+      </form>
+    </div>
+    <div id="cf-ok" style="display:none;text-align:center;padding:32px 0">
+      <div style="font-size:40px;margin-bottom:12px">✅</div>
+      <div style="font-family:var(--disp);font-size:20px;font-weight:700;color:var(--teal);margin-bottom:6px">Message Sent!</div>
+      <div style="font-size:13px;color:var(--tx2)">We'll get back to you within 24 hours.</div>
+    </div>
+  </div>`,
+
+  legal: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Legal</div>
+    <div class="pg-h1">Legal <span>Information</span></div>
+    <div class="pg-callout">All legal documents governing your use of the Formm platform.</div>
+    <div class="pg-cards">
+      ${fcard('📄','Terms Of Service','Your rights and obligations when using Formm. Covers account, use, data, IP, and liability.','')}
+      ${fcard('🔒','Privacy Policy','How we collect, use, and protect your personal and movement data. DPDP Act 2023 compliant.','')}
+    </div>
+  </div>`,
+
+  terms: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Legal</div>
+    <div class="pg-h1">Terms Of <span>Service</span></div>
+    <div class="pg-callout">Effective June 2026. By using Formm, you agree to these terms.</div>
+    <div class="pg-legal-h">1. Who We Are</div>
+    <div class="pg-legal-p">Formm is operated by Formm Technologies Private Limited, incorporated in India. These Terms govern your access to and use of the Formm application.</div>
+    <div class="pg-legal-h">2. Your Account</div>
+    <div class="pg-legal-p">You must be 16 or older to use Formm. You are responsible for your account credentials and all activity under your account.</div>
+    <div class="pg-legal-h">3. What Formm Provides</div>
+    <div class="pg-legal-p">Formm provides AI-powered movement quality analysis for informational and wellness purposes only. Formm is not a medical device and does not provide medical advice. Consult a qualified healthcare professional before starting any new exercise programme.</div>
+    <div class="pg-legal-h">4. Your Movement Data</div>
+    <div class="pg-legal-p">Movement data you generate belongs to you. We use this data to provide and improve the service as described in our Privacy Policy. We do not sell your individual movement data.</div>
+    <div class="pg-legal-h">5. Limitation Of Liability</div>
+    <div class="pg-legal-p">To the maximum extent permitted by applicable law, Formm shall not be liable for any indirect or consequential damages. Our total liability shall not exceed the amount you paid us in the 12 months preceding any claim.</div>
+    <div class="pg-legal-h">6. Governing Law</div>
+    <div class="pg-legal-p">These Terms are governed by the laws of India. Disputes are subject to the exclusive jurisdiction of the courts of Delhi.</div>
+    <div class="pg-legal-h">7. Contact</div>
+    <div class="pg-legal-p">Questions: <strong style="color:var(--teal)">hello@formm.in</strong></div>
+  </div>`,
+
+  privacy: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Legal</div>
+    <div class="pg-h1">Privacy <span>Policy</span></div>
+    <div class="pg-callout">Effective June 2026. Your data is yours. Here's how we treat it.</div>
+    <div class="pg-legal-h">What Data We Collect</div>
+    <ul class="pg-legal-ul"><li>Movement data — joint angles, session scores, Formm Score history</li><li>Account data — name, email, phone number, city</li><li>Usage data — session frequency, exercises analysed, RPE logs</li></ul>
+    <div class="pg-legal-h">What We Do Not Collect</div>
+    <ul class="pg-legal-ul"><li>We do not store raw video — analysis runs on-device</li><li>We do not collect facial recognition data</li><li>We do not sell your personal or movement data to third parties</li></ul>
+    <div class="pg-legal-h">Your Rights Under India's DPDP Act 2023</div>
+    <ul class="pg-legal-ul"><li>Right to access — request a copy of all data we hold about you</li><li>Right to correction — request correction of inaccurate data</li><li>Right to erasure — request deletion of your account and all data</li><li>Right to withdraw consent — opt out of non-essential data processing</li></ul>
+    <div class="pg-legal-h">Contact</div>
+    <div class="pg-legal-p">Privacy queries: <strong style="color:var(--teal)">privacy@formm.in</strong></div>
+  </div>`,
+
+  settings: ()=>`<div class="pg">
+    <div class="pg-ey"><div class="pg-dot"></div>Account</div>
+    <div class="pg-h1">⚙️ <span>Settings</span></div>
+    <div class="pg-cards">
+      ${fcard('👤','Profile','Name, age, sport, training frequency, goals.','')}
+      ${fcard('🏋️','Sport & Tier','Gym / Cricket / Running · Athlete / Amateur / Pro.','')}
+      ${fcard('🔔','Notifications','Daily ACWR brief, session reminders, coach feedback alerts.','')}
+      ${fcard('🌐','Language','English — Hindi Support Coming In Beta.','')}
+      ${fcard('🔒','Privacy & Data','Data sharing, export, and deletion options.','')}
+      ${fcard('💳','Subscription','Alpha Access — Free During Early Access.','')}
+    </div>
+  </div>`,
+};
+
+/* ── HELPERS ──────────────────────────────────────────── */
+function fcard(ic,title,desc,tag){
+  const label=title.split('—')[0].trim();
+  return '<div class="pg-card" onclick="toast(this.dataset.label)" data-label="'+label+' →">'
+    +'<div class="pg-card-ic">'+ic+'</div>'
+    +'<div class="pg-card-t">'+title+'</div>'
+    +'<div class="pg-card-d">'+desc+'</div>'
+    +(tag?'<span class="pg-tag">'+tag+'</span>':'')
+    +'</div>';
+}
+
+function tmember(av,name,role,tagline,bullets){
+  return '<div class="pg-team-card">'
+    +'<div class="pg-av">'+av+'</div>'
+    +'<div class="pg-team-name">'+name+'</div>'
+    +'<div class="pg-team-role">'+role+'</div>'
+    +'<div class="pg-team-tag">'+tagline+'</div>'
+    +'<div class="pg-div"></div>'
+    +'<div class="pg-bullets">'+bullets.map(function(b){return '<div class="pg-bullet">'+b+'</div>';}).join('')+'</div>'
+    +'</div>';
+}
+
+/* ── FAQ TOGGLE ───────────────────────────────────────── */
+function faqToggle(qEl){
+  const item=qEl.parentElement;
+  const ans=item.querySelector('.pg-faq-a');
+  const ic=item.querySelector('.pg-faq-ic');
+  const isOpen=ans.classList.contains('show');
+  // close all in current container
+  qEl.closest('.pg').querySelectorAll('.pg-faq-a').forEach(a=>a.classList.remove('show'));
+  qEl.closest('.pg').querySelectorAll('.pg-faq-ic').forEach(i=>{i.textContent='+';i.classList.remove('open');});
+  qEl.closest('.pg').querySelectorAll('.pg-faq-q').forEach(q=>q.classList.remove('open'));
+  if(!isOpen){
+    ans.classList.add('show');
+    ic.textContent='×';ic.classList.add('open');
+    qEl.classList.add('open');
+  }
+}
+
+/* ── CONTACT SUBMIT ───────────────────────────────────── */
+function submitContact(e){
+  e.preventDefault();
+  const d=new FormData(e.target);
+  const subj=encodeURIComponent('Formm Enquiry: '+d.get('interest')+' — '+d.get('name'));
+  const body=encodeURIComponent('Name: '+d.get('name')+'\nEmail: '+d.get('email')+'\nInterest: '+d.get('interest')+'\n\nMessage:\n'+d.get('message'));
+  window.open('mailto:hello@formm.in?subject='+subj+'&body='+body);
+  const wrap=document.getElementById('cf-wrap');
+  const ok=document.getElementById('cf-ok');
+  if(wrap) wrap.style.display='none';
+  if(ok) ok.style.display='block';
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE ROUTING — DESKTOP
+══════════════════════════════════════════════════════ */
+// Store the original overview HTML on first load
+let _overviewHTML = null;
+
+function dPage(key, sidebarBtn){
+  const el=document.getElementById('d-content');
+  if(!el) return;
+
+  // Save original overview HTML on first call
+  if(!_overviewHTML) _overviewHTML=el.innerHTML;
+
+  // Highlight sidebar
+  document.querySelectorAll('.d-sb-item').forEach(b=>b.classList.remove('on'));
+  if(sidebarBtn) sidebarBtn.classList.add('on');
+
+  // Get content fn
+  const fn = key==='amateur' ? ()=>PAGES.athlete('Amateur') :
+             key==='professional' ? ()=>PAGES.athlete('Professional') :
+             key==='athlete' ? ()=>PAGES.athlete('Athlete') :
+             PAGES[key];
+
+  if(key==='overview'){
+    el.innerHTML=_overviewHTML;
+    // re-attach tier clicks after restoring
+    el.querySelectorAll('.d-tier-card').forEach((c,i)=>{
+      const names=['Athlete','Amateur Athlete','Professional'];
+      const keys=['athlete','amateur','professional'];
+      c.onclick=()=>{ dTier(c,names[i]); dPage(keys[i]); };
+    });
+    return;
+  }
+
+  if(!fn){ toast(key+' →'); return; }
+
+  // Render page with back button
+  el.innerHTML=`
+    <button class="pg-back" onclick="dPage('overview')">← Back</button>
+    ${fn()}
+  `;
+  el.scrollTop=0;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE ROUTING — MOBILE
+══════════════════════════════════════════════════════ */
+function mPage(key){
+  const home=document.getElementById('m-home');
+  const sub=document.getElementById('m-subpage');
+  if(!home||!sub) return;
+
+  if(key==='home'){
+    sub.style.display='none';
+    home.style.display='block';
+    return;
+  }
+
+  const fn = key==='amateur' ? ()=>PAGES.athlete('Amateur') :
+             key==='professional' ? ()=>PAGES.athlete('Professional') :
+             key==='athlete' ? ()=>PAGES.athlete('Athlete') :
+             PAGES[key];
+
+  if(!fn){ toast(key+' →'); return; }
+
+  sub.innerHTML=`
+    <button class="pg-back" style="padding:16px 20px 0;display:flex" onclick="mPage('home')">← Back</button>
+    ${fn()}
+  `;
+  sub.style.display='block';
+  home.style.display='none';
+  sub.scrollTop=0;
+}
+</script>
+</body>
+</html>
