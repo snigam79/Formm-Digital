@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Alpha User Flow</title>
+<style>
+  :root{
+    --bg:#0A0A0A; --card:#15151F; --card2:#1B1B27; --line:rgba(255,255,255,0.07);
+    --teal:#00E0B5; --teal-soft:#5DCAA5; --teal-deep:#0F6E56;
+    --amber:#F5A524; --red:#FF4560; --water:#3FA9F5;
+    --txt:#FFFFFF; --txt2:rgba(255,255,255,0.62); --txt3:#5A5870;
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,monospace;
+    --sans:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#050505;font-family:var(--sans);color:var(--txt);
+    -webkit-font-smoothing:antialiased;padding:34px 16px 80px;line-height:1.5}
+
+  .head{max-width:1180px;margin:0 auto 30px}
+  .head h1{font-size:26px;font-weight:600;letter-spacing:-0.02em}
+  .head h1 span{color:var(--teal)}
+  .head p{color:var(--txt2);font-size:14px;margin-top:6px;max-width:640px}
+  .legend{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;font-size:12px;color:var(--txt2)}
+  .legend b{color:var(--txt);font-weight:600}
+  .flowline{font-family:var(--mono);font-size:11px;color:var(--txt3);margin-top:12px;letter-spacing:0.04em}
+
+  .grid{max-width:1180px;margin:0 auto;display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px 22px;align-items:start}
+
+  .screen{background:var(--bg);border:1px solid var(--line);border-radius:30px;
+    overflow:hidden;position:relative;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+  .num{position:absolute;top:-11px;left:20px;z-index:5;background:var(--teal);color:#04120E;
+    font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--txt3);padding:14px 18px 0}
+  .cap b{color:var(--teal-soft)}
+  .body{padding:12px 18px 20px;min-height:150px}
+
+  /* generic ui atoms */
+  .statusbar{display:flex;justify-content:space-between;align-items:center;
+    padding:9px 18px 4px;font-size:11px;color:var(--txt2);font-weight:600}
+  .h{font-size:19px;font-weight:600;letter-spacing:-0.01em}
+  .h2{font-size:15px;font-weight:600}
+  .sub{color:var(--txt2);font-size:12.5px}
+  .eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--txt3);margin-bottom:9px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .card+.card{margin-top:10px}
+  .btn{background:var(--teal);color:#04120E;font-weight:600;font-size:14px;text-align:center;
+    padding:13px;border-radius:12px;margin-top:12px}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+  .btn.small{padding:9px;font-size:12px;margin-top:0}
+  .row{display:flex;align-items:center;gap:10px}
+  .between{display:flex;align-items:center;justify-content:space-between}
+  .pill{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--txt2)}
+  .pill.teal{background:rgba(0,224,181,0.13);color:var(--teal)}
+  .pill.amber{background:rgba(245,165,36,0.14);color:var(--amber)}
+  .field{background:#0E0E16;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+    color:var(--txt2);font-size:13px;margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .tabbar{display:flex;border-top:1px solid var(--line);background:#0C0C13}
+  .tabbar div{flex:1;text-align:center;padding:9px 0 11px;font-size:9px;color:var(--txt3);font-family:var(--mono)}
+  .tabbar div.on{color:var(--teal)}
+  .tabbar div .ic{display:block;font-size:16px;margin-bottom:3px;filter:grayscale(1) opacity(0.6)}
+  .tabbar div.on .ic{filter:none}
+  .note{border-left:2px solid var(--teal-deep);background:rgba(0,224,181,0.04);
+    padding:9px 11px;border-radius:0 8px 8px 0;font-size:11.5px;color:var(--txt2);margin-top:10px}
+  .note b{color:var(--teal-soft)}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>Formm — Alpha <span>User Flow</span></h1>
+  <p>The full intended journey for the alpha, screen by screen. Values shown are the real implemented thresholds where they exist (e.g. ACWR unlocks at 6 RPE-logged sessions + 28 days, not a round number). This is a design/flow reference — not the live app.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--teal)"></span>&nbsp; <b>Correct form / good state</b></span>
+    <span><span class="dot" style="background:var(--amber)"></span>&nbsp; <b>Caution / building</b></span>
+    <span><span class="dot" style="background:var(--red)"></span>&nbsp; <b>Fault / out of form</b></span>
+    <span><span class="dot" style="background:var(--water)"></span>&nbsp; <b>Hydration</b></span>
+  </div>
+  <div class="flowline">register → profile → home → start session → form analysis → rep results → end session (RPE + duration) → ACWR / training status → mind·body·soul → plans</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const S = [];
+
+/* 1 — WELCOME / REGISTER + SIGN IN */
+S.push({cap:"Auth · <b>Register &amp; Sign in</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="display:flex;flex-direction:column;height:430px">
+    <div style="margin-top:26px">
+      <div style="font-size:34px;font-weight:700;letter-spacing:-0.03em">Formm</div>
+      <div class="sub" style="margin-top:6px">Movement, measured. Powered by sports science.</div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="btn">Create account</div>
+    <div class="btn ghost">Sign in</div>
+    <div style="text-align:center;font-size:11px;color:var(--txt3);margin-top:14px">Continue with Google · Apple</div>
+  </div>`});
+
+/* 2 — SIGN IN */
+S.push({cap:"Auth · <b>Sign in</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div style="margin:14px 0 20px"><div class="h">Welcome back</div><div class="sub">Sign in to continue your training.</div></div>
+    <div class="field">Email <span style="color:var(--txt3)">you@email.com</span></div>
+    <div class="field">Password <span style="color:var(--txt3)">••••••••</span></div>
+    <div style="text-align:right;font-size:11px;color:var(--teal-soft);margin-top:8px">Forgot password?</div>
+    <div class="btn">Sign in</div>
+    <div style="text-align:center;font-size:12px;color:var(--txt2);margin-top:16px">New here? <span style="color:var(--teal-soft)">Create an account</span></div>
+  </div>`});
+
+/* 3 — SIGN UP */
+S.push({cap:"Auth · <b>Sign up</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div style="margin:14px 0 18px"><div class="h">Create your account</div><div class="sub">A minute to set up, then you're training.</div></div>
+    <div class="field">Name <span style="color:var(--txt3)">Your name</span></div>
+    <div class="field">Email <span style="color:var(--txt3)">you@email.com</span></div>
+    <div class="field">Password <span style="color:var(--txt3)">Choose a password</span></div>
+    <div class="btn">Continue</div>
+    <div class="note"><b>Next:</b> profile details — these personalise your scores and, later, your workout plans.</div>
+  </div>`});
+
+/* 4 — PROFILE DETAILS */
+S.push({cap:"Onboarding · <b>Profile details</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div class="between" style="margin:12px 0 4px"><div class="h2">About you</div><span class="pill teal">Step 1 of 2</span></div>
+    <div class="sub" style="margin-bottom:12px">The more we know, the more targeted your plans and benchmarks become.</div>
+    <div class="field">Age <span style="color:var(--txt3)">28</span></div>
+    <div class="field">Sex <span style="color:var(--txt3)">Select</span></div>
+    <div class="field">Height / Weight <span style="color:var(--txt3)">175cm · 72kg</span></div>
+    <div class="field">Training level <span style="color:var(--txt3)">Intermediate</span></div>
+    <div class="field">Primary sport / goal <span style="color:var(--txt3)">Lifting</span></div>
+    <div class="btn">Save &amp; continue</div>
+    <div class="note">Bodyweight also feeds bodyweight-exercise volume (push-ups, pull-ups) later.</div>
+  </div>`});
+
+/* 5 — HOMEPAGE */
+S.push({cap:"Home · <b>Dashboard</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px;padding-bottom:0">
+    <div class="between" style="margin:6px 0 14px"><div><div class="h2">Good morning, Samrat</div><div class="sub">Ready to train?</div></div><div style="width:34px;height:34px;border-radius:50%;background:var(--card2);border:1px solid var(--line)"></div></div>
+
+    <div class="card" style="background:linear-gradient(160deg,#0E2233,#111119)">
+      <div class="between"><div class="eyebrow" style="margin:0">Hydration today</div><span class="pill" style="color:var(--water)">1.25 / 2.5 L</span></div>
+      <div style="display:flex;align-items:flex-end;gap:5px;height:46px;margin:12px 0 8px">
+        ${[1,1,1,1,1,0,0,0,0,0].map(f=>`<div style="flex:1;height:${f?'100%':'40%'};border-radius:4px;background:${f?'var(--water)':'rgba(63,169,245,0.15)'}"></div>`).join('')}
+      </div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">
+        ${['50','100','250','500','1000'].map(v=>`<span class="pill" style="cursor:pointer">+${v}ml</span>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--txt2);margin-top:9px">Halfway there — a glass before your session helps performance.</div>
+    </div>
+
+    <div class="btn" style="font-size:15px;padding:15px">▶ &nbsp;Start session</div>
+    <div class="sub" style="text-align:center;font-size:11px;margin-top:8px">One session can hold several Formm analyses</div>
+  </div>
+  <div class="tabbar">
+    <div class="on"><span class="ic">▦</span>Home</div><div><span class="ic">◎</span>Analyse</div>
+    <div><span class="ic">▲</span>Status</div><div><span class="ic">✦</span>Mind·Body</div><div><span class="ic">☰</span>Plans</div>
+  </div>`});
+
+/* 6 — SESSION HISTORY */
+S.push({cap:"Home · <b>Session history</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div class="between" style="margin:8px 0 12px"><div class="h2">Your history</div><span class="pill">By exercise</span></div>
+    ${[
+      ['🏋️','Back Squat','Today · 3 reps','58'],
+      ['💪','Shoulder Press','Today · 5 reps','71'],
+      ['🏋️','Back Squat','2 days ago · 6 reps','54'],
+      ['🧍','Single Leg Stand','2 days ago','—'],
+      ['🪑','Sitting-Rising Test','5 days ago','7.5'],
+    ].map(([ic,name,meta,score])=>`
+      <div class="card between" style="padding:12px 14px">
+        <div class="row"><div style="width:34px;height:34px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:17px">${ic}</div>
+        <div><div style="font-size:13.5px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--txt2)">${meta}</div></div></div>
+        <div style="font-family:var(--mono);font-size:15px;color:${score==='—'?'var(--txt3)':'var(--teal)'}">${score}</div>
+      </div>`).join('')}
+    <div class="note">Icons group analyses by discipline. Movement tests (SLS / SRT) show their own scoring, not a Formm Score.</div>
+  </div>`});
+
+/* 7 — START SESSION (wrapper) */
+S.push({cap:"Session · <b>Live session running</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div class="card between" style="background:rgba(0,224,181,0.06);border-color:var(--teal-deep)">
+      <div class="row"><span class="dot" style="background:var(--teal)"></span><div><div style="font-size:13px;font-weight:600">Session in progress</div><div style="font-size:11px;color:var(--txt2)">Started 9:32 · 00:09:14</div></div></div>
+      <span class="pill teal">2 analyses</span>
+    </div>
+    <div class="eyebrow" style="margin:16px 0 8px">This session so far</div>
+    <div class="card between" style="padding:11px 14px"><div class="row"><span style="font-size:16px">🏋️</span><span style="font-size:13px">Back Squat · 3 reps</span></div><span style="font-family:var(--mono);color:var(--teal)">58</span></div>
+    <div class="card between" style="padding:11px 14px"><div class="row"><span style="font-size:16px">💪</span><span style="font-size:13px">Shoulder Press · 5 reps</span></div><span style="font-family:var(--mono);color:var(--teal)">71</span></div>
+    <div class="btn">+ &nbsp;New Formm analysis</div>
+    <div class="btn ghost">End session</div>
+    <div class="note"><b>Wrapper model:</b> the session groups every analysis done inside it. Ending it prompts for RPE + duration → feeds ACWR.</div>
+  </div>`});
+
+/* 8 — FORM ANALYSIS SETUP */
+S.push({cap:"Analysis · <b>Set up</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div class="between" style="margin:6px 0 10px"><div class="h2">Form analysis</div><span class="pill teal">Ready</span></div>
+    <div class="eyebrow">Select exercise</div>
+    <div class="row" style="gap:7px;margin-bottom:12px">
+      <span class="pill teal" style="padding:7px 12px;font-family:var(--sans);font-size:12px">Back Squat</span>
+      <span class="pill" style="padding:7px 12px;font-family:var(--sans);font-size:12px">Lunge</span>
+      <span class="pill" style="padding:7px 12px;font-family:var(--sans);font-size:12px">Deadlift</span>
+    </div>
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:8px">Set up · how to stand</div>
+      <div class="row" style="gap:14px;justify-content:space-between">
+        ${[['⤢','6–8 ft back'],['🧍','Full body in frame'],['↔','Side-on angle']].map(([i,t])=>`<div style="text-align:center;flex:1"><div style="width:38px;height:38px;border-radius:50%;background:var(--teal-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:16px">${i}</div><div style="font-size:10.5px;color:var(--txt2)">${t}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card" style="padding:12px 14px">
+      <div class="eyebrow" style="margin-bottom:4px">Weight lifted — optional</div>
+      <div class="between"><span style="font-size:22px;font-weight:600">25</span><span class="sub">kg</span></div>
+      <div style="font-size:10.5px;color:var(--txt3);margin-top:2px">The load you're lifting, e.g. barbell + plates</div>
+    </div>
+    <div class="btn">Start camera</div>
+  </div>`});
+
+/* 9 — COUNTDOWN + CALIBRATION */
+S.push({cap:"Analysis · <b>Get set → calibrate</b>", html:`
+  <div style="height:472px;background:#060606;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px">
+    <div style="position:absolute;top:14px;left:14px" class="pill">◀ Cancel test</div>
+    <div style="font-size:74px;font-weight:700;color:var(--teal);line-height:1">3</div>
+    <div class="h2" style="margin-top:14px">Get into position</div>
+    <div class="sub" style="margin-top:6px;max-width:230px">Timing starts after the countdown. Then hold still while we calibrate to your body.</div>
+    <div style="position:absolute;bottom:26px;left:0;right:0">
+      <div class="pill amber" style="display:inline-block">Calibrating · hold still</div>
+    </div>
+    <!-- framing guidance example -->
+    <div style="position:absolute;bottom:70px;left:0;right:0"><span class="pill" style="background:rgba(245,165,36,0.15);color:var(--amber)">Step back — your feet are out of frame</span></div>
+  </div>`});
+
+/* 10 — LIVE STENCIL */
+S.push({cap:"Analysis · <b>Live tracking &amp; reps</b>", html:`
+  <div style="height:472px;background:#070707;position:relative;overflow:hidden">
+    <div style="position:absolute;top:14px;left:14px" class="pill">◀ End</div>
+    <div style="position:absolute;top:14px;right:14px" class="pill teal">Back Squat</div>
+    <!-- rep counter -->
+    <div style="position:absolute;top:52px;left:0;right:0;text-align:center">
+      <div style="font-size:60px;font-weight:700;line-height:1">3</div><div class="eyebrow" style="margin-top:2px">reps</div>
+    </div>
+    <!-- skeleton -->
+    <svg viewBox="0 0 200 260" style="position:absolute;bottom:60px;left:50%;transform:translateX(-50%);width:190px;height:250px">
+      <line x1="100" y1="40" x2="100" y2="120" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="60" x2="66" y2="96" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="66" y1="96" x2="72" y2="132" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="60" x2="134" y2="96" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="134" y1="96" x2="128" y2="132" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <!-- left knee OUT OF FORM (red) -->
+      <line x1="100" y1="120" x2="74" y2="176" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="74" y1="176" x2="80" y2="228" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="120" x2="126" y2="176" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="126" y1="176" x2="120" y2="228" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="100" cy="34" r="13" stroke="var(--teal)" stroke-width="4" fill="none"/>
+      <!-- joint labels -->
+      <g font-family="monospace" font-size="8" fill="#fff">
+        <circle cx="66" cy="96" r="3" fill="var(--teal)"/><text x="40" y="92">shoulder</text>
+        <circle cx="74" cy="176" r="4" fill="var(--red)"/><text x="16" y="178" fill="var(--red)">knee ⚠</text>
+        <circle cx="126" cy="176" r="3" fill="var(--teal)"/><text x="134" y="178">knee</text>
+      </g>
+    </svg>
+    <div style="position:absolute;bottom:16px;left:0;right:0;text-align:center">
+      <span class="pill" style="background:rgba(255,69,96,0.16);color:var(--red)">Left knee caving in — push it out</span>
+    </div>
+  </div>`});
+
+/* 11 — REP RESULTS */
+S.push({cap:"Analysis · <b>Rep-by-rep results</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div style="text-align:center;margin:8px 0 4px"><div class="eyebrow">Formm score</div><div style="font-size:44px;font-weight:700;color:var(--teal);line-height:1">58</div><div class="sub">Back Squat · 3 reps · 25kg</div></div>
+    <div class="eyebrow" style="margin:14px 0 8px">Rep by rep</div>
+    <div style="display:flex;align-items:flex-end;gap:10px;height:80px;padding:0 6px">
+      ${[[62,'1'],[57,'2'],[54,'3']].map(([h,n])=>`<div style="flex:1;text-align:center"><div style="height:${h}px;border-radius:6px 6px 0 0;background:linear-gradient(var(--teal),var(--teal-deep))"></div><div style="font-family:var(--mono);font-size:11px;margin-top:5px;color:var(--txt2)">${n}</div><div style="font-family:var(--mono);font-size:10px;color:var(--txt3)">${h}</div></div>`).join('')}
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div style="font-size:12.5px;color:var(--txt2);line-height:1.55">Solid depth throughout. Your score dipped across the set — <b style="color:var(--txt)">left knee began caving on reps 2–3</b>, and depth shallowed slightly as you fatigued. Focus next set on driving the left knee out.</div>
+    </div>
+    <div class="field" style="margin-top:10px"><span>Detailed rep-by-rep breakdown</span><span style="color:var(--txt3)">▾</span></div>
+    <div class="note">Expanding shows a per-rep line graph across each scored dimension (depth, symmetry, control).</div>
+  </div>`});
+
+/* 12 — DETAILED BREAKDOWN */
+S.push({cap:"Analysis · <b>Detailed breakdown</b> (expanded)", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div class="between" style="margin:6px 0 12px"><div class="h2">Rep trend</div><span class="pill teal">▲ expanded</span></div>
+    <div class="card">
+      <svg viewBox="0 0 280 120" style="width:100%;height:120px">
+        <line x1="0" y1="30" x2="280" y2="30" stroke="var(--line)"/><line x1="0" y1="60" x2="280" y2="60" stroke="var(--line)"/><line x1="0" y1="90" x2="280" y2="90" stroke="var(--line)"/>
+        <polyline points="20,40 140,55 260,66" fill="none" stroke="var(--teal)" stroke-width="2.5"/>
+        <polyline points="20,50 140,78 260,92" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="4 3"/>
+        ${[[20,40],[140,55],[260,66]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--teal)"/>`).join('')}
+      </svg>
+      <div class="row" style="gap:16px;margin-top:4px;font-size:10.5px;color:var(--txt2)">
+        <span><span class="dot" style="background:var(--teal)"></span> Depth / control</span>
+        <span><span class="dot" style="background:var(--amber)"></span> L/R symmetry</span>
+      </div>
+    </div>
+    <div class="eyebrow" style="margin:14px 0 8px">Per-rep detail</div>
+    ${[['Rep 1','62','Clean — full depth, even'],['Rep 2','57','Left knee drifts in'],['Rep 3','54','Shallower + asymmetric']].map(([r,s,t])=>`<div class="card between" style="padding:10px 13px"><div><div style="font-size:12.5px;font-weight:600">${r}</div><div style="font-size:11px;color:var(--txt2)">${t}</div></div><div style="font-family:var(--mono);color:var(--teal)">${s}</div></div>`).join('')}
+    <div class="note">Feeds <b>ACWR</b> (as session load) and your Formm Score trend over time.</div>
+  </div>`});
+
+/* 13 — END SESSION: RPE + DURATION */
+S.push({cap:"Session · <b>End → RPE &amp; duration</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:430px">
+    <div style="margin:8px 0 12px"><div class="h2">How was that session?</div><div class="sub">This turns your work into a training-load number.</div></div>
+    <div class="card">
+      <div class="between"><div class="eyebrow" style="margin:0">Effort (RPE)</div><span class="pill teal">7 / 10</span></div>
+      <div style="display:flex;gap:4px;margin:12px 0 8px">${Array.from({length:10},(_,i)=>`<div style="flex:1;height:26px;border-radius:4px;background:${i<7?'var(--teal)':'rgba(255,255,255,0.07)'}"></div>`).join('')}</div>
+      <div style="font-size:11px;color:var(--txt2)"><b style="color:var(--txt)">RPE = Rate of Perceived Exertion.</b> Your own read of how hard it felt, 1 (easy) → 10 (maximal). Rate honestly — it's what makes load tracking meaningful.</div>
+    </div>
+    <div class="field">Duration <span style="color:var(--txt)">60 min</span></div>
+    <div class="field">Cardio (optional) <span style="color:var(--txt3)">Search / add… ▾</span></div>
+    <div class="card" style="background:rgba(0,224,181,0.05);border-color:var(--teal-deep);margin-top:10px">
+      <div class="between"><span style="font-size:12px;color:var(--txt2)">Session load</span><span style="font-family:var(--mono);color:var(--teal);font-size:15px">7 × 60 = 420 AU</span></div>
+    </div>
+    <div class="btn">Save &amp; finish</div>
+  </div>`});
+
+/* 14 — ACWR (building) */
+S.push({cap:"Status · <b>ACWR</b> &nbsp;/&nbsp; Training status (tabs)", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:394px">
+    <div class="row" style="gap:0;background:var(--card);border-radius:10px;padding:3px;margin:6px 0 14px">
+      <div style="flex:1;text-align:center;padding:8px;border-radius:8px;background:var(--teal);color:#04120E;font-size:12px;font-weight:600">ACWR</div>
+      <div style="flex:1;text-align:center;padding:8px;font-size:12px;color:var(--txt2)">Training status</div>
+    </div>
+    <div class="card">
+      <div class="between"><span class="sub">Training load ratio</span><span class="pill amber">Building baseline</span></div>
+      <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;margin:14px 0 8px"><div style="width:42%;height:100%;background:var(--amber)"></div></div>
+      <div style="font-size:12px;color:var(--txt2)">5 of 6 sessions · 12 of 28 days logged. Your ACWR unlocks once you've built about a month of history — a ratio from a few sessions would be misleading.</div>
+    </div>
+    <div class="eyebrow" style="margin:16px 0 8px">The zones (once unlocked)</div>
+    <div class="card" style="padding:10px 14px">
+      ${[['&lt; 0.8','Undertraining','var(--txt3)'],['0.8–1.3','Sweet spot','var(--teal)'],['1.3–1.5','Caution','var(--amber)'],['&gt; 1.5','Danger','var(--red)']].map(([r,l,c])=>`<div class="between" style="padding:5px 0"><span style="font-family:var(--mono);font-size:11px;color:${c}">${r}</span><span style="font-size:12px;color:var(--txt2)">${l}</span></div>`).join('')}
+    </div>
+    <div class="field" style="margin-top:10px"><span>What is ACWR &amp; why it matters</span><span style="color:var(--txt3)">▾</span></div>
+  </div>
+  <div class="tabbar"><div><span class="ic">▦</span>Home</div><div><span class="ic">◎</span>Analyse</div><div class="on"><span class="ic">▲</span>Status</div><div><span class="ic">✦</span>Mind·Body</div><div><span class="ic">☰</span>Plans</div></div>`});
+
+/* 15 — TRAINING STATUS */
+S.push({cap:"Status · <b>Training status</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:394px">
+    <div class="row" style="gap:0;background:var(--card);border-radius:10px;padding:3px;margin:6px 0 14px">
+      <div style="flex:1;text-align:center;padding:8px;font-size:12px;color:var(--txt2)">ACWR</div>
+      <div style="flex:1;text-align:center;padding:8px;border-radius:8px;background:var(--teal);color:#04120E;font-size:12px;font-weight:600">Training status</div>
+    </div>
+    <div class="card">
+      <div class="row" style="gap:9px"><span class="dot" style="background:var(--amber)"></span><span style="font-size:16px;font-weight:600">Load is building</span></div>
+      <div class="sub" style="margin-top:5px;margin-left:17px">Symmetry is your focus area this week.</div>
+    </div>
+    <div class="eyebrow" style="margin:16px 0 8px">Movement quality</div>
+    <div class="card">
+      ${[['Form accuracy',84,'var(--teal)',0],['Range of motion',79,'var(--teal)',0],['Stability',81,'var(--teal)',0],['Symmetry',68,'var(--amber)',1]].map(([n,v,c,weak])=>`
+        <div style="margin-bottom:10px"><div class="between" style="font-size:12px;margin-bottom:4px"><span style="color:${weak?'var(--txt)':'var(--txt2)'}">${n}</span><span style="font-family:var(--mono);color:${c}">${v}</span></div><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden"><div style="width:${v}%;height:100%;background:${c}"></div></div></div>`).join('')}
+      <div style="font-size:11px;color:var(--txt3);margin-top:2px">Measured directly from your movement. Some dimensions apply only to certain exercises.</div>
+    </div>
+    <div class="note">Real signals shown side by side — never blended into one invented "risk score".</div>
+  </div>
+  <div class="tabbar"><div><span class="ic">▦</span>Home</div><div><span class="ic">◎</span>Analyse</div><div class="on"><span class="ic">▲</span>Status</div><div><span class="ic">✦</span>Mind·Body</div><div><span class="ic">☰</span>Plans</div></div>`});
+
+/* 16 — MIND / BODY / SOUL */
+S.push({cap:"Wellbeing · <b>Mind · Body · Soul</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:394px">
+    <div class="h2" style="margin:6px 0 12px">Mind · Body · Soul</div>
+    ${[
+      ['Mind','var(--teal)',['Performance mindset','Mental workshops']],
+      ['Body','var(--teal-soft)',['Mobility &amp; recovery','Readiness check-in']],
+      ['Soul','var(--amber)',['Guided meditation','Breathwork']],
+    ].map(([t,c,subs])=>`
+      <div class="card">
+        <div class="row" style="gap:9px;margin-bottom:10px"><span class="dot" style="background:${c}"></span><span style="font-size:15px;font-weight:600">${t}</span></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap">${subs.map(su=>`<span class="pill" style="font-family:var(--sans);font-size:11.5px;padding:7px 11px">${su}</span>`).join('')}</div>
+      </div>`).join('')}
+    <div class="note">Each pillar opens into its own sub-sections — the six cards route to distinct destinations.</div>
+  </div>
+  <div class="tabbar"><div><span class="ic">▦</span>Home</div><div><span class="ic">◎</span>Analyse</div><div><span class="ic">▲</span>Status</div><div class="on"><span class="ic">✦</span>Mind·Body</div><div><span class="ic">☰</span>Plans</div></div>`});
+
+/* 17 — WORKOUT PLANS */
+S.push({cap:"Plans · <b>Workout plans</b>", html:`
+  <div class="statusbar"><span>9:41</span><span>◍ ▚ ▮</span></div>
+  <div class="body" style="height:394px">
+    <div class="h2" style="margin:6px 0 4px">Your plan</div>
+    <div class="sub" style="margin-bottom:12px">Plans sharpen as we learn your movement and profile.</div>
+    <div class="card" style="background:linear-gradient(160deg,#0E2A24,#121219);border-color:var(--teal-deep)">
+      <div class="between"><span class="pill teal">Personalised</span><span class="pill amber">Improving with data</span></div>
+      <div style="font-size:15px;font-weight:600;margin:10px 0 4px">Squat strength &amp; knee stability</div>
+      <div style="font-size:12px;color:var(--txt2)">Built from your recent analyses — targets the left-knee symmetry we've been seeing.</div>
+      <div class="btn small" style="margin-top:12px">View plan</div>
+    </div>
+    <div class="eyebrow" style="margin:16px 0 8px">Ready-made plans</div>
+    ${[['Beginner full-body','3 days · foundational'],['Lifting fundamentals','4 days · strength'],['Mobility reset','Daily · 15 min']].map(([n,m])=>`<div class="card between" style="padding:12px 14px"><div><div style="font-size:13px;font-weight:600">${n}</div><div style="font-size:11px;color:var(--txt2)">${m}</div></div><span style="color:var(--txt3)">→</span></div>`).join('')}
+    <div class="note">Generic plans available now; personalisation deepens via profile + collected data.</div>
+  </div>
+  <div class="tabbar"><div><span class="ic">▦</span>Home</div><div><span class="ic">◎</span>Analyse</div><div><span class="ic">▲</span>Status</div><div><span class="ic">✦</span>Mind·Body</div><div class="on"><span class="ic">☰</span>Plans</div></div>`});
+
+const grid = document.getElementById('grid');
+S.forEach((s,i)=>{
+  const el = document.createElement('div');
+  const wrap = document.createElement('div');
+  wrap.style.position='relative';
+  wrap.innerHTML = `<div class="num">${String(i+1).padStart(2,'0')}</div>
+    <div class="screen"><div class="cap">${s.cap}</div>${s.html}</div>`;
+  grid.appendChild(wrap);
+});
+</script>
+</body>
+</html>
