@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Alpha Prototype</title>
+<style>
+:root{
+  --bg:#0A0A0A; --card:#15151F; --card2:#1B1B27; --line:rgba(255,255,255,0.07);
+  --teal:#00E0B5; --teal-soft:#5DCAA5; --teal-deep:#0F6E56;
+  --amber:#F5A524; --red:#FF4560; --water:#3FA9F5; --purple:#9B7FFF;
+  --txt:#FFFFFF; --txt2:rgba(255,255,255,0.62); --txt3:#5A5870;
+  --mono:'SF Mono',ui-monospace,Menlo,monospace;
+  --sans:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060608;font-family:var(--sans);color:var(--txt);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 12px 60px}
+.hd{text-align:center;margin-bottom:16px}
+.hd h1{font-size:19px;font-weight:600}.hd h1 span{color:var(--teal)}
+.hd p{font-size:12px;color:var(--txt2);margin-top:4px}
+.device{width:390px;max-width:100%;min-height:720px;background:#000;border:9px solid #000;border-radius:44px;overflow:hidden;position:relative;box-shadow:0 30px 70px -20px rgba(0,0,0,0.8)}
+.viewport{position:relative;background:var(--bg);min-height:702px;display:flex;flex-direction:column}
+.scr{display:none;flex-direction:column;min-height:702px}
+.scr.active{display:flex}
+.pad{padding:12px 18px 20px;flex:1;display:flex;flex-direction:column}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:11px 20px 2px;font-size:11px;color:var(--txt2);font-weight:600;flex-shrink:0}
+.nav-top{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 4px;flex-shrink:0}
+.nav-top .l{display:flex;align-items:center;gap:10px}
+.ic-btn{width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--txt2);font-size:16px;cursor:pointer;flex-shrink:0}
+.ic-btn:active{transform:scale(0.95)}
+.nav-top .ttl{font-size:15px;font-weight:600}
+.h1{font-size:23px;font-weight:600;letter-spacing:-0.01em}
+.h2{font-size:17px;font-weight:600}
+.sub{color:var(--txt2);font-size:13px}
+.eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--txt3)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card+.card{margin-top:10px}
+.tap{cursor:pointer;transition:transform .08s,background .15s}
+.tap:active{transform:scale(0.985)}
+.tap:hover{background:var(--card2)}
+.btn{background:var(--teal);color:#04120E;font-weight:600;font-size:14px;text-align:center;padding:14px;border-radius:12px;cursor:pointer}
+.btn:active{transform:scale(0.98)}
+.btn.g{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.btn.sm{padding:10px;font-size:12px}
+.btn.red{background:var(--red);color:#fff}
+.row{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:center;justify-content:space-between}
+.pill{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--txt2);cursor:pointer;border:1px solid transparent}
+.pill.teal{background:rgba(0,224,181,0.13);color:var(--teal)}
+.pill.amber{background:rgba(245,165,36,0.14);color:var(--amber)}
+.pill.sel{border-color:var(--teal);color:var(--teal);background:rgba(0,224,181,0.1)}
+.field{background:#0E0E16;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--txt2);font-size:13px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.field .v{color:var(--txt)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.eb{font-family:var(--mono);font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--txt3);margin-bottom:9px}
+.grow{flex:1}
+.note{border-left:2px solid var(--teal-deep);background:rgba(0,224,181,0.05);padding:9px 11px;border-radius:0 8px 8px 0;font-size:11px;color:var(--txt2)}
+.note b{color:var(--teal-soft)}
+.foot{display:flex;background:#0C0C13;border-top:1px solid var(--line);flex-shrink:0}
+.foot div{flex:1;text-align:center;padding:9px 0 12px;font-size:8.5px;color:var(--txt3);font-family:var(--mono);cursor:pointer;letter-spacing:.03em}
+.foot div.on{color:var(--teal)}
+.foot div i{display:block;font-size:17px;margin-bottom:3px;font-style:normal}
+.foot div.cam{color:#04120E}
+.foot div.cam i{background:var(--teal);width:40px;height:40px;line-height:40px;border-radius:50%;margin:-6px auto 2px;font-size:19px}
+.wbanner{background:linear-gradient(90deg,var(--teal-deep),#0b4a3c);display:none;align-items:center;justify-content:space-between;padding:9px 16px;cursor:pointer;flex-shrink:0}
+.wbanner.show{display:flex}
+.wbanner .l{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:600}
+.wbanner .blink{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:bl 1.4s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:#22222E;border:1px solid var(--line);color:var(--txt);font-size:12.5px;padding:11px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:.25s;white-space:nowrap;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.map{max-width:390px;width:100%;margin:14px auto 0;font-size:11px;color:var(--txt3);text-align:center;line-height:1.7}
+.map b{color:var(--txt2)}
+.mbs-sub{display:none}.mbs-sub.on{display:block}
+</style>
+</head>
+<body>
+<div class="hd"><h1>Formm — Alpha <span>Prototype</span></h1><p>The active workout follows you as a banner — nothing traps you.</p></div>
+<div class="device"><div class="viewport" id="vp"></div><div class="toast" id="toast"></div></div>
+<div class="map">Start at <b>Try Formm</b>. Once a workout is live, a green banner shows on every screen — tap to return, or use Home/back freely.</div>
+<script>
+const T=(m)=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);};
+const soon=(w)=>T((w||'This')+' — coming soon');
+let hist=[]; let CUR=null; let WORKOUT=false;
+function renderBanner(){document.querySelectorAll('.wbanner').forEach(b=>b.classList.toggle('show',WORKOUT && !['session','a_live','endflow'].includes(CUR)));}
+function go(id,push=true){const el=document.getElementById(id);if(!el){soon();return;}document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));if(push && CUR)hist.push(CUR);CUR=id;el.classList.add('active');el.scrollTop=0;renderBanner();}
+function back(){const p=hist.pop();if(p){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));CUR=p;document.getElementById(p).classList.add('active');renderBanner();}else{go('home',false);}}
+function home(){hist=[];go('home',false);}
+function startWorkout(){WORKOUT=true;hist=[];go('session');}
+function endWorkout(){go('endflow');}
+function finishWorkout(){WORKOUT=false;hist=[];go('acwr',false);}
+const sbar=`<div class="sbar"><span>9:41</span><span>◍ ▚ ▮</span></div>`;
+const banner=`<div class="wbanner" onclick="go('session')"><div class="l"><span class="blink"></span>Workout live · 00:12:40</div><span class="pill" style="background:rgba(255,255,255,.15);color:#fff" onclick="event.stopPropagation();endWorkout()">End</span></div>`;
+function foot(active){const items=[['home','▦','Home'],['progress','▲','Progress'],['cam','◉','Analyse'],['profile','◍','Profile'],['settings','⚙','Settings']];return `<div class="foot">`+items.map(([id,ic,l])=>{const cls=(id==='cam'?'cam ':'')+(active===id?'on':'');const act=id==='cam'?"go('a_setup')":id==='home'?"home()":id==='progress'?"go('progress')":id==='profile'?"go('profile_view')":"go('settings')";return `<div class="${cls}" onclick="${act}"><i>${ic}</i>${l}</div>`;}).join('')+`</div>`;}
+function topbar(title,showHome=true){return `<div class="nav-top"><div class="l"><div class="ic-btn" onclick="back()">‹</div><div class="ttl">${title}</div></div>`+(showHome?`<div class="ic-btn" onclick="home()">⌂</div>`:``)+`</div>`;}
+const SCR={};
+
+/* AUTH */
+SCR.welcome=`${sbar}<div class="pad"><div class="grow"></div>
+  <div class="eyebrow" style="color:var(--teal)">Movement Intelligence</div>
+  <div style="font-size:42px;font-weight:700;letter-spacing:-.03em;margin:8px 0 6px">Formm</div>
+  <div class="sub" style="max-width:250px">We track how you move. You understand why it matters.</div>
+  <div style="height:22px"></div>
+  <div class="btn" onclick="go('signup')">Try Formm</div>
+  <div class="btn g" style="margin-top:9px" onclick="go('signin')">Sign in</div>
+  <div style="text-align:center;font-size:11px;color:var(--txt3);margin-top:13px" onclick="soon('Social login')">Continue with Google · Apple</div>
+</div>`;
+
+SCR.signin=`${sbar}${topbar('Sign in',false)}<div class="pad">
+  <div class="h1" style="margin:6px 0 3px">Welcome back</div><div class="sub">Sign in to continue training.</div>
+  <div class="field" onclick="soon('Email')">Email <span style="color:var(--txt3)">you@email.com</span></div>
+  <div class="field" onclick="soon('Password')">Password <span style="color:var(--txt3)">••••••••</span></div>
+  <div style="text-align:right;font-size:11px;color:var(--teal-soft);margin-top:7px" onclick="soon('Reset')">Forgot password?</div>
+  <div class="grow"></div><div class="btn" onclick="home()">Sign in</div>
+</div>`;
+
+SCR.signup=`${sbar}${topbar('Try Formm',false)}<div class="pad">
+  <div class="h1" style="margin:6px 0 3px">Create your account</div><div class="sub">A minute to set up, then you're training.</div>
+  <div class="field" onclick="soon('Name')">Name <span style="color:var(--txt3)">Your name</span></div>
+  <div class="field" onclick="soon('Email')">Email <span style="color:var(--txt3)">you@email.com</span></div>
+  <div class="field" onclick="soon('Password')">Password <span style="color:var(--txt3)">Choose a password</span></div>
+  <div class="grow"></div><div class="btn" onclick="go('profile1')">Continue</div>
+  <div class="note" style="margin-top:11px"><b>Next:</b> your profile — it personalises your scores and plans.</div>
+</div>`;
+
+/* PROFILE */
+SCR.profile1=`${sbar}${topbar('Profile · 1 of 3',false)}<div class="pad">
+  <div class="between"><div class="h2">About you</div><span class="pill teal">Step 1 / 3</span></div>
+  <div class="sub" style="margin:4px 0 10px">Current stats — we track progress against these.</div>
+  <div class="field" onclick="soon('Age')">Age <span class="v">28</span></div>
+  <div class="field" onclick="soon('Sex')">Sex <span style="color:var(--txt3)">Select</span></div>
+  <div class="field" onclick="soon('Height')">Height <span class="v">175 cm</span></div>
+  <div class="field" onclick="soon('Weight')">Current weight <span class="v">72 kg</span></div>
+  <div class="field" onclick="soon('Level')">Training level <span class="v">Intermediate</span></div>
+  <div class="grow"></div><div class="btn" onclick="go('profile2')">Continue</div>
+</div>`;
+
+SCR.profile2=`${sbar}${topbar('Profile · 2 of 3',false)}<div class="pad">
+  <div class="between"><div class="h2">Routine &amp; goals</div><span class="pill teal">Step 2 / 3</span></div>
+  <div class="eb" style="margin-top:12px">Training days / week</div>
+  <div class="row" style="gap:6px">${[2,3,4,5,6].map(d=>`<span class="pill ${d===4?'sel':''}" onclick="selOne(this)">${d}</span>`).join('')}</div>
+  <div class="eb" style="margin-top:14px">Meals / day</div>
+  <div class="row" style="gap:6px">${[2,3,4,5].map(m=>`<span class="pill ${m===3?'sel':''}" onclick="selOne(this)">${m}</span>`).join('')}</div>
+  <div class="eb" style="margin-top:14px">Goals · choose any</div>
+  <div class="row" style="gap:6px;flex-wrap:wrap">${['Lose fat','Build muscle','Move better','Get stronger','Rehab'].map((g,i)=>`<span class="pill ${i<2?'sel':''}" onclick="selMulti(this)">${g}</span>`).join('')}</div>
+  <div class="eb" style="margin-top:14px">Target weight</div>
+  <div class="field" onclick="soon('Target weight')">Goal <span class="v">68 kg <span style="color:var(--txt3)">(−4 kg)</span></span></div>
+  <div class="grow"></div><div class="btn" onclick="go('sport')">Continue</div>
+</div>`;
+
+SCR.sport=`${sbar}${topbar('Profile · 3 of 3',false)}<div class="pad">
+  <div class="between"><div class="h2">Your sport</div><span class="pill teal">Step 3 / 3</span></div>
+  <div class="sub" style="margin:4px 0 10px">Each sport unlocks its own benchmarks and inputs.</div>
+  <div class="row" style="gap:6px;flex-wrap:wrap">${['Lifting','Running','Cricket','Football','General'].map((s,i)=>`<span class="pill ${i===0?'sel':''}" onclick="selSport(this)">${s}</span>`).join('')}</div>
+  <div class="card" style="margin-top:14px" id="sportInputs">
+    <div class="eb">Lifting · your numbers</div>
+    <div class="field" onclick="soon('1RM')">Squat 1RM <span style="color:var(--txt3)">Optional</span></div>
+    <div class="field" onclick="soon('1RM')">Bench 1RM <span style="color:var(--txt3)">Optional</span></div>
+    <div class="field" onclick="soon('Years')">Years lifting <span class="v">3</span></div>
+  </div>
+  <div class="note" style="margin-top:12px"><b>Sport-specific:</b> Running asks mileage &amp; PBs; Cricket asks role &amp; format. Inputs change per sport.</div>
+  <div class="grow"></div><div class="btn" onclick="home()">Finish setup</div>
+</div>`;
+
+/* HOME */
+SCR.home=`${sbar}<div class="pad" style="padding-bottom:6px">
+  <div class="between">
+    <div><div class="eyebrow" id="dayline">MOVEMENT INTELLIGENCE</div><div class="h1" style="margin-top:3px" id="greet">Good morning, Samrat</div></div>
+    <div class="card tap" style="padding:7px 10px;text-align:center" onclick="go('progress')"><div style="font-size:15px">🔥</div><div style="font-size:14px;font-weight:700;color:var(--amber);line-height:1">14</div><div class="eyebrow" style="font-size:7px">streak</div></div>
+  </div>
+
+  <!-- small water strip with settings -->
+  <div class="row" style="gap:8px;margin-top:12px">
+    <div class="card tap" style="flex:1;padding:9px 12px" onclick="go('water')"><div class="between"><span style="font-size:11px;color:var(--water)">💧 1.25 / 2.5 L</span>
+      <div style="display:flex;gap:2px">${[1,1,1,1,1,0,0,0].map(f=>`<div style="width:5px;height:14px;border-radius:2px;background:${f?'var(--water)':'rgba(63,169,245,0.16)'}"></div>`).join('')}</div></div></div>
+    <div class="ic-btn" onclick="soon('Water intake settings')" style="width:36px;height:36px">⚙</div>
+  </div>
+
+  <!-- prominent ACWR + Movement Age -->
+  <div class="row" style="gap:9px;margin-top:12px">
+    <div class="card tap" style="flex:1;padding:14px;background:linear-gradient(155deg,#1a1420,#141019);border-color:rgba(155,127,255,0.3)" onclick="go('movage')">
+      <div class="between" style="margin-bottom:10px"><span class="eb" style="margin:0;color:var(--purple)">Movement age</span><span style="color:var(--purple);font-size:14px">→</span></div>
+      <div class="row" style="gap:7px"><span class="dot" style="background:var(--amber)"></span><span style="font-size:15px;font-weight:700">Building</span></div>
+      <div style="font-size:10px;color:var(--txt3);margin-top:3px">Being calibrated</div>
+    </div>
+    <div class="card tap" style="flex:1;padding:14px;background:linear-gradient(155deg,#101f1c,#0e1714);border-color:rgba(0,224,181,0.3)" onclick="go('acwr')">
+      <div class="between" style="margin-bottom:10px"><span class="eb" style="margin:0;color:var(--teal)">ACWR</span><span style="color:var(--teal);font-size:14px">→</span></div>
+      <div class="row" style="gap:7px"><span class="dot" style="background:var(--amber)"></span><span style="font-size:15px;font-weight:700">Baseline</span></div>
+      <div style="font-size:10px;color:var(--txt3);margin-top:3px">5 / 6 sessions</div>
+    </div>
+  </div>
+
+  <div class="btn" style="margin-top:12px;font-size:15px;padding:15px" onclick="startWorkout()">▶ &nbsp;Start workout</div>
+
+  <!-- history: analyses + a logged activity -->
+  <div class="between" style="margin:16px 0 8px"><div class="eb" style="margin:0">Recent</div><span class="pill" onclick="soon('Full history')">All</span></div>
+  <div class="card tap between" style="padding:11px 13px" onclick="go('results')"><div class="row"><div style="width:32px;height:32px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px">🏋️</div><div><div style="font-size:13px;font-weight:600">Back Squat</div><div class="eyebrow" style="font-size:8px">Formm analysis · 3 reps</div></div></div><span style="font-family:var(--mono);color:var(--teal)">58</span></div>
+  <div class="card tap between" style="padding:11px 13px" onclick="go('results')"><div class="row"><div style="width:32px;height:32px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px">💪</div><div><div style="font-size:13px;font-weight:600">Shoulder Press</div><div class="eyebrow" style="font-size:8px">Formm analysis · 5 reps</div></div></div><span style="font-family:var(--mono);color:var(--teal)">71</span></div>
+  <div class="card tap between" style="padding:11px 13px;border-style:dashed" onclick="go('activity')"><div class="row"><div style="width:32px;height:32px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px">🏏</div><div><div style="font-size:13px;font-weight:600">Cricket · nets</div><div class="eyebrow" style="font-size:8px">Logged activity · 45 min</div></div></div><span class="pill">Load</span></div>
+
+  <!-- MBS as pill tabs -->
+  <div class="between" style="margin:16px 0 8px"><div class="eb" style="margin:0">Mind · Body · Soul</div></div>
+  <div class="row" style="gap:6px;margin-bottom:10px" id="mbsTabs">
+    <span class="pill sel" onclick="mbsTab(this,'mbs-mind')">Mind</span>
+    <span class="pill" onclick="mbsTab(this,'mbs-body')">Body</span>
+    <span class="pill" onclick="mbsTab(this,'mbs-soul')">Soul</span>
+  </div>
+  <div class="mbs-sub on" id="mbs-mind">${mbsCard(['Performance mindset','Mental workshops'],'Mind')}</div>
+  <div class="mbs-sub" id="mbs-body">${mbsCard(['Mobility &amp; recovery','Readiness check-in'],'Body')}</div>
+  <div class="mbs-sub" id="mbs-soul">${mbsCard(['Guided meditation','Breathwork'],'Soul')}</div>
+  <div style="height:8px"></div>
+</div>${banner}${foot('home')}`;
+
+/* WATER */
+SCR.water=`${sbar}${topbar('Hydration')}<div class="pad">
+  <div style="text-align:center;margin:6px 0 4px"><div class="eb">Today</div><div class="h1" style="color:var(--water)">1.25 <span style="font-size:15px;color:var(--txt2)">/ 2.5 L</span></div></div>
+  <div style="display:flex;align-items:flex-end;gap:6px;height:110px;margin:14px 4px 8px">${[1,1,1,1,1,0,0,0,0,0].map(f=>`<div style="flex:1;height:${f?'100%':'22%'};border-radius:6px;background:${f?'linear-gradient(var(--water),#1E6FA8)':'rgba(63,169,245,0.13)'}"></div>`).join('')}</div>
+  <div class="between"><div class="eb" style="margin:0">Add water</div><span class="pill" onclick="soon('Water goal settings')">⚙ Customise goal</span></div>
+  <div class="row" style="gap:7px;flex-wrap:wrap;margin-top:8px">${['50','100','250','500','1000'].map(v=>`<span class="pill" style="padding:9px 14px;font-size:12px" onclick="T('+${v} ml added')">+${v} ml</span>`).join('')}</div>
+  <div class="card" style="margin-top:16px"><div class="row" style="gap:8px"><span class="dot" style="background:var(--water)"></span><div style="font-size:12px;color:var(--txt2)">You're <b style="color:var(--txt)">halfway</b> to today's goal. A glass before training supports performance.</div></div></div>
+  <div class="grow"></div>
+</div>`;
+
+/* WORKOUT SESSION */
+SCR.session=`${sbar}${topbar('Workout')}<div class="pad">
+  <div class="card" style="border-color:var(--teal-deep);background:rgba(0,224,181,0.05)"><div class="between"><div class="row"><span class="dot" style="background:var(--teal)"></span><div><div style="font-size:13px;font-weight:600">Workout live</div><div style="font-size:11px;color:var(--txt2)">Started 9:32 · 00:12:40</div></div></div><span class="pill teal">2 analyses</span></div></div>
+  <div class="eb" style="margin:16px 0 8px">This workout</div>
+  <div class="card between" style="padding:11px 13px"><div class="row"><span>🏋️</span><span style="font-size:12.5px">Back Squat · 3</span></div><span style="font-family:var(--mono);color:var(--teal)">58</span></div>
+  <div class="card between" style="padding:11px 13px"><div class="row"><span>💪</span><span style="font-size:12.5px">Shoulder Press · 5</span></div><span style="font-family:var(--mono);color:var(--teal)">71</span></div>
+  <div class="card tap between" style="padding:11px 13px;border-style:dashed" onclick="soon('Wearable sync')"><div class="row"><span>⌚</span><span style="font-size:12.5px;color:var(--txt2)">Wearable</span></div><span class="pill">Connect</span></div>
+  <div class="btn" style="margin-top:12px" onclick="go('a_setup')">+ &nbsp;New Formm analysis</div>
+  <div class="row" style="gap:9px;margin-top:9px">
+    <div class="btn g" style="flex:1" onclick="home()">⌂ Home</div>
+    <div class="btn red" style="flex:1" onclick="endWorkout()">End workout</div>
+  </div>
+  <div class="note" style="margin-top:11px"><b>Workout keeps running</b> when you go Home — a banner brings you back. Ending prompts RPE → ACWR.</div>
+</div>`;
+
+/* ANALYSIS */
+SCR.a_setup=`${sbar}${topbar('Form analysis')}<div class="pad">
+  <div class="eb">Select exercise</div>
+  <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:12px">${['Back Squat','Lunge','Deadlift','Shoulder Press'].map((e,i)=>`<span class="pill ${i===0?'sel':''}" onclick="selOne(this)">${e}</span>`).join('')}</div>
+  <div class="card"><div class="eb" style="margin-bottom:9px">Set up · how to stand</div><div class="row" style="justify-content:space-between">${[['⤢','6–8 ft'],['🧍','Full body'],['↔','Side-on']].map(([i,t])=>`<div style="text-align:center;flex:1"><div style="width:36px;height:36px;border-radius:50%;background:var(--teal-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:15px">${i}</div><div style="font-size:10px;color:var(--txt2)">${t}</div></div>`).join('')}</div></div>
+  <div class="card" style="padding:12px 14px"><div class="eb" style="margin-bottom:3px">Weight lifted · optional</div><div class="between"><span style="font-size:22px;font-weight:600">25</span><span class="sub">kg</span></div></div>
+  <div class="grow"></div>
+  <div class="btn" onclick="go('a_live')">Start camera</div>
+  <div class="btn g" style="margin-top:9px" onclick="WORKOUT?go('session'):home()">${'{{cancel}}'}</div>
+</div>`;
+
+SCR.a_live=`<div style="min-height:702px;background:#070707;display:flex;flex-direction:column">
+  <div class="nav-top" style="justify-content:space-between"><span class="pill" onclick="go('results')">◀ Finish</span><span class="pill teal">Back Squat · LIVE</span></div>
+  <div style="text-align:center;margin-top:8px"><div style="font-size:58px;font-weight:700;line-height:1">3</div><div class="eyebrow">reps</div></div>
+  <div class="grow" style="position:relative">
+    <svg viewBox="0 0 200 250" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:200px;height:250px">
+      <line x1="100" y1="36" x2="100" y2="112" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="56" x2="68" y2="90" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/><line x1="68" y1="90" x2="74" y2="124" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="56" x2="132" y2="90" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/><line x1="132" y1="90" x2="126" y2="124" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="112" x2="76" y2="166" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/><line x1="76" y1="166" x2="82" y2="216" stroke="var(--red)" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="112" x2="124" y2="166" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/><line x1="124" y1="166" x2="118" y2="216" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="100" cy="30" r="12" stroke="var(--teal)" stroke-width="4" fill="none"/>
+      <g font-family="monospace" font-size="9"><circle cx="68" cy="90" r="3" fill="var(--teal)"/><text x="10" y="88" fill="#fff">shoulder</text><circle cx="76" cy="166" r="4" fill="var(--red)"/><text x="4" y="168" fill="#FF4560">knee ⚠</text><circle cx="124" cy="166" r="3" fill="var(--teal)"/><text x="132" y="168" fill="#fff">knee</text></g>
+    </svg>
+  </div>
+  <div style="text-align:center;padding-bottom:18px"><span class="pill" style="background:rgba(255,69,96,0.16);color:var(--red);padding:7px 13px" onclick="go('results')">Left knee caving — push it out</span></div>
+</div>`;
+
+SCR.results=`${sbar}${topbar('Result')}<div class="pad">
+  <div style="text-align:center;margin:4px 0"><div class="eb">Formm score</div><div style="font-size:44px;font-weight:700;color:var(--teal);line-height:1">58</div><div class="sub">Back Squat · 3 reps · 25kg</div></div>
+  <div class="eb" style="margin:14px 0 8px">Rep by rep</div>
+  <div style="display:flex;align-items:flex-end;gap:9px;height:70px;padding:0 4px">${[[60,'1'],[54,'2'],[50,'3']].map(([h,n])=>`<div style="flex:1;text-align:center"><div style="height:${h}px;border-radius:5px 5px 0 0;background:linear-gradient(var(--teal),var(--teal-deep))"></div><div style="font-family:var(--mono);font-size:10px;margin-top:4px;color:var(--txt2)">${n}</div></div>`).join('')}</div>
+  <div class="card" style="margin-top:12px"><div style="font-size:12px;color:var(--txt2);line-height:1.5">Solid depth. Score dipped — <b style="color:var(--txt)">left knee caved on reps 2–3</b>. Focus next set on driving it out.</div></div>
+  <div class="field" onclick="go('detail')"><span>Detailed rep-by-rep breakdown</span><span style="color:var(--txt3)">▾</span></div>
+  <div class="card tap between" style="margin-top:10px;border-color:var(--purple)" onclick="go('movage')"><div class="row"><span class="dot" style="background:var(--purple)"></span><span style="font-size:12px">Feeds your Movement Age</span></div><span style="color:var(--txt3)">→</span></div>
+  <div class="grow"></div>
+  <div class="row" style="gap:9px">
+    <div class="btn g" style="flex:1" onclick="WORKOUT?go('session'):home()">${'{{back2}}'}</div>
+    <div class="btn" style="flex:1" onclick="WORKOUT?go('a_setup'):home()">${'{{next}}'}</div>
+  </div>
+</div>`;
+
+SCR.detail=`${sbar}${topbar('Rep detail')}<div class="pad">
+  <div class="card"><svg viewBox="0 0 300 110" style="width:100%;height:106px"><line x1="0" y1="30" x2="300" y2="30" stroke="var(--line)"/><line x1="0" y1="60" x2="300" y2="60" stroke="var(--line)"/><line x1="0" y1="90" x2="300" y2="90" stroke="var(--line)"/><polyline points="20,40 150,55 280,66" fill="none" stroke="var(--teal)" stroke-width="2.5"/><polyline points="20,52 150,80 280,94" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="4 3"/>${[[20,40],[150,55],[280,66]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--teal)"/>`).join('')}</svg><div class="row" style="gap:16px;font-size:10.5px;color:var(--txt2)"><span><span class="dot" style="background:var(--teal)"></span> Depth</span><span><span class="dot" style="background:var(--amber)"></span> Symmetry</span></div></div>
+  ${[['Rep 1','62','Clean, even'],['Rep 2','57','Left knee drifts'],['Rep 3','54','Shallow + uneven']].map(([r,s,t])=>`<div class="card between" style="padding:10px 13px"><div><div style="font-size:12.5px;font-weight:600">${r}</div><div style="font-size:11px;color:var(--txt2)">${t}</div></div><span style="font-family:var(--mono);color:var(--teal)">${s}</span></div>`).join('')}
+  <div class="note" style="margin-top:10px">Same rep-by-rep logic as the live build. Feeds Formm Score trend + Movement Age.</div>
+</div>`;
+
+/* ACTIVITY LOG (sports) */
+SCR.activity=`${sbar}${topbar('Logged activity')}<div class="pad">
+  <div class="card" style="text-align:center"><div style="font-size:30px">🏏</div><div class="h2" style="margin-top:6px">Cricket · net session</div><div class="sub" style="font-size:12px">Today · 45 min</div></div>
+  <div class="note" style="margin-top:12px">A <b>logged activity</b>, not a Formm analysis — no stencil or Formm Score. It still contributes training <b>load</b> (via RPE × duration) to your ACWR.</div>
+  <div class="eb" style="margin:16px 0 8px">Contribution</div>
+  <div class="card between" style="padding:12px 14px"><span class="sub">Session load</span><span style="font-family:var(--mono);color:var(--teal)">6 × 45 = 270 AU</span></div>
+  <div class="card between tap" style="padding:12px 14px" onclick="go('acwr')"><span class="sub">Feeds</span><span style="font-size:12px;color:var(--teal)">Your ACWR →</span></div>
+  <div class="grow"></div>
+  <div class="btn g" onclick="home()">Back to home</div>
+</div>`;
+
+/* END WORKOUT */
+SCR.endflow=`${sbar}${topbar('End workout')}<div class="pad">
+  <div class="h2" style="margin-bottom:2px">How was that workout?</div><div class="sub" style="margin-bottom:12px">Turns your work into a training-load number for ACWR.</div>
+  <div class="card"><div class="between"><div class="eb" style="margin:0">Effort · RPE</div><span class="pill teal" id="rpeVal">7 / 10</span></div>
+    <div style="display:flex;gap:4px;margin:12px 0 8px" id="rpeBar">${Array.from({length:10},(_,i)=>`<div onclick="setRPE(${i+1})" style="flex:1;height:26px;border-radius:4px;cursor:pointer;background:${i<7?'var(--teal)':'rgba(255,255,255,0.08)'}"></div>`).join('')}</div>
+    <div style="font-size:11px;color:var(--txt2)"><b style="color:var(--txt)">RPE = Rate of Perceived Exertion</b> — how hard it felt, 1 (easy) → 10 (maximal). Rate honestly; it's what makes load meaningful.</div></div>
+  <div class="field" onclick="soon('Duration')">Duration <span class="v">60 min</span></div>
+  <div class="eb" style="margin:14px 0 8px">Cardio · optional</div>
+  <div class="row" style="gap:6px;flex-wrap:wrap">${['Treadmill','Cycling','Rowing','Swim','Walk'].map(c=>`<span class="pill" onclick="selMulti(this)">${c}</span>`).join('')}</div>
+  <div class="card" style="background:rgba(0,224,181,0.05);border-color:var(--teal-deep);margin-top:14px"><div class="between"><span style="font-size:12px;color:var(--txt2)">Session load (AU)</span><span style="font-family:var(--mono);color:var(--teal)" id="auOut">7 × 60 = 420 AU</span></div></div>
+  <div class="grow"></div>
+  <div class="btn" onclick="finishWorkout()">Save &amp; finish</div>
+</div>`;
+
+/* ACWR + STATUS */
+SCR.acwr=`${sbar}${topbar('Training status')}<div class="pad" style="padding-bottom:8px">
+  <div class="row" style="gap:0;background:var(--card);border-radius:10px;padding:3px;margin-bottom:14px"><div style="flex:1;text-align:center;padding:8px;border-radius:8px;background:var(--teal);color:#04120E;font-size:12px;font-weight:600">ACWR</div><div class="tap" style="flex:1;text-align:center;padding:8px;font-size:12px;color:var(--txt2)" onclick="go('tstatus')">Training status</div></div>
+  <div class="card"><div class="between"><span class="sub">Training load ratio</span><span class="pill amber">Building baseline</span></div><div style="height:7px;background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;margin:14px 0 8px"><div style="width:42%;height:100%;background:var(--amber)"></div></div><div style="font-size:12px;color:var(--txt2)">5 of 6 sessions · 12 of 28 days logged. ACWR needs about a month — roughly 6 logged sessions across 28 days — before an accurate reading.</div></div>
+  <div class="eb" style="margin:16px 0 8px">What is ACWR?</div>
+  <div class="card"><div style="font-size:12px;color:var(--txt2);line-height:1.6">Compares your <b style="color:var(--txt)">last 7 days</b> of load against your <b style="color:var(--txt)">28-day average</b>. Load = RPE × duration. Flags when you've ramped up too fast — the main driver of overuse injury. From Gabbett's research; a guide, not a diagnosis.</div></div>
+  <div class="eb" style="margin:16px 0 8px">Zones (once unlocked)</div>
+  <div class="card" style="padding:10px 14px">${[['&lt; 0.8','Undertraining','var(--txt3)'],['0.8–1.3','Sweet spot','var(--teal)'],['1.3–1.5','Caution','var(--amber)'],['&gt; 1.5','Danger','var(--red)']].map(([r,l,c])=>`<div class="between" style="padding:5px 0"><span style="font-family:var(--mono);font-size:11px;color:${c}">${r}</span><span style="font-size:12px;color:var(--txt2)">${l}</span></div>`).join('')}</div>
+  <div style="height:8px"></div>
+</div>${banner}${foot('progress')}`;
+
+SCR.tstatus=`${sbar}${topbar('Training status')}<div class="pad" style="padding-bottom:8px">
+  <div class="row" style="gap:0;background:var(--card);border-radius:10px;padding:3px;margin-bottom:14px"><div class="tap" style="flex:1;text-align:center;padding:8px;font-size:12px;color:var(--txt2)" onclick="go('acwr')">ACWR</div><div style="flex:1;text-align:center;padding:8px;border-radius:8px;background:var(--teal);color:#04120E;font-size:12px;font-weight:600">Training status</div></div>
+  <div class="card"><div class="row"><span class="dot" style="background:var(--amber)"></span><span style="font-size:16px;font-weight:600">Load is building</span></div><div class="sub" style="margin-top:5px;margin-left:17px">Symmetry is your focus area.</div></div>
+  <div class="eb" style="margin:16px 0 8px">Movement quality</div>
+  <div class="card">${[['Form accuracy',84,'var(--teal)',0],['Range of motion',79,'var(--teal)',0],['Stability',81,'var(--teal)',0],['Symmetry',68,'var(--amber)',1]].map(([n,v,c,w])=>`<div style="margin-bottom:10px"><div class="between" style="font-size:12px;margin-bottom:4px"><span style="color:${w?'var(--txt)':'var(--txt2)'}">${n}</span><span style="font-family:var(--mono);color:${c}">${v}</span></div><div style="height:5px;background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden"><div style="width:${v}%;height:100%;background:${c}"></div></div></div>`).join('')}<div style="font-size:11px;color:var(--txt3)">Measured directly from your movement.</div></div>
+  <div class="note" style="margin-top:10px">Real signals side by side — never blended into one invented "risk score".</div>
+  <div style="height:8px"></div>
+</div>${banner}${foot('progress')}`;
+
+/* MOVEMENT AGE */
+SCR.movage=`${sbar}${topbar('Movement age')}<div class="pad">
+  <div class="card" style="text-align:center;background:linear-gradient(160deg,#181228,#121219);border-color:rgba(155,127,255,0.3)"><div class="eb" style="margin-bottom:8px;color:var(--purple)">Your movement age</div><div style="font-size:17px;font-weight:700;color:var(--amber)">Being calibrated</div><div style="height:6px;background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;margin:12px 0 4px"><div style="width:45%;height:100%;background:var(--amber)"></div></div><div style="font-size:11.5px;color:var(--txt2)">We show your movement trend until there's enough data for an honest reading.</div></div>
+  <div class="eb" style="margin:16px 0 8px">How we're building it</div>
+  <div class="card"><div style="font-size:12px;color:var(--txt2);line-height:1.6">Movement Age compares how you move against what's typical across ages — built from your movement-quality scores and specific movement tests over time. Grounded in age-normative research; we won't show a number until the method is validated, rather than invent one.</div></div>
+  <div class="eb" style="margin:16px 0 8px">What feeds it</div>
+  ${[['Form analyses','Every rep you record'],['Movement tests','Sitting-rise, single-leg stand'],['Range of motion','Depth &amp; joint angles']].map(([n,d])=>`<div class="card tap between" style="padding:11px 13px" onclick="soon('${n}')"><div><div style="font-size:12.5px;font-weight:600">${n}</div><div style="font-size:11px;color:var(--txt2)">${d}</div></div><span style="color:var(--txt3)">→</span></div>`).join('')}
+  <div class="grow"></div>${banner}
+</div>`;
+
+/* PROGRESS */
+SCR.progress=`${sbar}<div class="pad" style="padding-bottom:8px">
+  <div class="h1" style="margin:4px 0 12px">Progress</div>
+  <div class="card"><div class="between"><div class="row"><span style="font-size:20px">🔥</span><div><div style="font-size:15px;font-weight:600">14-day streak</div><div class="sub" style="font-size:11px">Best: 21 days</div></div></div><span class="pill amber">Keep it up</span></div></div>
+  <div class="card tap" style="margin-top:10px" onclick="go('acwr')"><div class="between"><div><div class="eb" style="margin-bottom:5px">ACWR</div><div style="font-size:13px;font-weight:600">Building baseline</div></div><span class="dot" style="background:var(--amber)"></span></div></div>
+  <div class="card tap" style="margin-top:10px" onclick="go('movage')"><div class="between"><div><div class="eb" style="margin-bottom:5px">Movement age</div><div style="font-size:13px;font-weight:600">Being calibrated</div></div><span class="dot" style="background:var(--amber)"></span></div></div>
+  <div class="eb" style="margin:16px 0 8px">Formm score trend</div>
+  <div class="card"><svg viewBox="0 0 300 90" style="width:100%;height:88px"><polyline points="10,70 70,60 130,62 190,48 250,40 290,34" fill="none" stroke="var(--teal)" stroke-width="2.5"/>${[[10,70],[70,60],[130,62],[190,48],[250,40],[290,34]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="var(--teal)"/>`).join('')}</svg></div>
+  <div style="height:8px"></div>
+</div>${banner}${foot('progress')}`;
+
+/* PROFILE VIEW */
+SCR.profile_view=`${sbar}<div class="pad" style="padding-bottom:8px">
+  <div class="row" style="margin:6px 0 14px"><div style="width:52px;height:52px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:20px">S</div><div><div class="h2">Samrat Nigam</div><div class="sub" style="font-size:12px">Intermediate · Lifting</div></div></div>
+  ${[['Current','72 kg · 175 cm'],['Goal','68 kg (−4)'],['Training','4 days / week'],['Meals','3 / day'],['Goals','Lose fat · Build muscle'],['Sport','Lifting']].map(([k,v])=>`<div class="card between" style="padding:12px 14px"><span class="sub">${k}</span><span style="font-size:12.5px;font-weight:500">${v}</span></div>`).join('')}
+  <div class="btn g" style="margin-top:12px" onclick="go('profile1')">Edit profile</div>
+  <div style="height:8px"></div>
+</div>${banner}${foot('profile')}`;
+
+/* SETTINGS */
+SCR.settings=`${sbar}<div class="pad" style="padding-bottom:8px">
+  <div class="h1" style="margin:4px 0 12px">Settings</div>
+  ${[['👤','Account','Email, password, sign out'],['🔔','Notifications','Reminders, streak nudges'],['⌚','Wearables','Connect Apple Watch, etc.'],['💧','Hydration goal','Daily target'],['📏','Units','kg / lb · cm / in'],['🔒','Privacy &amp; data','Export, delete account'],['❓','Help &amp; support','FAQ, contact'],['📄','About','Version, terms']].map(([ic,n,d])=>`<div class="card tap between" style="padding:12px 14px" onclick="soon('${n}')"><div class="row"><span style="font-size:16px">${ic}</span><div><div style="font-size:13px;font-weight:600">${n}</div><div class="sub" style="font-size:10.5px">${d}</div></div></div><span style="color:var(--txt3)">→</span></div>`).join('')}
+  <div style="height:8px"></div>
+</div>${banner}${foot('settings')}`;
+
+/* RENDER */
+function mbsCard(subs,name){return `<div class="card" style="padding:8px 12px">${subs.map((s,i)=>`<div class="tap between" style="font-size:12.5px;color:var(--txt2);padding:9px 0;${i>0?'border-top:1px solid var(--line)':''}" onclick="soon('${name}: ${s.replace(/&amp;/g,'and')}')">${s}<span style="color:var(--txt3)">→</span></div>`).join('')}</div>`;}
+const vp=document.getElementById('vp');
+Object.entries(SCR).forEach(([id,html])=>{const d=document.createElement('div');d.className='scr';d.id=id;d.innerHTML=html;vp.appendChild(d);});
+// fix contextual button labels
+function fixLabels(){
+  const setup=document.querySelector('#a_setup .btn.g');if(setup)setup.textContent=WORKOUT?'Cancel — back to workout':'Cancel';
+  const r=document.querySelectorAll('#results .btn');if(r.length){r[0].textContent=WORKOUT?'Back to workout':'Home';r[1].textContent=WORKOUT?'New analysis':'Done';}
+}
+function selOne(el){[...el.parentElement.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function selMulti(el){el.classList.toggle('sel');}
+function selSport(el){[...el.parentElement.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');const box=document.getElementById('sportInputs');const s=el.textContent.trim();const map={'Lifting':['Squat 1RM','Bench 1RM','Years lifting'],'Running':['Weekly mileage','5k PB','Years running'],'Cricket':['Role (bat/bowl)','Format','Years playing'],'Football':['Position','Level','Years playing'],'General':['Activity level','Focus area','Experience']};if(box){box.innerHTML=`<div class="eb">${s} · your numbers</div>`+(map[s]||[]).map(f=>`<div class="field" onclick="soon('${f}')">${f} <span style="color:var(--txt3)">Optional</span></div>`).join('');}}
+function setRPE(n){const bar=document.getElementById('rpeBar');[...bar.children].forEach((c,i)=>c.style.background=i<n?'var(--teal)':'rgba(255,255,255,0.08)');document.getElementById('auOut').textContent=`${n} × 60 = ${n*60} AU`;document.getElementById('rpeVal').textContent=`${n} / 10`;}
+function mbsTab(el,id){[...el.parentElement.children].forEach(c=>c.classList.remove('sel'));el.classList.add('sel');document.querySelectorAll('.mbs-sub').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+// contextual cancel/back labels are static placeholders; patch them
+['a_setup','results'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=el.innerHTML.replace('{{cancel}}','Cancel').replace('{{back2}}','Back to workout').replace('{{next}}','New analysis');});
+// greeting + day
+const g=(()=>{const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening';})();
+setTimeout(()=>{const el=document.getElementById('greet');if(el)el.textContent=g+', Samrat';},40);
+// wrap go() to also fix labels
+const _go=go;go=function(id,push){_go(id,push);fixLabels();};
+go('welcome',false);
+</script>
+</body>
+</html>
