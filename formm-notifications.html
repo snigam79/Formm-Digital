@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Notifications Build Spec</title>
+<style>
+:root{--bg:#0A0A0A;--card:#14141C;--card2:#191922;--line:rgba(255,255,255,0.08);--teal:#00E0B5;--teal-soft:#5DCAA5;--teal-deep:#0F6E56;--amber:#F5A524;--red:#FF4560;--purple:#9B7FFF;--blue:#4DA3FF;--water:#3FA9F5;--txt:#FFFFFF;--txt2:rgba(255,255,255,0.66);--txt3:#5A5870;--mono:'SF Mono',ui-monospace,Menlo,monospace;--sans:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060608;color:var(--txt);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.5;padding:0 0 80px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 22px}
+.hero{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+.hero .eb{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+.hero h1{font-size:30px;font-weight:600;letter-spacing:-0.02em}
+.hero p{color:var(--txt2);font-size:14.5px;max-width:680px;margin:12px 0 0}
+.hero p b{color:var(--txt)}
+.howto{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:22px 0 8px}
+.howto h3{font-size:13px;font-weight:600;margin-bottom:10px}
+.howto ul{list-style:none;display:grid;gap:7px}
+.howto li{font-size:12.5px;color:var(--txt2);display:flex;gap:9px;align-items:flex-start;flex-wrap:wrap}
+.howto li b{color:var(--txt)}
+.k{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:6px;background:var(--card2);border:1px solid var(--line);color:var(--txt2);white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
+.chip.push{background:rgba(77,163,255,0.14);color:var(--blue)}
+.chip.inapp{background:rgba(0,224,181,0.13);color:var(--teal)}
+.chip.badge{background:rgba(155,127,255,0.15);color:var(--purple)}
+.chip.live{background:rgba(0,224,181,0.13);color:var(--teal)}
+.chip.pending{background:rgba(245,165,36,0.14);color:var(--amber)}
+.chip.p-high{background:rgba(255,69,96,0.14);color:var(--red)}
+.chip.p-med{background:rgba(245,165,36,0.14);color:var(--amber)}
+.chip.p-low{background:rgba(255,255,255,0.07);color:var(--txt2)}
+.gh{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt2);margin:34px 0 4px;display:flex;align-items:center;gap:10px;padding-top:20px;border-top:1px solid var(--line)}
+.gh .ic{font-size:17px}
+.gd{font-size:12.5px;color:var(--txt3);margin-bottom:16px}
+.n{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:18px}
+.n .hd{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.n .hd .nm{font-size:15px;font-weight:600}
+.n .hd .id{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:2px}
+.n .hd .chips{display:flex;gap:6px;flex-wrap:wrap}
+.summary{padding:12px 18px 4px;font-size:12.5px;color:var(--txt2);line-height:1.5}
+.n .grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:760px){.n .grid{grid-template-columns:1fr}}
+.n .preview{padding:14px 18px;border-right:1px solid var(--line)}
+@media(max-width:760px){.n .preview{border-right:none;border-bottom:1px solid var(--line)}}
+.n .preview .lbl,.spec .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:10px}
+.push{background:linear-gradient(180deg,#1c1c26,#181820);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start}
+.push .app{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--teal-deep),#04120e);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--teal);flex-shrink:0}
+.push .top{display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-bottom:2px}
+.push .top b{color:var(--txt2);font-weight:600}
+.push .t{font-size:13px;font-weight:600}
+.push .m{font-size:12px;color:var(--txt2);line-height:1.4}
+.banner{border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px}
+.banner .ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.banner .t{font-size:12.5px;font-weight:600}
+.banner .m{font-size:11px;color:var(--txt2)}
+.b-teal{background:rgba(0,224,181,0.09);border:1px solid rgba(0,224,181,0.22)}.b-teal .ic{background:rgba(0,224,181,0.15);color:var(--teal)}
+.b-amber{background:rgba(245,165,36,0.09);border:1px solid rgba(245,165,36,0.22)}.b-amber .ic{background:rgba(245,165,36,0.15);color:var(--amber)}
+.b-purple{background:rgba(155,127,255,0.09);border:1px solid rgba(155,127,255,0.22)}.b-purple .ic{background:rgba(155,127,255,0.15);color:var(--purple)}
+.b-water{background:rgba(63,169,245,0.09);border:1px solid rgba(63,169,245,0.22)}.b-water .ic{background:rgba(63,169,245,0.15);color:var(--water)}
+.spec{padding:14px 18px}
+.spec table{width:100%;border-collapse:collapse}
+.spec td{padding:6px 0;font-size:12px;vertical-align:top;border-bottom:1px solid rgba(255,255,255,0.05)}
+.spec td:first-child{color:var(--txt3);font-family:var(--mono);font-size:10px;letter-spacing:.03em;width:100px;text-transform:uppercase;padding-right:12px;white-space:nowrap}
+.spec td:last-child{color:var(--txt)}
+.spec code{font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:5px;color:var(--teal-soft)}
+.alt{padding:10px 18px 16px;font-size:11px;color:var(--txt3);border-top:1px solid rgba(255,255,255,0.05)}
+.alt b{color:var(--txt2)}
+.alt .warn{color:var(--red)}
+.foot{text-align:center;padding:38px 22px 0;color:var(--txt3);font-size:12px;line-height:1.7}
+.foot b{color:var(--txt2)}
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <div class="eb">Notifications · Build Spec</div>
+  <h1>Formm notifications — implementation reference</h1>
+  <p>Every notification with a rendered preview, a plain-English summary, and an engineering table (trigger, timing, frequency cap, channel, deep link, priority). The copy shown is <b>the chosen default</b> — build this one. Alternative tones are noted underneath where relevant.</p>
+  <div class="howto">
+    <h3>How to read this</h3>
+    <ul>
+      <li><b>Chips:</b> <span class="chip push">PUSH</span> lock-screen · <span class="chip inapp">IN-APP</span> banner · <span class="chip badge">BADGE</span> celebration · <span class="chip live">LIVE</span> feature exists · <span class="chip pending">PENDING</span> feature not built yet</li>
+      <li><b>Priority:</b> <span class="chip p-high">HIGH</span> can interrupt · <span class="chip p-med">MED</span> normal · <span class="chip p-low">LOW</span> silent/batched</li>
+      <li><span class="k">trigger</span> = condition to detect in code · <span class="k">frequency</span> = hard cap (dedupe/cooldown) · <span class="k">deep_link</span> = where tapping lands</li>
+      <li><b>Global rules (all notifications):</b> respect OS permission; quiet hours <span class="k">21:00–08:00</span> (only HIGH overrides); max <span class="k">2 push/day</span> total; if app is foregrounded, show in-app instead of push; every item toggleable in Settings → Notifications.</li>
+    </ul>
+  </div>
+</div></div>
+<div id="root"></div>
+<div class="foot"><div class="wrap">
+  <b>Formm — Notifications Build Spec.</b> Copy is the recommended default (honest, non-manipulative). Alternatives noted per item.<br>
+  PENDING items depend on features not yet built (Movement Age number, wearable fusion) — build the plumbing, gate the send.<br>
+  MVMT Veracity Pvt Ltd · Confidential.
+</div></div>
+<script>
+const push=(t,m,when)=>`<div class="push"><div class="app">F</div><div class="body" style="flex:1;min-width:0"><div class="top"><b>FORMM</b><span>${when||'now'}</span></div><div class="t">${t}</div><div class="m">${m}</div></div></div>`;
+const banner=(cls,ic,t,m)=>`<div class="banner ${cls}"><div class="ic">${ic}</div><div><div class="t">${t}</div><div class="m">${m}</div></div></div>`;
+const P={high:'<span class="chip p-high">HIGH</span>',med:'<span class="chip p-med">MED</span>',low:'<span class="chip p-low">LOW</span>'};
+function spec(rows){return `<div class="spec"><div class="lbl">Engineering</div><table>${rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div>`;}
+
+const GROUPS=[
+{title:'Consistency & Streaks',icon:'\u{1F525}',desc:'Return-driving without weaponising guilt.',items:[
+ {id:'streak_continued',name:'Streak continued',chips:['inapp','badge','live'],render:banner('b-amber','\u{1F525}','14-day streak!','Consistency is where movement quality compounds. Keep going.'),summary:'Shown in-app right after a session that extends the streak. A quiet celebration, not a push.',spec:[['trigger','On session save, if <code>new_streak_day === true</code>'],['channel','In-app banner + streak badge update'],['timing','Immediately after save'],['frequency','Once per day max'],['priority',P.low],['deep_link','<code>/progress</code>']]},
+ {id:'streak_at_risk',name:'Streak at risk',chips:['push','live'],render:push('Your streak is going strong','13 days in. A short session today keeps it alive whenever you\u2019re ready.','6:30pm'),summary:'Evening nudge only if there\u2019s an active streak and no session logged today. Framed as opportunity, not threat.',spec:[['trigger','Cron 18:30 local, if <code>active_streak &gt; 2</code> AND <code>sessions_today === 0</code>'],['channel','Push'],['timing','18:30 local'],['frequency','Once/day; skip if push cap reached'],['priority',P.med],['deep_link','<code>/session/start</code>']],alt:'Standard: \u201CDon\u2019t break your 13-day streak.\u201D <span class="warn">Avoid: countdown-timer / \u201Cstreak dies at midnight\u201D \u2014 false urgency + loss-aversion.</span>'},
+ {id:'streak_milestone',name:'Streak milestone',chips:['inapp','badge','live'],render:banner('b-purple','\u{1F3C6}','30-day milestone','A full month of consistent movement. That\u2019s real adaptation, not a number.'),summary:'Fires when streak crosses a defined milestone (7/14/30/60/100). In-app celebration + shareable badge.',spec:[['trigger','On save, if <code>streak \u2208 {7,14,30,60,100}</code>'],['channel','In-app + badge; optional low push'],['timing','Immediately'],['frequency','Once per milestone (idempotent)'],['priority',P.low],['deep_link','<code>/progress</code>']]},
+]},
+{title:'Hydration',icon:'\u{1F4A7}',desc:'Contextual, tied to training \u2014 not all-day nagging.',items:[
+ {id:'hydration_reminder',name:'Hydration reminder',chips:['push','live'],render:push('A glass of water?','You\u2019re about halfway to today\u2019s goal.','2:00pm'),summary:'Gentle midday nudge if behind on the hydration goal. Once/day; user can turn off.',spec:[['trigger','Cron 14:00 local, if <code>ml_today &lt; goal_ml * 0.5</code>'],['channel','Push'],['timing','14:00 local'],['frequency','Once/day; OFF by default until opt-in'],['priority',P.low],['deep_link','<code>/water</code>']],alt:'<span class="warn">Avoid: \u201CYou\u2019re dehydrated!\u201D \u2014 overstates a health claim from a self-set goal.</span>'},
+ {id:'hydration_preworkout',name:'Pre-workout hydration',chips:['inapp','live'],render:banner('b-water','\u{1F4A7}','Hydrate before you train','A glass now supports performance and recovery.'),summary:'In-app tip when a workout starts and hydration is low. Dismissible.',spec:[['trigger','On workout start, if <code>ml_today &lt; goal_ml * 0.4</code>'],['channel','In-app'],['timing','On workout start'],['frequency','Once per workout'],['priority',P.low],['deep_link','<code>/water</code>']]},
+ {id:'hydration_goal',name:'Daily goal hit',chips:['inapp','badge','live'],render:banner('b-water','\u2713','Hydration goal reached','2.5 L today. Nicely done.'),summary:'Confirmation when the day\u2019s hydration target is met.',spec:[['trigger','On water add, if <code>ml_today &gt;= goal_ml</code> (first crossing)'],['channel','In-app'],['timing','Immediately'],['frequency','Once/day'],['priority',P.low],['deep_link','<code>/water</code>']]},
+]},
+{title:'Formm Analysis & Score',icon:'\u25C9',desc:'Specific, coaching feedback \u2014 not just a number.',items:[
+ {id:'analysis_complete',name:'Analysis complete',chips:['inapp','live'],render:banner('b-teal','\u25C9','Back Squat analysed','Formm Score 58 \u00B7 left knee caved on reps 2\u20133. Tap for the breakdown.'),summary:'Shown the moment an analysis finishes. Leads with score + the single most useful coaching cue.',spec:[['trigger','On analysis result ready'],['channel','In-app (banner if navigated away)'],['timing','Immediately'],['frequency','Per analysis'],['priority',P.med],['deep_link','<code>/analysis/{id}</code>']]},
+ {id:'formm_pb',name:'New personal best',chips:['push','badge','live'],render:push('New best on Back Squat \u{1F3AF}','Formm Score 74 \u2014 your cleanest squat yet. Depth and symmetry both up.','now'),summary:'Celebrates a genuine PB for that exercise. Names why it improved, not just the number.',spec:[['trigger','On save, if <code>score &gt; max(prior)</code> AND <code>prior_count &gt;= 3</code>'],['channel','Push + badge'],['timing','Immediately'],['frequency','Per real PB (\u22653-prior guard vs noise)'],['priority',P.med],['deep_link','<code>/analysis/{id}</code>']]},
+ {id:'form_regressing',name:'Form regressing',chips:['push','live'],render:push('A note on your squat','Form has dipped slightly over recent sessions \u2014 often a sign of fatigue. Worth an easier session.','now'),summary:'Honest, non-alarming heads-up if the score trend falls. Frames as likely fatigue, suggests action.',spec:[['trigger','On save, if <code>trend(last 5) declining &gt; 8%</code> AND <code>sessions &gt;= 5</code>'],['channel','Push'],['timing','After session'],['frequency','Max once/week per exercise'],['priority',P.med],['deep_link','<code>/progress</code>']],alt:'<span class="warn">Avoid: \u201CYour form is getting worse! You\u2019re risking injury.\u201D \u2014 fear-based injury claim from a trend.</span>'},
+ {id:'focus_area',name:'Focus area',chips:['inapp','live'],render:banner('b-amber','\u25CE','Symmetry is your focus area','Your left and right sides differ more than usual. Worth balancing over time.'),summary:'Surfaces the consistently-weakest measured dimension. Must skip dimensions not measured for that exercise.',spec:[['trigger','Weekly aggregate \u2014 weakest *measured* dimension'],['channel','In-app (Training Status)'],['timing','Weekly'],['frequency','Weekly'],['priority',P.low],['deep_link','<code>/status</code>'],['\u26A0 note','Never flag an unmeasured dimension (e.g. symmetry on lunge) as \u201Cweakest\u201D.']]},
+]},
+{title:'ACWR & Training Load',icon:'\u25B2',desc:'Injury-risk context \u2014 honest, non-alarmist. ACWR is a guide, not a diagnosis.',items:[
+ {id:'acwr_unlocked',name:'Baseline unlocked',chips:['push','badge','live'],render:push('Your ACWR is ready \u25B2','You\u2019ve built enough history. Your training-load ratio is now live in Training Status.','now'),summary:'Fires the moment the real gate clears \u2014 6 RPE-logged sessions AND 28 days.',spec:[['trigger','On save, if <code>rpe_logged &gt;= 6</code> AND <code>days_tracked &gt;= 28</code> (first time)'],['channel','Push + badge'],['timing','Immediately'],['frequency','Once, ever'],['priority',P.med],['deep_link','<code>/acwr</code>']]},
+ {id:'acwr_progress',name:'Baseline progress',chips:['inapp','live'],render:banner('b-amber','\u25B2','Baseline building','5 of 6 sessions \u00B7 20 of 28 days. Almost there \u2014 your ACWR unlocks soon.'),summary:'In-app progress toward the unlock. Shows the real counts, not a vague \u201Csoon\u201D.',spec:[['trigger','On ACWR view while <code>status === building_baseline</code>'],['channel','In-app'],['timing','On view'],['frequency','Passive (rendered)'],['priority',P.low],['deep_link','<code>/acwr</code>']]},
+ {id:'acwr_elevated',name:'Load elevated',chips:['push','live'],render:push('Your training load has spiked','You\u2019ve ramped up faster than usual this week. Easing off slightly lowers injury risk.','now'),summary:'Sent when ACWR enters caution/danger \u2014 framed as guidance, never a prediction of injury.',spec:[['trigger','On recompute, if <code>ratio &gt; 1.5</code> AND unlocked AND not sent &lt;3d'],['channel','Push'],['timing','After the session that crosses'],['frequency','Max once/3 days'],['priority',P.med],['deep_link','<code>/acwr</code>'],['\u26A0 note','Copy must stay \u201Clowers risk\u201D / \u201Cconsider easing\u201D \u2014 never \u201Cyou will get injured\u201D. Scientific accuracy, not just tone.']],alt:'<span class="warn">Avoid: \u201C\u{1F6A8} HIGH INJURY RISK \u2014 you\u2019re very likely to get injured.\u201D ACWR cannot predict this; the claim is wrong, not just aggressive.</span>'},
+ {id:'acwr_optimal',name:'Load in sweet spot',chips:['inapp','live'],render:banner('b-teal','\u2713','Load in the sweet spot','Your training is well-matched to what your body\u2019s prepared for.'),summary:'Positive reinforcement when ACWR sits in the optimal band.',spec:[['trigger','On recompute, if <code>0.8 &lt;= ratio &lt;= 1.3</code> (transition in)'],['channel','In-app'],['timing','On status view'],['frequency','Max once/week'],['priority',P.low],['deep_link','<code>/status</code>']]},
+]},
+{title:'RPE & Session Logging',icon:'\u270D',desc:'Data-quality nudges \u2014 RPE drives ACWR, so honest logging matters.',items:[
+ {id:'rpe_reminder',name:'RPE reminder',chips:['push','live'],render:push('How hard was that session?','Add your RPE so it counts toward your training load. Takes a second.','5m after end'),summary:'Prompts for RPE if a workout ended without it. Explains why (feeds load).',spec:[['trigger','5 min after <code>workout_ended</code>, if <code>rpe === null</code>'],['channel','Push'],['timing','+5 min'],['frequency','Once per workout; expire after 2h'],['priority',P.med],['deep_link','<code>/session/{id}/rpe</code>']]},
+ {id:'load_logged',name:'Load recorded',chips:['inapp','live'],render:banner('b-teal','\u2713','Session load recorded','420 AU added to this week. Feeds your ACWR.'),summary:'Confirmation after RPE + duration saved, showing the AU produced.',spec:[['trigger','On RPE save \u2192 <code>AU = rpe * duration_min</code>'],['channel','In-app'],['timing','Immediately'],['frequency','Per session'],['priority',P.low],['deep_link','<code>/acwr</code>']]},
+]},
+{title:'Level Ups & Achievements',icon:'\u{1F3C5}',desc:'Earned, specific progression \u2014 not vanity confetti.',items:[
+ {id:'level_up',name:'Level up',chips:['push','badge','live'],render:push('You\u2019ve reached Advanced \u{1F3C5}','Your movement quality now sits in the Advanced band. Real, measured progress.','now'),summary:'Fires when the score crosses a defined band boundary (e.g. Intermediate\u2192Advanced).',spec:[['trigger','On score update, if <code>band(new) &gt; band(old)</code>'],['channel','Push + badge'],['timing','Immediately'],['frequency','Once per band-up (never downgrade-notify)'],['priority',P.med],['deep_link','<code>/progress</code>']]},
+ {id:'achievement',name:'Achievement unlocked',chips:['inapp','badge','live'],render:banner('b-purple','\u{1F3C5}','Achievement: 50 clean reps','50 reps scored above 80. Your consistency is showing.'),summary:'Milestone achievements from a defined list (clean reps, exercises tried, tests done).',spec:[['trigger','On event, if achievement condition met (achievements table)'],['channel','In-app + badge'],['timing','Immediately'],['frequency','Once per achievement (idempotent)'],['priority',P.low],['deep_link','<code>/progress/achievements</code>']]},
+ {id:'weekly_recap',name:'Weekly recap',chips:['push','live'],render:push('Your week in movement','4 sessions \u00B7 avg Formm Score 64 \u00B7 symmetry improving. Tap for the full recap.','Sun 6pm'),summary:'Sunday-evening summary of the week. High-value, low-frequency \u2014 retention without nagging.',spec:[['trigger','Cron Sun 18:00 local, if <code>sessions_this_week &gt; 0</code>'],['channel','Push'],['timing','Sun 18:00'],['frequency','Once/week'],['priority',P.low],['deep_link','<code>/progress/recap</code>']]},
+]},
+{title:'Movement Age',icon:'\u25C6',desc:'PENDING \u2014 build the plumbing, gate the send until the formula lands.',items:[
+ {id:'movage_calibrating',name:'Calibrating',chips:['inapp','pending'],render:banner('b-purple','\u25C6','Building your Movement Age','Keep logging analyses and tests \u2014 your reading unlocks as data grows.'),summary:'Honest in-app state while there\u2019s no formula/number yet. Safe to build now.',spec:[['trigger','On Movement Age view while <code>status === not_yet_available</code>'],['channel','In-app'],['timing','On view'],['frequency','Passive'],['priority',P.low],['deep_link','<code>/movement-age</code>']]},
+ {id:'movage_ready',name:'Movement Age ready',chips:['push','badge','pending'],render:push('Your Movement Age is ready \u25C6','See how your movement compares to typical movement by age.','now'),summary:'PENDING \u2014 sends only once the Sports Science Lead\u2019s formula exists AND enough data. Build the trigger, gate the send.',spec:[['trigger','<code>compute_movement_age()</code> returns <code>available</code> (currently never)'],['channel','Push + badge'],['timing','Immediately'],['frequency','Once, ever'],['priority',P.med],['deep_link','<code>/movement-age</code>'],['\u26A0 gate','Do NOT enable until the formula is defined. No fabricated number.']]},
+]},
+{title:'Wearable (Planned)',icon:'\u231A',desc:'PENDING \u2014 for the fusion layer once wearable sync ships.',items:[
+ {id:'wearable_connected',name:'Wearable connected',chips:['inapp','pending'],render:banner('b-teal','\u231A','Wearable connected','Formm will now fuse your recovery data with your movement quality.'),summary:'Confirmation when the user links a wearable. PENDING on the integration.',spec:[['trigger','On successful wearable OAuth link'],['channel','In-app'],['timing','Immediately'],['frequency','Once per connect'],['priority',P.low],['deep_link','<code>/settings/wearables</code>']]},
+ {id:'wearable_fatigue',name:'Recovery + form cross-check',chips:['push','pending'],render:push('Two signs you\u2019re fatigued','Your recovery is low and your form dipped today \u2014 a lighter session is smart.','now'),summary:'PENDING \u2014 the flagship fusion notification: fires only when wearable recovery is low AND Formm form is degrading.',spec:[['trigger','<code>recovery &lt; threshold</code> AND <code>form_trend declining</code>'],['channel','Push'],['timing','Morning after a flagged session'],['frequency','Max once/3 days'],['priority',P.med],['deep_link','<code>/status</code>'],['\u26A0 gate','Requires wearable integration. Fusion logic to be defined with Sports Science Lead.']]},
+]},
+{title:'Plans & Re-engagement',icon:'\u2630',desc:'Guidance + win-back. The win-back end is where trust is easily lost.',items:[
+ {id:'plan_due',name:'Plan session due',chips:['push','live'],render:push('Today: Squat strength & stability','Your plan has a session ready \u2014 targeting the left-knee symmetry we\u2019ve tracked.','8am'),summary:'Morning reminder of a scheduled plan session, personalised to their data.',spec:[['trigger','Cron 08:00 local, if plan has a session today'],['channel','Push'],['timing','08:00'],['frequency','Once per scheduled day'],['priority',P.med],['deep_link','<code>/plans/today</code>']]},
+ {id:'rest_day',name:'Rest day recommended',chips:['inapp','live'],render:banner('b-teal','\u263E','Rest day recommended','Your load\u2019s been high. Recovery is where adaptation happens.'),summary:'Suggests recovery when load/ACWR is high. Reframes rest as productive.',spec:[['trigger','On plan/ACWR eval, if <code>ratio &gt; 1.4</code> OR plan rest day'],['channel','In-app'],['timing','On home/plan view'],['frequency','Max once/day'],['priority',P.low],['deep_link','<code>/plans</code>']]},
+ {id:'inactive_3d',name:'Inactive 3 days',chips:['push','live'],render:push('Ready when you are','Movement quality builds with consistency. A short session whenever suits you.','now'),summary:'Gentle win-back after 3 days idle. Invitation, not accusation.',spec:[['trigger','No <code>app_open</code> for 72h'],['channel','Push'],['timing','Midday day 3'],['frequency','Once per inactivity spell'],['priority',P.low],['deep_link','<code>/home</code>']],alt:'<span class="warn">Avoid: \u201CWe miss you \u{1F622} \u2014 you\u2019re losing progress every day.\u201D Guilt + false-loss framing.</span>'},
+]},
+];
+
+const root=document.getElementById('root');
+GROUPS.forEach(g=>{
+ const wrap=document.createElement('div');
+ let html=`<div class="wrap"><div class="gh"><span class="ic">${g.icon}</span>${g.title}</div><div class="gd">${g.desc}</div>`;
+ html+=g.items.map(it=>{
+  const chips=it.chips.map(c=>`<span class="chip ${c}">${c==='push'?'PUSH':c==='inapp'?'IN-APP':c==='badge'?'BADGE':c==='live'?'LIVE':'PENDING'}</span>`).join('');
+  return `<div class="n"><div class="hd"><div><div class="nm">${it.name}</div><div class="id">${it.id}</div></div><div class="chips">${chips}</div></div>`+
+   `<div class="summary">${it.summary}</div>`+
+   `<div class="grid"><div class="preview"><div class="lbl">Preview \u00B7 the copy to build</div>${it.render}</div>${spec(it.spec)}</div>`+
+   (it.alt?`<div class="alt"><b>Other tones:</b> ${it.alt}</div>`:'')+`</div>`;
+ }).join('');
+ html+=`</div>`;
+ wrap.innerHTML=html;
+ root.appendChild(wrap);
+});
+
+</script>
+</body>
+</html>
