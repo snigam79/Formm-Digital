@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — App</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap');
+:root{
+  --bg:#F4F1EA;--panel:#FFFFFF;--ink:#141310;--ink2:#6B675E;--ink3:#A8A399;
+  --line:rgba(20,19,16,0.08);--line2:rgba(20,19,16,0.05);
+  --teal:#12C7AE;--teal-ink:#0AA189;--teal-deep:#0B7D6B;--teal-soft:#DEF6F1;--teal-soft2:#C6ECE4;
+  --amber:#C08A2E;--amber-soft:#F4EBD8;--red:#D6564B;--red-soft:#FAE9E7;
+  --sand:#EAE3D6;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#DED8CD;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px 50px}
+.hd{text-align:center;margin-bottom:14px}
+.hd h1{font-size:19px;font-weight:800;letter-spacing:-0.02em}.hd h1 span{color:var(--teal-ink)}
+.hd p{font-size:12px;color:var(--ink2);margin-top:3px}
+.device{width:392px;max-width:100%;min-height:800px;background:#000;border:9px solid #0b0b0b;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 36px 84px -26px rgba(0,0,0,0.5)}
+.vp{position:relative;background:var(--bg);min-height:782px;display:flex;flex-direction:column;overflow:hidden}
+.scr{display:none;flex-direction:column;min-height:782px}
+.scr.active{display:flex;animation:fade .26s cubic-bezier(.2,.7,.3,1)}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px 2px;font-size:11.5px;color:var(--ink);font-weight:600;flex-shrink:0}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:9px 18px 4px;flex-shrink:0}
+.nav .l{display:flex;align-items:center;gap:12px}
+.icb{width:38px;height:38px;border-radius:13px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.04)}
+.icb:active{transform:scale(0.93)}
+.nav .ttl{font-size:16px;font-weight:700;letter-spacing:-0.015em}
+.nav .ttl small{display:block;font-size:11px;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:1px}
+.pad{padding:6px 18px 22px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.pad::-webkit-scrollbar{width:0}
+.logo{width:44px;height:44px;flex-shrink:0}
+.eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+.h1{font-size:26px;font-weight:800;letter-spacing:-0.035em;line-height:1.05}
+.h2{font-size:18px;font-weight:700;letter-spacing:-0.02em}
+.big{font-size:46px;font-weight:800;letter-spacing:-0.045em;line-height:1}
+.sub{color:var(--ink2);font-size:13.5px;line-height:1.5}
+.lbl{font-size:12px;color:var(--ink2)}
+.eb{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:700;margin-bottom:9px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:0 3px 16px -9px rgba(0,0,0,0.06)}
+.card+.card{margin-top:11px}
+.tap{cursor:pointer;transition:transform .11s,box-shadow .16s}
+.tap:active{transform:scale(0.98)}.tap:hover{box-shadow:0 10px 26px -12px rgba(0,0,0,0.15)}
+.row{display:flex;align-items:center;gap:11px}
+.between{display:flex;align-items:center;justify-content:space-between}
+.grow{flex:1}
+/* TEAL-FORWARD buttons */
+.btn{background:linear-gradient(145deg,var(--teal),var(--teal-ink));color:#fff;font-weight:700;font-size:15px;text-align:center;padding:16px;border-radius:15px;cursor:pointer;letter-spacing:-0.01em}
+.btn:active{transform:scale(0.98)}
+.btn.dark{background:var(--ink)}
+.btn.soft{background:var(--teal-soft);color:var(--teal-ink)}
+.btn.g{background:transparent;border:1.5px solid var(--teal);color:var(--teal-ink);font-weight:600}
+.btn.red{background:var(--red);color:#fff}
+.btn.sm{padding:11px;font-size:13px}
+.pill{font-size:10px;font-weight:600;padding:5px 11px;border-radius:20px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.pill.teal{background:var(--teal);color:#fff}
+.pill.tsoft{background:var(--teal-soft);color:var(--teal-ink)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.pill.plain{background:var(--sand);color:var(--ink2)}
+.pill.on{background:var(--teal);color:#fff}
+.pill.oline{background:transparent;border:1.5px solid var(--teal);color:var(--teal-ink)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.eb2{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.note{background:var(--teal-soft);border-radius:14px;padding:12px 14px;font-size:12px;color:var(--teal-deep);line-height:1.5;margin-top:12px}
+.note b{color:var(--teal-ink);font-weight:700}
+.field{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;margin-top:9px}
+.field .v{font-weight:600;font-size:13.5px}
+/* streak chip */
+.streak{display:inline-flex;align-items:center;gap:6px;background:var(--teal-soft);color:var(--teal-ink);border-radius:20px;padding:6px 13px;font-size:13px;font-weight:800}
+.streak small{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+/* water blocks - teal */
+.waterblocks{display:flex;align-items:center;gap:11px;margin-top:14px;cursor:pointer}
+.wbrow{display:flex;gap:3px;flex:1}
+.wblk{flex:1;height:15px;border-radius:3px;background:var(--sand)}
+.wblk.on{background:linear-gradient(#5AA9E6,#3E8ED6)}
+.wbval{font-size:11px;font-weight:700;color:#3E8ED6;white-space:nowrap}
+/* concept tiles - teal photo-topped */
+.concepts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.concept{border-radius:18px;overflow:hidden;cursor:pointer;background:var(--panel);border:1px solid var(--line);box-shadow:0 3px 16px -9px rgba(0,0,0,0.06)}
+.concept .ph{height:50px;background-size:cover;background-position:center;background-color:var(--teal-deep);position:relative}
+.concept .ph .ov{position:absolute;inset:0;background:linear-gradient(120deg,rgba(18,199,174,0.5),rgba(11,125,107,0.72))}
+.concept .cap{padding:12px 14px 14px}
+.concept .cn{font-size:15px;font-weight:800;letter-spacing:-0.025em;color:var(--ink)}
+.concept .cs{font-size:12.5px;font-weight:700;color:var(--teal-ink);margin-top:8px;display:flex;align-items:center;gap:7px}
+.concept .cm{font-size:10.5px;color:var(--ink3);margin-top:4px}
+/* exercise thumb - photo */
+.exthumb{width:46px;height:46px;border-radius:12px;background-size:cover;background-position:center;background-color:var(--teal-deep);flex-shrink:0}
+.exrow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line2)}
+.exrow:last-child{border-bottom:none}
+/* movement read photo */
+.read{border-radius:20px;overflow:hidden;position:relative;height:150px;margin-top:8px}
+.read .ph{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--teal-deep)}
+.read .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,125,107,0.15) 30%,rgba(6,60,52,0.9))}
+.read .txt{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;color:#fff}
+.read .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.9);font-weight:700}
+.read .big{font-size:16px;font-weight:700;letter-spacing:-0.01em;margin-top:5px;line-height:1.25}
+/* mbs photo cards */
+.mbsgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+.mbscard{border-radius:16px;overflow:hidden;cursor:pointer;background:var(--panel);border:1px solid var(--line);box-shadow:0 3px 14px -9px rgba(0,0,0,0.06)}
+.mbscard .ph{height:66px;background-size:cover;background-position:center;background-color:var(--teal-deep);position:relative}
+.mbscard .ph .t{position:absolute;left:11px;bottom:8px;color:#fff;font-size:14px;font-weight:800;letter-spacing:-0.02em;z-index:1}
+.mbscard .ph .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.05),rgba(9,90,78,0.7))}
+.mbscard .cap{padding:9px 11px}
+.mbscard .cap div{font-size:10.5px;color:var(--ink2);padding:4px 0;line-height:1.3}
+.mbscard .cap div+div{border-top:1px solid var(--line2)}
+/* baseline metric */
+.metric{padding:14px 0;border-bottom:1px solid var(--line2)}.metric:last-child{border-bottom:none}
+.metric .top{display:flex;align-items:baseline;justify-content:space-between}
+.metric .val{font-size:19px;font-weight:800;letter-spacing:-0.02em;color:var(--teal-ink)}
+.metric .norm{font-size:11px;color:var(--ink3);margin-top:3px}
+.metric .track{height:5px;border-radius:20px;background:var(--sand);overflow:hidden;margin-top:9px;position:relative}
+.metric .track .fill{height:100%;border-radius:20px;background:var(--teal)}
+.metric .track .base{position:absolute;top:-2px;width:2px;height:9px;background:var(--ink3);border-radius:2px}
+.seg{display:flex;background:var(--sand);border-radius:13px;padding:3px}
+.seg>div{flex:1;text-align:center;padding:9px;font-size:12.5px;font-weight:600;border-radius:10px;cursor:pointer;color:var(--ink2)}
+.seg>div.on{background:var(--teal);color:#fff;box-shadow:0 2px 6px rgba(18,199,174,0.3)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:64px}
+.bars>div{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(var(--teal),var(--teal-ink))}
+/* footer with nav icons */
+.foot{display:flex;background:var(--panel);border-top:1px solid var(--line);flex-shrink:0}
+.foot div{flex:1;text-align:center;padding:9px 0 12px;font-size:8.5px;color:var(--ink3);font-weight:600;cursor:pointer}
+.foot div.on{color:var(--teal-ink)}
+.foot .fi{display:block;margin:0 auto 3px;opacity:.5}.foot div.on .fi{opacity:1}
+.foot .cam{background:linear-gradient(145deg,var(--teal),var(--teal-ink));width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:-8px auto 1px;box-shadow:0 6px 16px -3px rgba(18,199,174,0.5)}
+.live{position:absolute;inset:0;background:#0c0e10;display:flex;flex-direction:column}
+.tog{width:44px;height:26px;border-radius:20px;background:var(--sand);position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.tog:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.2s}
+.tog.on{background:var(--teal)}.tog.on:after{left:21px}
+.toast{position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;padding:12px 20px;border-radius:24px;opacity:0;pointer-events:none;transition:.25s;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.i{stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.wdots{display:flex;gap:7px;justify-content:center;margin-bottom:14px}
+.wdots span{width:7px;height:7px;border-radius:50%;background:var(--sand)}
+.wdots span.on{background:var(--teal);width:22px;border-radius:20px}
+.field{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13.5px;font-weight:600;cursor:pointer}
+.field span{color:var(--ink3);font-weight:400}
+.map{max-width:392px;margin:14px auto 0;font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="hd"><h1>Formm — <span>App</span></h1><p>Teal-forward · light · fully navigable · photos in tiles</p></div>
+<div class="device"><div class="vp" id="vp"></div></div>
+<div class="toast" id="toast"></div>
+<div class="map">Fully clickable. Teal-led with black sparingly. Live-camera stays dark.</div>
+<script>
+const IMG={
+  press:"https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=75&w=200&auto=format&fit=crop",
+  squat:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=75&w=800&auto=format&fit=crop",
+  mind:"https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=75&w=200&auto=format&fit=crop",
+  body:"https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=75&w=200&auto=format&fit=crop",
+  soul:"https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?q=75&w=200&auto=format&fit=crop",
+  age:"https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=75&w=300&auto=format&fit=crop",
+  acwr:"https://images.unsplash.com/photo-1461897104016-0b3b00cc81ee?q=75&w=300&auto=format&fit=crop"
+};
+const LOGO='<svg viewBox="0 0 100 100" style="width:100%;height:100%"><circle cx="50" cy="50" r="50" fill="#0b0b0b"/><circle cx="50" cy="50" r="41" fill="none" stroke="#12C7AE" stroke-width="3.4"/><rect x="38.5" y="24" width="6.2" height="42" rx="3.1" fill="#fff"/><circle cx="51.5" cy="27" r="3.1" fill="#12C7AE"/><circle cx="60" cy="27" r="3.1" fill="#12C7AE"/><circle cx="68.5" cy="27" r="3.1" fill="#12C7AE"/><path d="M38.5 55 q0 8 8 8" fill="none" stroke="#12C7AE" stroke-width="5.5" stroke-linecap="round"/><circle cx="53" cy="49" r="3" fill="#fff"/><path d="M60 42 l7 7 -7 7" fill="none" stroke="#12C7AE" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// Consistent brand lockup: logo + wordmark, "Movement Intelligence" eyebrow below. Use on all logo-bearing screens.
+function brand(showWordmark){return '<div style="padding-top:2px">'
+  +'<div class="row" style="gap:10px;align-items:center">'+'<div class="logo" style="width:38px;height:38px">'+LOGO+'</div>'+(showWordmark!==false?'<span style="font-weight:800;font-size:18px;letter-spacing:-0.02em">Formm</span>':'')+'</div>'
+  +'<div class="eyebrow" style="margin-top:6px">Movement Intelligence</div></div>';}
+
+const IC={
+  back:'<svg class="i" width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',
+  house:'<svg class="i" width="19" height="19" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+  home:'<svg class="i fi" width="21" height="21" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+  chart:'<svg class="i fi" width="21" height="21" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M20 20H3"/></svg>',
+  cam:'<svg class="i" width="21" height="21" viewBox="0 0 24 24" style="stroke:#fff"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L18 6h1a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="12.5" r="3.2"/></svg>',
+  user:'<svg class="i fi" width="21" height="21" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  gear:'<svg class="i fi" width="21" height="21" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2M12 19v2M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M3 12h2M19 12h2M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5"/></svg>',
+  flame:'<svg width="14" height="14" viewBox="0 0 24 24"><path d="M13 2c.5 3.5-1.5 5-2.5 6.5C9.3 10.2 9 11.4 9 12.5c-1-.5-1.8-1.8-2-3-1.5 1.3-3 3.5-3 6.2A8 8 0 0020 16c0-4.5-3-7-4.5-9C14 5.3 13.3 3.7 13 2z" fill="#F0872E"/><path d="M12 13c1.2.8 2 2 2 3.4a2.6 2.6 0 01-5.2 0c0-1 .5-1.8 1.2-2.5.3.9 1 1.5 2 1.6 0-1 0-1.7 0-2.5z" fill="#F6C445"/></svg>',
+  drop:'<svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0014 0c0-5-7-12.5-7-12.5z" fill="#3E8ED6"/><path d="M9 15a3 3 0 003 3" stroke="rgba(255,255,255,0.7)" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>',
+  flame:'<svg width="14" height="14" viewBox="0 0 24 24"><path d="M13 2c.5 3.5-1.5 5-2.5 6.5C9.3 10.2 9 11.4 9 12.5c-1-.5-1.8-1.8-2-3-1.5 1.3-3 3.5-3 6.2A8 8 0 0020 16c0-4.5-3-7-4.5-9C14 5.3 13.3 3.7 13 2z" fill="#F0872E"/><path d="M12 13c1.2.8 2 2 2 3.4a2.6 2.6 0 01-5.2 0c0-1 .5-1.8 1.2-2.5.3.9 1 1.5 2 1.6 0-1 0-1.7 0-2.5z" fill="#F6C445"/></svg>',
+  drop:'<svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0014 0c0-5-7-12.5-7-12.5z" fill="#3E8ED6"/><path d="M9 15a3 3 0 003 3" stroke="rgba(255,255,255,0.7)" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>'
+};
+const T=(m)=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);};
+const soon=(w)=>T((w||'This')+' — coming soon');
+let hist=[],CUR=null;
+function go(id,push=true){const el=document.getElementById(id);if(!el){soon();return;}document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));if(push&&CUR)hist.push(CUR);CUR=id;el.classList.add('active');const vp=document.getElementById('vp');vp.scrollTop=0;el.scrollTop=0;}
+function back(){const p=hist.pop();if(p){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));CUR=p;document.getElementById(p).classList.add('active');}else{home();}}
+function home(){hist=[];go('signup',false);
+}
+const sbar='<div class="sbar"><span>9:41</span><span>◍ ▚ ▮</span></div>';
+function topbar(t,sub){return '<div class="nav"><div class="l"><div class="icb" onclick="back()">'+IC.back+'</div><div class="ttl">'+t+(sub?'<small>'+sub+'</small>':'')+'</div></div><div class="icb" onclick="home()">'+IC.house+'</div></div>';}
+function foot(a){const items=[['home',IC.home,'Home'],['progress',IC.chart,'Progress'],['cam',IC.cam,'Live'],['profile',IC.user,'Profile'],['settings',IC.gear,'Settings']];
+  return '<div class="foot">'+items.map(([id,ic,l])=>{const on=a===id;const act=id==='cam'?"go('a_setup')":id==='home'?"home()":"go('"+id+"')";
+    if(id==='cam')return '<div onclick="'+act+'"><div class="cam">'+ic+'</div>'+l+'</div>';
+    return '<div class="'+(on?'on':'')+'" onclick="'+act+'"><span class="fi">'+ic+'</span>'+l+'</div>';}).join('')+'</div>';}
+const SCR={};
+
+/* HOME */
+SCR.home=sbar+'<div class="pad">'
++'<div class="between" style="margin-top:2px"><div class="row"><div class="logo">'+LOGO+'</div><div><div class="eyebrow">Movement Intelligence</div><div class="h1" style="margin-top:3px">Hi, Samrat</div></div></div><div class="row" style="gap:7px"><span class="pill plain tap" onclick="go(\'home_new\')" style="padding:6px 10px">Day 1</span><div class="streak" onclick="go(\'progress\')">'+IC.flame+'<span style="margin-left:3px">1</span><small>Day</small></div></div>'
++'<div class="waterblocks" onclick="go(\'water\')">'+IC.drop+'<div class="wbrow">'+Array.from({length:12},(_,i)=>'<span class="wblk'+(i<4?' on':'')+'"></span>').join('')+'</div><span class="wbval">0.9 L</span></div>'
++'<div class="concepts">'
++'<div class="concept tap" onclick="go(\'movage\')"><div class="ph" style="background-image:url(\''+IMG.age+'\')"><div class="ov"></div></div><div class="cap"><div class="cn">Movement Age</div><div class="cs"><span class="dot" style="background:var(--amber)"></span>Building</div><div class="cm">Calibrating from your reps</div></div></div>'
++'<div class="concept tap" onclick="go(\'acwr\')"><div class="ph" style="background-image:url(\''+IMG.acwr+'\')"><div class="ov"></div></div><div class="cap"><div class="cn">ACWR</div><div class="cs"><span class="dot" style="background:var(--amber)"></span>Baseline</div><div class="cm">5 of 6 sessions logged</div></div></div>'
++'</div>'
++'<div class="btn" style="margin-top:14px;font-size:16px;padding:17px" onclick="go(\'session\')">Start Workout</div>'
++'<div style="margin-top:20px"><div class="between" style="margin-bottom:2px"><div class="eb" style="margin:0">Recent · vs your normal</div><span class="pill oline" onclick="go(\'history\')">All 41</span></div>'
++[['82','Shoulder Press','11 reps · above your normal'],['86','Shoulder Press','9 reps · your best this week']].map(x=>'<div class="exrow tap" onclick="go(\'result\')"><div class="row"><div class="exthumb" style="background-image:url(\''+IMG.press+'\')"></div><div><div style="font-size:14px;font-weight:600">'+x[1]+'</div><div style="font-size:11px;color:var(--ink3)">'+x[2]+'</div></div></div><span style="font-size:19px;font-weight:800;color:var(--teal-ink)">'+x[0]+'</span></div>').join('')+'</div>'
+/* movement read above MBS */
++'<div style="margin-top:20px"><div class="eb" style="margin-bottom:8px">Today\u2019s movement read</div>'
++'<div class="read tap" onclick="go(\'tstatus\')"><div class="ph" style="background-image:url(\''+IMG.squat+'\')"></div><div class="ov"></div><div class="txt"><div class="k">Measured against your 30-day normal</div><div class="big">Your squat depth is holding. Symmetry is the one to watch.</div></div></div></div>'
+/* mind body soul */
++'<div class="card tap between" style="margin-top:18px;background:var(--teal-soft);border-color:rgba(18,199,174,0.2)" onclick="go(\'howitworks\')"><div><div style="font-size:13px;font-weight:700;color:var(--teal-ink)">New to Formm?</div><div class="lbl" style="font-size:11.5px;margin-top:1px">See how it works in 30 seconds</div></div><span style="color:var(--teal-ink);font-weight:700">→</span></div>'+'<div style="margin-top:20px"><div class="eb" style="margin-bottom:8px">Beyond Training</div><div class="mbsgrid">'
++'<div class="mbscard" onclick="go(\'mbs_mind\')"><div class="ph" style="background-image:url(\''+IMG.mind+'\')"><div class="ov"></div><div class="t">Mind</div></div><div class="cap"><div>Mindset</div><div>Workshops</div></div></div>'
++'<div class="mbscard" onclick="go(\'mbs_body\')"><div class="ph" style="background-image:url(\''+IMG.body+'\')"><div class="ov"></div><div class="t">Body</div></div><div class="cap"><div>Nutrition</div><div>Recovery</div></div></div>'
++'<div class="mbscard" onclick="go(\'mbs_soul\')"><div class="ph" style="background-image:url(\''+IMG.soul+'\')"><div class="ov"></div><div class="t">Soul</div></div><div class="cap"><div>Breathwork</div><div>Sleep</div></div></div>'
++'</div></div><div style="height:8px"></div>'
++'</div>'+foot('home');
+
+/* WATER */
+SCR.water=sbar+topbar('Hydration')+'<div class="pad">'
++'<div style="text-align:center;margin:6px 0"><div class="eb">Today</div><div class="big" style="color:#3E8ED6">0.9<span style="font-size:16px;color:var(--ink2);font-weight:600"> / 2.6 L</span></div><div class="lbl">0% of your goal</div></div>'
++'<div class="seg" style="margin-top:14px"><div class="on">Log Drink</div><div onclick="soon(\'Goal\')">Goal</div><div onclick="soon(\'History\')">History</div></div>'
++'<div class="eb" style="margin:16px 0 8px">Add</div>'
++'<div class="row" style="gap:8px;flex-wrap:wrap">'+[['100 ml','Cup'],['250 ml','Glass'],['500 ml','Bottle'],['750 ml','Shaker'],['1.0 L','Jug']].map(x=>'<div class="card tap" style="flex:1;min-width:90px;text-align:center;padding:14px 8px" onclick="T(\'+'+x[0]+' added\')"><div style="font-size:16px;font-weight:800; color:#3E8ED6">+'+x[0]+'</div><div class="eb2" style="margin-top:4px">'+x[1]+'</div></div>').join('')+'</div>'
++'<div class="note"><b>Why it matters:</b> a glass before training supports performance and recovery.</div>'
++'<div class="grow"></div><div class="btn g" onclick="home()">Done</div></div>';
+
+/* SESSION */
+SCR.session=sbar+topbar('Workout')+'<div class="pad">'
++'<div class="card" style="border-color:rgba(18,199,174,0.3);background:var(--teal-soft)"><div class="between"><div class="row"><span class="dot" style="background:var(--teal)"></span><div><div style="font-size:14px;font-weight:700">Workout live</div><div class="lbl" style="font-size:11.5px">Started 11:47 · 00:00:04</div></div></div><span class="pill teal">0 exercises</span></div>'
++'<div class="row" style="gap:9px;margin-top:13px">'+[['Total volume','0 reps'],['Avg form','—'],['Elapsed','0m']].map(x=>'<div style="flex:1;background:var(--panel);border-radius:13px;padding:11px 10px;text-align:center"><div class="eb2">'+x[0]+'</div><div style="font-size:15px;font-weight:800;margin-top:4px;color:var(--teal-ink)">'+x[1]+'</div></div>').join('')+'</div></div>'
++'<div class="card" style="text-align:center;padding:22px 16px;margin-top:12px"><div class="h2">Ready for your first set?</div><div class="sub" style="margin-top:5px">Position the camera and tap <b style="color:var(--ink)">+ New Formm analysis</b> to track form &amp; count reps.</div></div>'
++'<div class="card tap between" style="padding:12px 14px;border-style:dashed" onclick="soon(\'Wearable\')"><span style="font-size:14px;font-weight:700">Wearable</span><span class="pill plain">Connect</span></div>'
++'<div class="btn" style="margin-top:12px" onclick="go(\'a_setup\')">+ New Formm Analysis</div>'
++'<div class="row" style="gap:9px;margin-top:9px"><div class="btn g" style="flex:1" onclick="home()">Home</div><div class="btn red" style="flex:1" onclick="go(\'endflow\')">End Workout</div></div>'
++'<div class="note"><b>Workout keeps running</b> when you go Home. Ending prompts RPE → ACWR.</div></div>';
+
+/* FORM ANALYSIS */
+SCR.a_setup=sbar+'<div class="nav"><div class="l"><div class="icb" onclick="back()">'+IC.back+'</div><div class="ttl">Form Analysis</div></div><div class="row" style="gap:7px"><div class="icb" onclick="soon(\'Audio\')" style="font-size:11px;font-weight:700;color:var(--teal-ink)">Aud</div><div class="icb" onclick="soon(\'Language\')" style="font-size:11px;font-weight:700">EN</div></div></div><div class="pad">'
++'<div class="eb">Select exercise</div>'
++'<div class="row" style="gap:7px;flex-wrap:wrap;margin-bottom:12px">'+['Back Squat','Lunge','Deadlift','Romanian DL'].map((e,i)=>'<span class="pill '+(i===0?'oline':'plain')+'" style="padding:8px 13px;font-size:12px" onclick="selOne(this)">'+e+'</span>').join('')+'</div>'
++'<div class="card"><div class="eb">Set up · how to stand</div><div class="row" style="justify-content:space-between;margin-top:2px">'+[['6–8 ft'],['Full body'],['Side-on']].map(x=>'<div style="text-align:center;flex:1"><div style="width:44px;height:44px;border-radius:14px;background:var(--teal-soft);margin:0 auto 6px;color:var(--teal-ink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">'+x[0]+'</div></div>').join('')+'</div><div class="lbl" style="font-size:11.5px;text-align:center;margin-top:8px;padding-top:10px;border-top:1px solid var(--line2)">Knee / waist height · keep chest upright &amp; hips back</div></div>'
++'<div class="card" style="padding:13px 15px"><div class="eb" style="margin-bottom:3px">Weight lifted · optional</div><div class="between"><span class="big" style="font-size:30px">25</span><span class="sub">kg</span></div></div>'
++'<div class="card"><div class="between"><div><div class="eb" style="margin-bottom:3px">Target rep goal</div><span style="font-size:13px;font-weight:600">Open (free set)</span></div><span class="pill teal">Open</span></div><div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">'+['Open','5 Reps','8 Reps','10 Reps'].map((r,i)=>'<span class="pill '+(i===0?'oline':'plain')+'" onclick="selOne(this)">'+r+'</span>').join('')+'</div></div>'
++'<div class="card between" style="padding:13px 15px"><div><div class="eb2">Record workout</div><div style="font-size:13px;font-weight:600;margin-top:2px">Record video for analysis</div></div><div class="tog on" onclick="this.classList.toggle(\'on\')"></div></div>'
++'<div class="lbl" style="font-size:11px;margin-top:8px">Videos are stored locally on your device only</div>'
++'<div class="row" style="gap:9px;margin-top:14px"><div class="btn g" style="flex:1" onclick="back()">Cancel</div><div class="btn" style="flex:1.4" onclick="go(\'a_live\')">Start Camera</div></div></div>';
+
+/* LIVE (dark) */
+SCR.a_live='<div class="live">'
++'<div class="nav" style="padding-top:14px"><div class="l"><span class="pill" style="background:rgba(255,255,255,0.1);color:#fff" onclick="go(\'result\')">◀ Finish</span></div><span class="pill" style="background:rgba(18,199,174,0.25);color:#4fe6c4">Back Squat · LIVE</span></div>'
++'<div style="text-align:center;margin-top:10px"><div style="font-size:54px;font-weight:800;letter-spacing:-0.04em;line-height:1;color:#fff">3</div><div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5)">reps</div></div>'
++'<div style="flex:1;position:relative"><svg viewBox="0 0 200 250" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:190px;height:240px">'
++'<line x1="100" y1="36" x2="100" y2="112" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="56" x2="68" y2="90" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><line x1="68" y1="90" x2="74" y2="124" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="56" x2="132" y2="90" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><line x1="132" y1="90" x2="126" y2="124" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="112" x2="76" y2="166" stroke="#FF4560" stroke-width="4" stroke-linecap="round"/><line x1="76" y1="166" x2="82" y2="216" stroke="#FF4560" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="112" x2="124" y2="166" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><line x1="124" y1="166" x2="118" y2="216" stroke="#0FE0B5" stroke-width="4" stroke-linecap="round"/><circle cx="100" cy="30" r="12" stroke="#0FE0B5" stroke-width="4" fill="none"/><circle cx="76" cy="166" r="5" fill="#FF4560"/></svg></div>'
++'<div style="text-align:center;padding:16px"><span class="pill" style="background:rgba(255,69,96,0.18);color:#ff8595;padding:8px 14px;font-size:12px" onclick="go(\'result\')">Left knee caving — push it out</span></div></div>';
+
+/* RESULT */
+SCR.result=sbar+topbar('Result')+'<div class="pad">'
++'<div class="card" style="text-align:center;background:var(--teal-soft);border-color:rgba(18,199,174,0.2)"><div class="eb" style="margin-bottom:6px">Formm Score</div><div class="big" style="color:var(--teal-ink)">58</div><div class="sub" style="margin-top:4px">Back Squat · 3 reps · 25kg</div></div>'
++'<div class="eb" style="margin:16px 0 8px">Rep by rep</div><div class="bars"><div style="height:60px"></div><div style="height:52px"></div><div style="height:46px"></div></div>'
++'<div class="card" style="margin-top:14px"><div class="lbl" style="line-height:1.5;font-size:13px">Solid depth throughout. Score dipped — <b style="color:var(--ink)">left knee caved on reps 2–3</b>. Focus next set on driving it out.</div></div>'
++'<div class="card tap between" style="margin-top:10px;background:var(--teal-soft);border-color:rgba(18,199,174,0.2)" onclick="go(\'movage\')"><span style="font-size:13px;font-weight:600">Feeds your Movement Age</span><span style="color:var(--teal-ink);font-weight:700">→</span></div>'
++'<div class="grow"></div><div class="row" style="gap:9px;margin-top:14px"><div class="btn g" style="flex:1" onclick="go(\'session\')">Back to workout</div><div class="btn" style="flex:1" onclick="go(\'a_setup\')">New analysis</div></div></div>';
+
+/* END WORKOUT */
+SCR.endflow=sbar+topbar('End Workout')+'<div class="pad">'
++'<div class="h1" style="font-size:23px">How was that workout?</div><div class="sub" style="margin-top:5px">Calculates your training-load score for ACWR.</div>'
++'<div class="card" style="margin-top:14px"><div class="between"><div class="eb" style="margin:0">Effort · RPE</div><span class="pill teal" id="rpeVal">3 / 10 · Moderate</span></div>'
++'<div style="display:flex;gap:5px;margin:12px 0 10px" id="rpeBar">'+Array.from({length:10},(_,i)=>'<div onclick="setRPE('+(i+1)+')" style="flex:1;height:30px;border-radius:7px;cursor:pointer;background:'+(i<3?'var(--teal)':'var(--sand)')+'"></div>').join('')+'</div>'
++'<div style="background:var(--teal-soft);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--teal-deep)"><b style="color:var(--teal-ink)">Level 3: Moderate</b> — aerobic base, easy to maintain conversation.</div></div>'
++'<div class="card between" style="padding:14px 15px"><div><div class="eb2">Duration</div><div class="lbl" style="font-size:11.5px;margin-top:2px">Tap to adjust</div></div><span class="pill plain" style="font-size:13px;padding:8px 14px" onclick="soon(\'Duration\')">1 min</span></div>'
++'<div class="eb" style="margin:14px 0 8px">Cardio · optional</div><div class="row" style="gap:6px;flex-wrap:wrap">'+['Treadmill','Cycling','Rowing','Swim','Walk'].map(c=>'<span class="pill plain" onclick="selMulti(this)">'+c+'</span>').join('')+'</div>'
++'<div class="card" style="margin-top:14px;background:var(--teal-soft);border-color:rgba(18,199,174,0.25)"><div class="between"><span style="font-size:13px;font-weight:700">Session load (AU)</span><span style="font-size:15px;font-weight:800;color:var(--teal-ink)" id="auOut">3 × 1 = 3 AU</span></div></div>'
++'<div class="grow"></div><div class="btn" style="margin-top:16px" onclick="go(\'acwr\')">Save &amp; Finish</div></div>';
+
+/* ACWR */
+SCR.acwr=sbar+topbar('Training Status')+'<div class="pad">'
++'<div class="seg" style="margin-bottom:14px"><div class="on">ACWR</div><div onclick="go(\'tstatus\')">Training status</div></div>'
++'<div class="card"><div class="between"><span style="font-size:14px;font-weight:700">Training load ratio</span><span class="pill amber">Building baseline</span></div>'
++'<div style="height:9px;background:var(--sand);border-radius:20px;overflow:hidden;margin:14px 0 10px"><div style="width:42%;height:100%;background:var(--amber);border-radius:20px"></div></div>'
++'<div class="lbl" style="font-size:12.5px;line-height:1.5">5 of 6 sessions · 12 of 28 days logged. ACWR needs about a month of training before it can give an accurate reading.</div></div>'
++'<div class="eb" style="margin:16px 0 8px">What is ACWR?</div>'
++'<div class="card"><div class="lbl" style="font-size:12.5px;line-height:1.6">Compares your <b style="color:var(--ink)">last 7 days</b> of load against your <b style="color:var(--ink)">28-day average</b>. Load = RPE × duration. From Gabbett\u2019s research; a guide, not a diagnosis.</div></div>'
++'<div class="eb" style="margin:16px 0 8px">Zones · once unlocked</div>'
++'<div class="card" style="padding:12px 15px">'+[['&lt; 0.8','Undertraining','var(--ink3)'],['0.8–1.3','Sweet spot','var(--teal-ink)'],['1.3–1.5','Caution','var(--amber)'],['&gt; 1.5','Danger','var(--red)']].map(x=>'<div class="between" style="padding:6px 0"><span style="font-size:12.5px;font-weight:700;color:'+x[2]+'">'+x[0]+'</span><span class="lbl">'+x[1]+'</span></div>').join('')+'</div><div style="height:8px"></div></div>'+foot('progress');
+
+/* TRAINING STATUS */
+SCR.tstatus=sbar+topbar('Training Status')+'<div class="pad">'
++'<div class="seg" style="margin-bottom:14px"><div onclick="go(\'acwr\')">ACWR</div><div class="on">Training status</div></div>'
++'<div class="eb" style="margin-bottom:2px">Movement quality · vs your 30-day normal</div>'
++'<div class="card">'+[['Form accuracy',84,79,0],['Range of motion',79,80,0],['Symmetry',68,76,1]].map(x=>'<div class="metric"><div class="top"><span style="font-size:14px;font-weight:600">'+x[0]+(x[3]?' <span class="pill amber" style="font-size:8px">watch</span>':'')+'</span><span class="val" style="color:'+(x[3]?'var(--amber)':'var(--teal-ink)')+'">'+x[1]+'</span></div><div class="norm">Your 30-day normal: '+x[2]+' · '+(x[1]>=x[2]?'<span style="color:var(--teal-ink);font-weight:600">above</span>':'<span style="color:var(--amber);font-weight:600">below</span>')+'</div><div class="track"><div class="fill" style="width:'+x[1]+'%;background:'+(x[3]?'var(--amber)':'var(--teal)')+'"></div><div class="base" style="left:'+x[2]+'%"></div></div></div>').join('')+'</div>'
++'<div class="note">Real signals against your own baseline — never blended into one invented "risk score".</div><div style="height:8px"></div></div>'+foot('progress');
+
+/* MOVEMENT AGE */
+SCR.movage=sbar+topbar('Movement Age','Biomechanical longevity')+'<div class="pad">'
++'<div class="read" style="height:130px"><div class="ph" style="background-image:url(\''+IMG.age+'\')"></div><div class="ov"></div><div class="txt"><div class="k">Your movement age</div><div class="big" style="font-size:20px">Being calibrated</div></div></div>'
++'<div class="card" style="margin-top:12px"><div style="height:7px;background:var(--sand);border-radius:20px;overflow:hidden"><div style="width:45%;height:100%;background:var(--teal);border-radius:20px"></div></div><div class="lbl" style="font-size:12px;margin-top:8px">We show your movement trend until there\u2019s enough data for an honest reading.</div></div>'
++'<div class="eb" style="margin:16px 0 8px">What feeds it</div>'
++[['Form analyses','Every rep you record'],['Movement tests','Sitting-rise, single-leg stand'],['Range of motion','Depth &amp; joint angles']].map(x=>'<div class="card tap between" style="padding:13px 15px" onclick="soon(\''+x[0]+'\')"><div><div style="font-size:14px;font-weight:700">'+x[0]+'</div><div class="lbl" style="font-size:11.5px;margin-top:1px">'+x[1]+'</div></div><span style="color:var(--teal-ink);font-weight:700">→</span></div>').join('')
++'<div class="note"><b>Age-normative research.</b> Movement Age compares your real movement quality against research standards across ages. Formm won\u2019t show a number until the method is validated.</div><div style="height:8px"></div></div>';
+
+/* HISTORY */
+SCR.history=sbar+'<div class="nav"><div class="l"><div class="icb" onclick="back()">'+IC.back+'</div><div class="ttl">All History <span style="color:var(--teal-ink)">41</span></div></div></div><div class="pad">'
++'<div class="row" style="gap:7px;margin-bottom:10px;overflow-x:auto">'+[['All 41',1],['Replays 1',0],['Squats 15',0],['Push',0]].map(x=>'<span class="pill '+(x[1]?'on':'plain')+'" style="flex-shrink:0;padding:7px 12px" onclick="selOne(this)">'+x[0]+'</span>').join('')+'</div>'
++[['82','Today, 4:51 am · 11 reps',0],['86','Today, 4:30 am · 9 reps',0],['99','9 Sept, 9:01 am · 2 reps',0],['86','8 Sept, 11:02 am · 8 reps',0],['86','8 Sept, 11:01 am · 8 reps',1],['86','8 Sept, 5:31 am · 8 reps',0]].map(x=>'<div class="exrow tap" onclick="go(\'result\')"><div class="row"><div class="exthumb" style="background-image:url(\''+IMG.press+'\')"></div><div><div style="font-size:13.5px;font-weight:700">Shoulder Press</div><div style="font-size:11px;color:var(--ink3)">'+x[1]+'</div>'+(x[2]?'<span class="pill tsoft" style="font-size:8px;margin-top:4px;display:inline-block">Replay</span>':'')+'</div></div><span style="font-size:18px;font-weight:800;color:var(--teal-ink)">'+x[0]+'</span></div>').join('')+'<div style="height:8px"></div></div>';
+
+/* PROFILE */
+SCR.profile=sbar+'<div class="pad">'
++'<div class="between" style="margin:6px 0 16px"><div class="row"><div style="width:50px;height:50px;border-radius:50%;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--teal-ink);flex-shrink:0">S</div><div><div class="h2">Samrat Nigam</div><div class="lbl" style="font-size:12px">Intermediate · Lifting</div></div></div><div class="pill red" onclick="soon(\'Sign out\')">Sign out</div></div>'
++[['Current','82 kg · 180 cm'],['Goal','85 kg (+3)'],['Training','5 days / week'],['Meals','3 / day'],['Goals','Lose fat · Build muscle'],['Sport','Lifting']].map(x=>'<div class="card between" style="padding:14px 15px"><span class="lbl">'+x[0]+'</span><span class="v">'+x[1]+'</span></div>').join('')
++'<div class="btn" style="margin-top:14px" onclick="soon(\'Edit profile\')">Edit Profile</div><div style="height:8px"></div></div>'+foot('profile');
+
+/* SETTINGS */
+SCR.settings=sbar+'<div class="pad">'
++'<div class="h1" style="margin:4px 0 14px">Settings</div>'
++[['Change Password','Password change','soon'],['Notifications','Reminders, streak nudges','soon'],['Wearables','Connect Apple Watch, etc.','soon'],['Hydration goal','Daily target','water'],['Units','kg / lb · cm / in','soon'],['Terms &amp; Conditions','Privacy policy and terms','soon'],['Help &amp; support','FAQ, contact','soon'],['About Formm','How it works · why we built it','howitworks']].map(x=>'<div class="card tap between" style="padding:14px 15px" onclick="'+(x[2]==='soon'?"soon('"+x[0].replace(/&amp;/g,'and')+"')":"go('"+x[2]+"')")+'"><div><div style="font-size:13.5px;font-weight:700">'+x[0]+'</div><div class="lbl" style="font-size:11px">'+x[1]+'</div></div><span style="color:var(--teal-ink);font-weight:700">→</span></div>').join('')+'<div style="height:8px"></div></div>'+foot('settings');
+
+/* MBS sub-pages */
+function mbsPage(id,cat,title,img,items){SCR[id]=sbar+topbar(cat)+'<div class="pad">'
++'<div class="read" style="height:120px"><div class="ph" style="background-image:url(\''+img+'\')"></div><div class="ov"></div><div class="txt"><div class="k">'+cat+'</div><div class="big" style="font-size:19px">'+title+'</div></div></div>'
++'<div style="margin-top:14px">'+items.map(x=>'<div class="card tap between" style="padding:15px" onclick="soonScreen(\''+x[0].replace(/&amp;/g,'and')+'\')"><div><div style="font-size:14.5px;font-weight:700">'+x[0]+'</div><div class="lbl" style="font-size:12px;margin-top:2px">'+x[1]+'</div></div><span style="color:var(--teal-ink);font-weight:700">→</span></div>').join('')+'</div>'
++'<div class="note">Supporting content for how you train, recover and feel.</div><div style="height:8px"></div></div>';}
+mbsPage('mbs_mind','Mind','Train your mind',IMG.mind,[['Performance mindset','Focus &amp; confidence under load'],['Mental workshops','Guided sessions']]);
+mbsPage('mbs_body','Body','Care for your body',IMG.body,[['Nutrition &amp; Macros','Fuel your training'],['Biomechanics recovery','Move and recover well']]);
+mbsPage('mbs_soul','Soul','Restore &amp; recover',IMG.soul,[['Breathwork &amp; Vagal tone','Calm your system'],['Sleep &amp; Parasympathetic reset','Recover deeper']]);
+
+/* ABOUT + MISSION */
+SCR.about=sbar+topbar('About Formm')+'<div class="pad">'
++'<div class="read" style="height:130px"><div class="ph" style="background-image:url(\''+IMG.squat+'\')"></div><div class="ov"></div><div class="txt"><div class="k">Movement Intelligence</div><div class="big">How Formm works</div></div></div>'
++'<div style="margin-top:14px">'+[['1','Record your movement','Point your camera and train. Formm tracks your body through the rep.'],['2','We measure how you moved','Real joint angles, range, stability and symmetry — measured, not estimated.'],['3','You get your Formm Score','A clear read on movement quality, plus what to work on next.']].map(x=>'<div class="card"><div class="row"><div style="width:38px;height:38px;border-radius:12px;background:var(--teal);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x[0]+'</div><div><div style="font-size:14px;font-weight:700">'+x[1]+'</div><div class="lbl" style="font-size:12px;margin-top:2px;line-height:1.45">'+x[2]+'</div></div></div></div>').join('')+'</div>'
++'<div class="note" style="margin-top:14px">Most fitness apps count <i>what</i> you did. Formm measures <b>how well you moved</b> — grounded in sports science, never showing a number the data can\u2019t support.</div>'
++'<div class="card tap between" style="margin-top:11px" onclick="go(\'mission\')"><span style="font-size:13.5px;font-weight:700">Our mission &amp; the science</span><span style="color:var(--teal-ink);font-weight:700">→</span></div><div style="height:8px"></div></div>';
+
+SCR.mission=sbar+topbar('Our Mission')+'<div class="pad">'
++'<div class="eyebrow">MVMT Veracity</div><div class="h1" style="margin-top:6px;font-size:25px">The movement standard</div>'
++'<div class="sub" style="margin-top:10px;font-size:13.5px;line-height:1.6">How you move is one of the clearest signals of long-term health — and it has been invisible to technology until now.</div>'
++'<div class="eb" style="margin:18px 0 8px">What we stand for</div>'
++[['Measured, not guessed','We measure real joint angles — we don\u2019t estimate from a wristband or invent scores.'],['Honest by default','We never show a number the data can\u2019t support.'],['Science-led','Thresholds grounded in published sports-science research.'],['For every body','From athletes to older adults staying independent.']].map(x=>'<div class="card"><div class="row"><span class="dot" style="background:var(--teal);flex-shrink:0;align-self:flex-start;margin-top:6px"></span><div><div style="font-size:13.5px;font-weight:700">'+x[0]+'</div><div class="lbl" style="font-size:12px;margin-top:2px;line-height:1.45">'+x[1]+'</div></div></div></div>').join('')
++'<div class="note"><b>MVMT Veracity Pvt Ltd.</b> Building movement intelligence, honestly.</div><div style="height:8px"></div></div>';
+
+/* PROGRESS -> acwr shortcut for footer */
+SCR.progress=SCR.acwr;
+
+/* ===== COMING SOON — adaptive per section ===== */
+const SOON={
+  'Performance mindset':{cat:'Mind',img:IMG.mind,what:'Guided mental-performance tools — focus routines, pre-lift arousal control, and confidence work built for training under load.',benefit:['Stay composed on heavy or high-pressure sets','Build a repeatable pre-session focus routine','Turn nerves into controlled intensity']},
+  'Mental workshops':{cat:'Mind',img:IMG.mind,what:'Short guided sessions from our team on the mental side of training — motivation, consistency, and handling setbacks.',benefit:['Stay consistent when motivation dips','Reframe plateaus and missed sessions','Learn the psychology behind adherence']},
+  'Nutrition and Macros':{cat:'Body',img:IMG.body,what:'Practical fuelling guidance matched to your training — protein targets, meal timing, and simple macro frameworks.',benefit:['Fuel your sessions and recover faster','Hit protein without obsessive tracking','Eat for your goal — fat loss or muscle']},
+  'Biomechanics recovery':{cat:'Body',img:IMG.body,what:'Recovery and mobility work tied to what Formm sees in your movement — targeted to your weak points.',benefit:['Address the exact areas your form flags','Move better and reduce niggles','Recover smarter between sessions']},
+  'Breathwork and Vagal tone':{cat:'Soul',img:IMG.soul,what:'Guided breathing protocols to shift your nervous system — down-regulate after training, up-regulate before.',benefit:['Calm your system for better recovery','Lower resting stress over time','Prime yourself before a hard session']},
+  'Sleep and Parasympathetic reset':{cat:'Soul',img:IMG.soul,what:'Evidence-informed sleep and wind-down guidance — the biggest lever for recovery and movement quality.',benefit:['Recover deeper each night','Protect movement quality (fatigue shows in form)','Build a consistent wind-down routine']}
+};
+function soonScreen(key){
+  const s=SOON[key]||{cat:'Formm',img:IMG.squat,what:'This feature is on the way.',benefit:['More to come']};
+  SCR.__soon=sbar+topbar(s.cat)+'<div class="pad">'
+    +'<div class="read" style="height:120px"><div class="ph" style="background-image:url(\''+s.img+'\')"></div><div class="ov"></div><div class="txt"><span class="pill teal" style="align-self:flex-start">Coming soon</span><div class="big" style="font-size:19px;margin-top:8px">'+key+'</div></div></div>'
+    +'<div class="eb" style="margin:18px 0 8px">What it will do</div>'
+    +'<div class="card"><div class="sub" style="font-size:13.5px;line-height:1.6;color:var(--ink)">'+s.what+'</div></div>'
+    +'<div class="eb" style="margin:18px 0 8px">How it helps you</div>'
+    +s.benefit.map(b=>'<div class="card" style="padding:13px 15px"><div class="row"><span class="dot" style="background:var(--teal);flex-shrink:0"></span><span style="font-size:13px;font-weight:500">'+b+'</span></div></div>').join('')
+    +'<div class="note" style="margin-top:16px"><b>In development.</b> We\u2019ll let you know the moment it\u2019s ready.</div>'
+    +'<div class="grow"></div><div class="btn g" onclick="back()">Back</div></div>';
+  // re-render the soon screen node
+  const old=document.getElementById('__soon'); if(old)old.remove();
+  const d=document.createElement('div');d.className='scr';d.id='__soon';d.innerHTML=SCR.__soon;document.getElementById('vp').appendChild(d);
+  go('__soon');
+}
+
+/* ===== WELCOME / INTRO FLOW (pre-sign-up) ===== */
+SCR.w1=sbar+'<div class="pad" style="padding-top:0">'
++'<div class="between" style="padding:10px 0"><div class="logo" style="width:38px;height:38px">'+LOGO+'</div><span class="lbl tap" style="font-weight:600" onclick="go(\'signup\')">Skip</span></div>'
++'<div class="read" style="height:300px;margin-top:8px"><div class="ph" style="background-image:url(\''+IMG.squat+'\')"></div><div class="ov"></div><div class="txt"><div class="k">Movement Intelligence</div><div class="big" style="font-size:26px;line-height:1.1;margin-top:8px">We measure how well you move — not just what you did.</div></div></div>'
++'<div class="sub" style="margin-top:18px;font-size:14px">Formm turns your phone camera into a movement lab. Real joint angles, real form — scored by sports science.</div>'
++'<div class="grow"></div>'
++'<div class="wdots"><span class="on"></span><span></span><span></span></div>'
++'<div class="btn" onclick="go(\'w2\')">Next</div></div>';
+
+SCR.w2=sbar+'<div class="pad" style="padding-top:0">'
++'<div class="between" style="padding:10px 0"><div class="icb" onclick="go(\'w1\')">'+IC.back+'</div><span class="lbl tap" style="font-weight:600" onclick="go(\'signup\')">Skip</span></div>'
++'<div class="eyebrow" style="margin-top:6px">How it works</div><div class="h1" style="margin-top:6px;font-size:25px">Three steps</div>'
++'<div style="margin-top:20px">'+[['1','Record your movement','Prop your phone, hit record, and train. Just your camera — nothing to strap on.'],['2','We measure how you moved','Formm reads your real joint angles, range, stability and symmetry, rep by rep.'],['3','Get your Formm Score','A clear read on movement quality — and exactly what to work on next.']].map(x=>'<div class="card" style="margin-bottom:11px"><div class="row"><div style="width:40px;height:40px;border-radius:13px;background:var(--teal);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x[0]+'</div><div><div style="font-size:14.5px;font-weight:700">'+x[1]+'</div><div class="lbl" style="font-size:12.5px;margin-top:2px;line-height:1.45">'+x[2]+'</div></div></div></div>').join('')+'</div>'
++'<div class="grow"></div>'
++'<div class="wdots"><span></span><span class="on"></span><span></span></div>'
++'<div class="btn" onclick="go(\'w3\')">Next</div></div>';
+
+SCR.w3=sbar+'<div class="pad" style="padding-top:0">'
++'<div class="between" style="padding:10px 0"><div class="icb" onclick="go(\'w2\')">'+IC.back+'</div><span class="lbl tap" style="font-weight:600" onclick="go(\'signup\')">Skip</span></div>'
++'<div class="eyebrow" style="margin-top:6px">Why it\u2019s different</div><div class="h1" style="margin-top:6px;font-size:25px">Honest by design</div>'
++'<div style="margin-top:20px">'+[['Measured, not guessed','We measure your actual movement — not estimated from a wristband.'],['Against your own normal','Your progress is judged against your baseline, not an average stranger\u2019s.'],['Never overclaims','We won\u2019t show a number the data can\u2019t support. Ever.']].map(x=>'<div class="card" style="margin-bottom:11px"><div class="row"><span class="dot" style="background:var(--teal);flex-shrink:0"></span><div><div style="font-size:14px;font-weight:700">'+x[0]+'</div><div class="lbl" style="font-size:12.5px;margin-top:2px;line-height:1.45">'+x[1]+'</div></div></div></div>').join('')+'</div>'
++'<div class="note">Grounded in published sports-science research, reviewed by our team.</div>'
++'<div class="grow"></div>'
++'<div class="wdots"><span></span><span></span><span class="on"></span></div>'
++'<div class="btn" onclick="go(\'signup\')">Get Started</div></div>';
+
+/* ===== LANDING — Jeani-style concept explainer ===== */
+SCR.landing=sbar+'<div class="pad" style="padding-top:0" id="landingpad">'
++'<div class="between" style="padding:10px 0"><div class="row" style="gap:9px"><div class="logo" style="width:32px;height:32px">'+LOGO+'</div><span style="font-weight:800;font-size:18px;letter-spacing:-0.02em">Formm</span></div><span class="pill teal tap" onclick="go(\'signup\')">Get Started</span></div>'
++'<div class="read" style="height:290px;margin-top:6px"><div class="ph" style="background-image:url(\''+IMG.squat+'\')"></div><div class="ov"></div><div class="txt"><div class="k">The movement standard</div><div class="big" style="font-size:25px;line-height:1.14;margin-top:8px">Built around <span id="goalrot" style="color:#4fe6c4;transition:opacity .25s">your strongest squat</span></div></div></div>'
++'<div class="sub" style="margin-top:14px;font-size:14px">Formm turns your phone into a movement lab. It sees how you actually move — and coaches the way a sports scientist would.</div>'
++'<div class="btn" style="margin-top:16px" onclick="go(\'signup\')">Get Started</div>'
++'<div style="text-align:center;font-size:12.5px;color:var(--teal-ink);font-weight:600;margin-top:11px" onclick="go(\'howitworks\')">See how it works</div>'
++'<div style="margin-top:32px"><div class="eyebrow">See how you actually move</div><div class="h1" style="margin-top:8px;font-size:23px">Every rep, measured</div>'
++'<div class="sub" style="margin-top:8px;font-size:13.5px">Point your camera and train. Formm reads your real joint angles, range, stability and symmetry — rep by rep. Just your camera — no extra kit needed.</div>'
++'<div style="margin-top:14px">'+[['Record','Prop your phone and go — just your camera'],['Measure','Real biomechanics from your movement'],['Coach','A Formm Score and what to work on']].map((x,i)=>'<div class="card" style="margin-bottom:9px"><div class="row"><div style="width:34px;height:34px;border-radius:11px;background:var(--teal);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div><div><div style="font-size:13.5px;font-weight:700">'+x[0]+'</div><div class="lbl" style="font-size:12px;margin-top:1px">'+x[1]+'</div></div></div></div>').join('')+'</div>'
++'<div style="margin-top:28px"><div class="read" style="height:200px"><div class="ph" style="background-image:url(\''+IMG.age+'\')"></div><div class="ov"></div><div class="txt"><div class="k">The Formm difference</div><div class="big" style="font-size:22px;line-height:1.14;margin-top:6px">Measured against your normal — not the average person\u2019s.</div></div></div>'
++'<div class="sub" style="margin-top:12px;font-size:13.5px">Your progress is judged against your own 30-day baseline. So you see real change in <i>your</i> body, not a comparison to strangers.</div></div>'
++'<div style="margin-top:28px"><div class="eyebrow">Honest by design</div><div class="h1" style="margin-top:8px;font-size:23px">It tells you what\u2019s worth knowing</div>'
++'<div class="sub" style="margin-top:8px;font-size:13.5px">No vanity metrics, no fake urgency. Formm never shows a number the data can\u2019t support — and speaks up only when there\u2019s something worth acting on.</div>'
++'<div class="card" style="margin-top:14px;background:var(--ink);color:#fff"><div class="row"><div class="logo" style="width:30px;height:30px;flex-shrink:0">'+LOGO+'</div><div style="font-size:13px;line-height:1.5;color:rgba(255,255,255,0.85)">"Your squat depth held all week. Left knee stayed inside its normal range — you\u2019re building safely."</div></div></div></div>'
++'<div style="margin-top:28px"><div class="eyebrow">Grounded in science</div><div class="h1" style="margin-top:8px;font-size:23px">Built on sports science</div>'
++'<div class="sub" style="margin-top:8px;font-size:13.5px">Our metrics and thresholds come from published research, reviewed by our sports-science team — from Formm Score to Movement Age to injury-risk load.</div>'
++'<div class="row" style="gap:9px;margin-top:14px">'+[['Movement','quality, measured'],['ACWR','injury-risk load'],['Movement Age','how you\u2019re ageing']].map(x=>'<div class="card" style="flex:1;padding:13px;text-align:center"><div style="font-size:12.5px;font-weight:800;color:var(--teal-ink)">'+x[0]+'</div><div class="lbl" style="font-size:10px;margin-top:3px;line-height:1.3">'+x[1]+'</div></div>').join('')+'</div></div>'
++'<div style="margin-top:32px;text-align:center"><div class="h1" style="font-size:24px">Move well, measured.</div><div class="sub" style="margin-top:8px;font-size:13.5px">Set up in a minute, then your first movement check.</div>'
++'<div class="btn" style="margin-top:16px" onclick="go(\'signup\')">Get Started</div>'
++'<div style="font-size:11.5px;color:var(--ink3);margin-top:10px">MVMT Veracity · Movement Intelligence</div></div>'
++'<div style="height:12px"></div></div>';
+
+SCR.signup=sbar+'<div class="pad" style="padding-top:0">'
++'<div style="padding:12px 0 0">'+brand()+'</div>'
++'<div class="h1" style="margin-top:10px;font-size:19px;line-height:1.3;white-space:nowrap;text-align:center">We Track How You Move.<br>You Understand Why it Matters.</div>'
+/* the WHY — plain prose, no card, no extra colours */
++'<div class="sub" style="margin-top:12px;font-size:14px;line-height:1.6">Bad form doesn\'t announce itself — it shows up later, as pain. Formm catches it before it catches you.</div>'
++'<div class="eb" style="margin:22px 0 8px">How it works</div>'
++'<div class="card" style="padding:14px 15px">'+[['1','Record','Check your form in real time, on your phone camera'],['2','Measure','We read your range of motion, stability and symmetry'],['3','Understand','Your Movement Age — and what to work on next']].map((x,idx)=>'<div class="row" style="align-items:flex-start;padding:'+(idx>0?'11px 0 0':'0')+';'+(idx>0?'border-top:1px solid var(--line2);margin-top:11px':'')+'"><div style="width:28px;height:28px;border-radius:9px;background:var(--teal);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+x[0]+'</div><div><div style="font-size:13.5px;font-weight:700">'+x[1]+'</div><div class="lbl" style="font-size:12px;margin-top:1px;line-height:1.4">'+x[2]+'</div></div></div>').join('')+'</div>'
++'<div class="eb" style="margin:20px 0 8px">Create your account</div>'
++'<div class="field" onclick="soon(\'Name\')">Name<span>Your name</span></div>'
++'<div class="field" onclick="soon(\'Email\')">Email<span>you@email.com</span></div>'
++'<div class="field" onclick="soon(\'Password\')">Password<span>Choose a password</span></div>'
++'<div class="btn" style="margin-top:16px" onclick="go(\'onboard\')">Create Account</div>'
++'<div style="text-align:center;font-size:12px;color:var(--ink3);margin-top:12px" onclick="go(\'onboard\')">Continue with Apple · Google</div>'
++'<div style="text-align:center;font-size:12px;color:var(--ink2);margin-top:14px">Already have an account? <span style="color:var(--teal-ink);font-weight:600" onclick="home()">Sign in</span></div>'
++'<div style="height:10px"></div></div>';
+
+/* ===== ONBOARDING PROFILE (after signup) ===== */
+SCR.onboard=sbar+'<div class="pad" style="padding-top:0">'
++'<div class="between" style="padding:10px 0"><div class="logo" style="width:38px;height:38px">'+LOGO+'</div><span class="lbl tap" style="font-weight:600" onclick="go(\'guide_intro\')">Skip</span></div>'
++'<div class="eyebrow" style="margin-top:6px">Quick setup</div><div class="h1" style="margin-top:6px;font-size:24px">Tell us the essentials</div><div class="sub" style="margin-top:5px">This personalises your scores. Takes 30 seconds.</div>'
++'<div class="field" onclick="soon(\'Age\')">Age<span>28</span></div>'
++'<div class="field" onclick="soon(\'Weight & height\')">Weight &amp; height<span>82 kg · 180 cm</span></div>'
++'<div class="eb" style="margin:16px 0 8px">Your main goal</div>'
++'<div class="row" style="gap:6px;flex-wrap:wrap">'+['Move better','Build muscle','Lose fat','Get stronger','Sport'].map((g,i)=>'<span class="pill '+(i===0?'oline':'plain')+'" onclick="selOne(this)">'+g+'</span>').join('')+'</div>'
++'<div class="eb" style="margin:16px 0 8px">Your sport</div>'
++'<div class="row" style="gap:6px;flex-wrap:wrap">'+['Lifting','Running','General fitness'].map((s,i)=>'<span class="pill '+(i===0?'oline':'plain')+'" onclick="selOne(this)">'+s+'</span>').join('')+'</div>'
++'<div class="grow"></div><div class="btn" onclick="go(\'guide_intro\')">Continue</div></div>';
+
+/* ===== GUIDED FIRST ANALYSIS ===== */
+SCR.guide_intro=sbar+'<div class="pad" style="padding-top:0">'
++'<div style="padding:10px 0"></div>'
++'<div class="read" style="height:260px"><div class="ph" style="background-image:url(\''+IMG.squat+'\')"></div><div class="ov"></div><div class="txt"><span class="pill teal" style="align-self:flex-start">Your first check</span><div class="big" style="font-size:24px;line-height:1.12;margin-top:8px">Let\u2019s do your first movement check.</div></div></div>'
++'<div class="sub" style="margin-top:16px;font-size:14px">One set of squats. The camera watches you move and scores your form — this is the heart of Formm. It takes two minutes.</div>'
++'<div class="card" style="margin-top:14px"><div class="eb" style="margin-bottom:8px">Before you start</div>'
++[['Prop your phone against something stable','Stand 6–8 feet back, full body in frame','Side-on, good light']].map(x=>'<div class="row" style="padding:6px 0"><span class="dot" style="background:var(--teal);flex-shrink:0"></span><span style="font-size:12.5px">'+x[0]+'</span></div>').join('')+'</div>'
++'<div class="grow"></div><div class="btn" onclick="go(\'guide_live\')">I\u2019m ready</div>'
++'<div class="btn g" style="margin-top:9px" onclick="go(\'home\')">Do this later</div></div>';
+
+SCR.guide_live='<div class="live">'
++'<div class="nav" style="padding-top:14px"><div class="l"><span class="pill" style="background:rgba(255,255,255,0.1);color:#fff" onclick="go(\'first_result\')">◀ Finish</span></div><span class="pill" style="background:rgba(18,199,174,0.25);color:#4fe6c4">First check · Squats</span></div>'
++'<div style="text-align:center;margin-top:10px"><div style="font-size:54px;font-weight:800;letter-spacing:-0.04em;line-height:1;color:#fff">3</div><div style="font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5)">reps</div></div>'
++'<div style="flex:1;position:relative"><svg viewBox="0 0 200 250" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:190px;height:240px">'
++'<line x1="100" y1="36" x2="100" y2="112" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="56" x2="68" y2="90" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="68" y1="90" x2="74" y2="124" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="56" x2="132" y2="90" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="132" y1="90" x2="126" y2="124" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="112" x2="76" y2="166" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="76" y1="166" x2="82" y2="216" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="100" y1="112" x2="124" y2="166" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><line x1="124" y1="166" x2="118" y2="216" stroke="#12E0C0" stroke-width="4" stroke-linecap="round"/><circle cx="100" cy="30" r="12" stroke="#12E0C0" stroke-width="4" fill="none"/></svg></div>'
++'<div style="text-align:center;padding:16px"><span class="pill" style="background:rgba(18,199,174,0.2);color:#4fe6c4;padding:8px 14px;font-size:12px" onclick="go(\'first_result\')">Looking good — keep going</span></div></div>';
+
+SCR.first_result=sbar+'<div class="pad">'
++'<div style="text-align:center;padding:8px 0"><span class="pill teal" style="display:inline-flex">Your first Formm Score</span></div>'
++'<div class="card" style="text-align:center;background:var(--teal-soft);border-color:rgba(18,199,174,0.2);margin-top:10px"><div class="big" style="color:var(--teal-ink);font-size:52px">62</div><div class="sub" style="margin-top:4px">Back Squat · 3 reps</div></div>'
++'<div class="card" style="margin-top:12px;background:var(--ink);color:#fff"><div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700">This is your starting point</div><div style="font-size:14px;line-height:1.55;margin-top:8px;color:rgba(255,255,255,0.85)">There\u2019s no "good" or "bad" score on day one. <b style="color:#fff">62 is simply your baseline.</b> From here, Formm measures everything against <i>your own</i> normal — so you\u2019ll see your real progress, not a comparison to strangers.</div></div>'
++'<div class="eb" style="margin:16px 0 8px">What we noticed</div>'
++'<div class="card"><div class="lbl" style="font-size:13px;line-height:1.5">Good depth on all three reps. Your left knee drifted slightly inward — something to keep an eye on as you build.</div></div>'
++'<div class="grow"></div><div class="btn" style="margin-top:14px" onclick="go(\'home\')">See my dashboard</div></div>';
+
+/* ===== DAY-ONE DASHBOARD (empty / unlock states) ===== */
+SCR.home_new=sbar+'<div class="pad">'
++'<div class="between" style="margin-top:2px"><div class="row"><div class="logo">'+LOGO+'</div><div><div class="eyebrow">Movement Intelligence</div><div class="h1" style="margin-top:3px">Hi, Samrat</div></div></div><span class="pill plain tap" onclick="go(\'home\')" style="padding:6px 11px">Day 30 ▸</span></div>'
++'<div class="card" style="margin-top:14px;background:var(--teal-soft);border-color:rgba(18,199,174,0.25)"><div class="row"><div style="width:38px;height:38px;border-radius:12px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">1</div><div><div style="font-size:14px;font-weight:700;color:var(--teal-ink)">Your first check is done</div><div class="lbl" style="font-size:12px;margin-top:1px">Score 62 · your baseline is set</div></div></div></div>'
+/* unlock progress cards */
++'<div class="eb" style="margin:18px 0 8px">Unlocking your intelligence</div>'
++[['Movement Age','Log 5 analyses to calibrate','1 / 5',20],['ACWR (injury-risk)','6 sessions across ~4 weeks','1 / 6',16],['Your baselines','Building from every rep','Started',10]].map(x=>'<div class="card" style="padding:14px 15px;margin-bottom:9px"><div class="between"><div style="font-size:13.5px;font-weight:700">'+x[0]+'</div><span class="pill plain" style="font-size:9px">'+x[2]+'</span></div><div class="lbl" style="font-size:11.5px;margin-top:3px">'+x[1]+'</div><div style="height:6px;background:var(--sand);border-radius:20px;overflow:hidden;margin-top:9px"><div style="width:'+x[3]+'%;height:100%;background:var(--teal);border-radius:20px"></div></div></div>').join('')
++'<div class="btn" style="margin-top:6px" onclick="go(\'session\')">Do Another Analysis</div>'
+/* first week tracker */
++'<div class="eb" style="margin:18px 0 8px">Your first week</div>'
++'<div class="card"><div class="row" style="gap:6px;justify-content:space-between">'+['M','T','W','T','F','S','S'].map((d,i)=>'<div style="text-align:center;flex:1"><div style="width:100%;aspect-ratio:1;border-radius:10px;background:'+(i===0?'var(--teal)':'var(--sand)')+';display:flex;align-items:center;justify-content:center;color:'+(i===0?'#fff':'var(--ink3)')+';font-size:11px;font-weight:700">'+(i===0?'✓':d)+'</div></div>').join('')+'</div><div class="lbl" style="font-size:11.5px;margin-top:10px;text-align:center">1 of 6 sessions · keep going to unlock ACWR</div></div>'
++'<div class="card tap between" style="margin-top:11px;background:var(--teal-soft);border-color:rgba(18,199,174,0.2)" onclick="go(\'howitworks\')"><div><div style="font-size:13px;font-weight:700;color:var(--teal-ink)">New to Formm?</div><div class="lbl" style="font-size:11.5px;margin-top:1px">See how it works</div></div><span style="color:var(--teal-ink);font-weight:700">→</span></div>'
++'<div style="height:8px"></div></div>'+foot('home');
+
+/* RENDER */
+function selOne(el){[...el.parentElement.children].forEach(c=>{c.classList.remove('oline','on');c.classList.add('plain');});el.classList.remove('plain');el.classList.add('on');}
+function selMulti(el){el.classList.toggle('on');el.classList.toggle('plain');}
+function setRPE(n){const bar=document.getElementById('rpeBar');[...bar.children].forEach((c,i)=>c.style.background=i<n?'var(--teal)':'var(--sand)');const lvl=n<=2?'Easy':n<=4?'Moderate':n<=7?'Hard':'Maximal';document.getElementById('rpeVal').textContent=n+' / 10 · '+lvl;document.getElementById('auOut').textContent=n+' × 1 = '+n+' AU';}
+const vp=document.getElementById('vp');
+Object.entries(SCR).forEach(([id,html])=>{const d=document.createElement('div');d.className='scr';d.id=id;d.innerHTML=html;vp.appendChild(d);});
+go('signup',false);
+
+</script>
+</body>
+</html>
