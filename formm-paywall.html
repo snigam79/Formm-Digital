@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Paywall</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#F4F1EA;--panel:#FFFFFF;--ink:#141310;--ink2:#6B675E;--ink3:#A8A399;--line:rgba(20,19,16,0.08);--line2:rgba(20,19,16,0.05);--teal:#12C7AE;--teal-ink:#0AA189;--teal-deep:#0B7D6B;--teal-soft:#DEF6F1;--sand:#EAE3D6;--sans:'Inter',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#DED8CD;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px 50px}
+.hd{text-align:center;margin-bottom:14px}
+.hd h1{font-size:19px;font-weight:800;letter-spacing:-0.02em}.hd h1 span{color:var(--teal-ink)}
+.hd p{font-size:12px;color:var(--ink2);margin-top:3px}
+.device{width:392px;max-width:100%;height:800px;background:#000;border:9px solid #0b0b0b;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 36px 84px -26px rgba(0,0,0,0.5)}
+.vp{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.scr{display:none;flex-direction:column;height:100%}
+.scr.active{display:flex}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px 2px;font-size:11.5px;color:var(--ink);font-weight:600;flex-shrink:0}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:9px 18px 4px;flex-shrink:0}
+.icb{width:38px;height:38px;border-radius:13px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lbl{font-size:12px;color:var(--ink2)}.lbl.tap{font-weight:600;cursor:pointer}
+.pad{padding:6px 18px 22px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.pad::-webkit-scrollbar{width:0}
+.eb{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:700;margin-bottom:9px}
+.read{border-radius:20px;overflow:hidden;position:relative;height:140px}
+.read .ph{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--teal-deep)}
+.read .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,125,107,0.15) 30%,rgba(6,60,52,0.9))}
+.read .txt{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:#fff;display:flex;flex-direction:column}
+.pill{font-size:10px;font-weight:600;padding:5px 11px;border-radius:20px;display:inline-flex}
+.pill.teal{background:var(--teal);color:#fff}
+.pill.plain{background:var(--sand);color:var(--ink2)}
+.big{font-size:19px;font-weight:800;letter-spacing:-0.02em;margin-top:8px;line-height:1.14}
+.seg{display:flex;background:var(--sand);border-radius:13px;padding:3px}
+.seg>div{flex:1;text-align:center;padding:9px;font-size:12.5px;font-weight:600;border-radius:10px;cursor:pointer;color:var(--ink2)}
+.seg>div.on{background:var(--teal);color:#fff;box-shadow:0 2px 6px rgba(18,199,174,0.3)}
+.btn{background:linear-gradient(145deg,var(--teal),var(--teal-ink));color:#fff;font-weight:700;font-size:15px;text-align:center;padding:16px;border-radius:15px;cursor:pointer;letter-spacing:-0.01em}
+.btn:active{transform:scale(0.98)}
+.btn.g{background:transparent;border:1.5px solid var(--teal);color:var(--teal-ink);font-weight:600}
+.note{background:var(--teal-soft);border-radius:14px;padding:12px 14px;font-size:12px;color:var(--teal-deep);line-height:1.5}
+.note b{color:var(--teal-ink);font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 15px;box-shadow:0 3px 16px -9px rgba(0,0,0,0.06)}
+.between{display:flex;align-items:center;justify-content:space-between}
+.grow{flex:1}
+.i{stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.toast{position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;padding:12px 20px;border-radius:24px;opacity:0;pointer-events:none;transition:.25s;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="hd"><h1>Formm — <span>Paywall</span></h1><p>Standalone · tier selection · monthly/annual · daily pricing</p></div>
+<div class="device"><div class="vp" id="vp"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const R='\u20b9';
+const IMG_SQUAT="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=75&w=800&auto=format&fit=crop";
+const IC_BACK='<svg class="i" width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>';
+const T=(m)=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1700);};
+const sbar='<div class="sbar"><span>9:41</span><span>◍ ▚ ▮</span></div>';
+
+const TIERS=[
+  {id:'starter',name:'Starter',forr:'Committed gym-goer',mo:299,scans:'5 scans / day',hi:false},
+  {id:'pro',name:'Pro',forr:'Serious lifter',mo:499,scans:'Unlimited scans',hi:true},
+  {id:'elite',name:'Elite',forr:'Athlete',mo:899,scans:'Unlimited + sport-specific',hi:false}
+];
+const ANNUAL_OFF=0.20;
+let TIER='pro',CYCLE='annual';
+const annualYr=(mo)=>Math.round(mo*12*(1-ANNUAL_OFF));
+const perDay=(mo,cycle)=>{const yearly=cycle==='annual'?annualYr(mo):mo*12;return Math.round(yearly/365);};
+
+function render(){
+  document.getElementById('vp').innerHTML=
+  sbar
+  +'<div class="nav"><div class="icb" onclick="T(\'Closed — back to app\')">'+IC_BACK+'</div><span class="lbl tap" onclick="T(\'Maybe later — continue on Free\')">Maybe later</span></div>'
+  +'<div class="pad">'
+  +'<div class="read"><div class="ph" style="background-image:url(\''+IMG_SQUAT+'\')"></div><div class="ov"></div><div class="txt"><span class="pill teal" style="align-self:flex-start">Formm Premium</span><div class="big">Unlock your full movement intelligence</div></div></div>'
+  +'<div class="seg" style="margin-top:16px"><div id="cyM" onclick="setCycle(\'monthly\')">Monthly</div><div id="cyA" onclick="setCycle(\'annual\')">Annual · save 20%</div></div>'
+  +'<div id="tierbox" style="margin-top:14px"></div>'
+  +'<div class="btn" id="payBtn" onclick="T(\'Subscribed to Formm \'+TIERS.find(t=>t.id===TIER).name)">Start Pro</div>'
+  +'<div style="text-align:center;font-size:10.5px;color:var(--ink3);margin-top:10px;line-height:1.5">Cancel anytime · secure payment · restore purchase</div>'
+  +'<div class="note" style="margin-top:14px">Staying on <b>Free</b>? You keep 2 scans a day, your Formm Score, Movement Age and history — just not unlimited scans or detailed analysis.</div>'
+  +'<div class="card between" style="margin-top:10px;cursor:pointer" onclick="T(\'Opens Trainers & Gyms\')"><div><div style="font-size:13px;font-weight:700">For trainers &amp; gyms</div><div class="lbl" style="font-size:11px;margin-top:1px">Coach &amp; Institution plans</div></div><span style="color:var(--teal-ink);font-weight:700">→</span></div>'
+  +'<div style="height:8px"></div></div>';
+  setCycle(CYCLE);
+}
+function setCycle(cy){CYCLE=cy;const a=document.getElementById('cyA'),m=document.getElementById('cyM');if(a)a.className=cy==='annual'?'on':'';if(m)m.className=cy==='monthly'?'on':'';renderTiers();}
+function renderTiers(){const box=document.getElementById('tierbox');if(!box)return;
+  box.innerHTML=TIERS.map(function(t){
+    var sel=TIER===t.id;
+    var day=perDay(t.mo,CYCLE);
+    var sub=CYCLE==='annual'
+      ? R+annualYr(t.mo).toLocaleString('en-IN')+'/yr · '+R+Math.round(annualYr(t.mo)/12)+'/mo'
+      : R+t.mo+'/mo · billed monthly';
+    return '<div onclick="TIER=\''+t.id+'\';renderTiers()" style="cursor:pointer;position:relative;border:1.5px solid '+(sel?'var(--teal)':'var(--line)')+';border-radius:14px;padding:14px 15px;margin-bottom:9px;background:'+(sel?'var(--teal-soft)':'var(--panel)')+'">'
+      +(t.hi?'<span class="pill teal" style="position:absolute;top:-9px;right:14px;font-size:8px">Most popular</span>':'')
+      +'<div class="between"><div><div style="font-size:14px;font-weight:800">'+t.name+'</div><div class="lbl" style="font-size:11px;margin-top:1px">'+t.forr+' · '+t.scans+'</div></div>'
+      +'<div style="text-align:right"><div><span style="font-size:22px;font-weight:800;color:var(--teal-ink);letter-spacing:-0.02em">'+R+day+'</span><span class="lbl" style="font-size:11px">/day</span></div><div class="lbl" style="font-size:10px;margin-top:2px">'+sub+'</div></div></div></div>';
+  }).join('');
+  var b=document.getElementById('payBtn');if(b)b.textContent='Start '+TIERS.find(function(t){return t.id===TIER;}).name;
+}
+render();
+</script>
+</body>
+</html>
