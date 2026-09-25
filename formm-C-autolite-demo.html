@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — C + Auto-Lite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body{background:#CFC9BD;font-family:'Inter',sans-serif;margin:0;padding:24px 12px 60px;display:flex;flex-direction:column;align-items:center}
+h1{font-size:20px;font-weight:800;color:#141310;text-align:center}h1 span{color:#0A8F7C}
+.intro{font-size:12.5px;color:#5f5b53;max-width:620px;text-align:center;line-height:1.5;margin:6px 0 0}
+.tag{font-size:10px;font-weight:700;color:#8a5a14;background:#FCE9D6;border-radius:20px;padding:4px 11px;margin-top:9px}
+.row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+.col{width:300px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.lab{font-size:13px;font-weight:800;color:#0A8F7C}
+.frame{width:300px;height:430px;border-radius:22px;overflow:hidden;position:relative;box-shadow:0 10px 40px -14px rgba(0,0,0,0.4)}
+.feed{position:absolute;inset:0;background:linear-gradient(180deg,#c9bfae,#b6a892 38%,#8f7d63 60%,#6b5b45)}
+.feed::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 40% at 70% 20%,rgba(255,255,255,0.22),transparent 60%),radial-gradient(30% 25% at 20% 80%,rgba(0,0,0,0.25),transparent)}
+.body{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:150px;height:330px;background:linear-gradient(180deg,rgba(70,60,52,0.5),rgba(50,42,36,0.55));border-radius:60px 60px 40px 40px/80px 80px 40px 40px;filter:blur(3px)}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.pros{font-size:11.5px;color:#3a382f;max-width:290px;line-height:1.5}.pros b{color:#141310}
+.foot{font-size:12px;color:#5f5b53;max-width:600px;text-align:center;margin-top:24px;line-height:1.55}
+</style></head>
+<body>
+<h1>Formm — <span>C style + Auto-Lite</span></h1>
+<p class="intro">Full C (capable phones) vs Auto-Lite (weaker phones). Same pose, same teal/amber/grey meaning. Lite drops the per-bone gradients and glow \u2014 the parts that cost frames \u2014 but keeps the look.</p>
+<div class="tag">Both showing a knee-fault (amber) + one low-confidence ankle (grey)</div>
+
+<div class="row">
+<div class="col"><div class="lab">Full C \u00b7 capable phones</div>
+  <div class="frame"><div class="feed"></div><div class="body"></div><canvas id="cF" width="300" height="430"></canvas></div>
+  <div class="pros"><b>Gradient bones, halo joints, glow, taper.</b> The premium look you picked. Heaviest to draw.</div></div>
+<div class="col"><div class="lab">Auto-Lite \u00b7 weaker phones</div>
+  <div class="frame"><div class="feed"></div><div class="body"></div><canvas id="cL" width="300" height="430"></canvas></div>
+  <div class="pros"><b>Flat colour, simple bright joints, no glow.</b> Auto-switches in when frames drop. ~90% of the look, a fraction of the cost.</div></div>
+</div>
+<p class="foot">The app picks a tier at startup from device signals, then <b>watches the frame rate live</b> \u2014 if Full can't hold ~30fps, it drops to Lite once and stays there (no flicker). The meaning system (amber = fault, grey = can't read) is identical in both, so honesty never scales down \u2014 only decoration does.</p>
+
+<script>
+const P={teal:{br:"#3FF3D6",base:"#12C7AE",dk:"#0A8F7C",core:"#EAFFFB"},amber:{br:"#FFC468",base:"#F0A63D",dk:"#D98A2B",core:"#FFF3DE"},grey:"#9BA0A0"};
+const cx=150;
+const pts={sL:{x:cx-40,y:150},sR:{x:cx+40,y:150},eL:{x:cx-64,y:120},eR:{x:cx+64,y:120},wL:{x:cx-58,y:88},wR:{x:cx+58,y:88},hL:{x:cx-26,y:250},hR:{x:cx+26,y:250},kL:{x:cx-30,y:330},kR:{x:cx+30,y:330},aL:{x:cx-30,y:404},aR:{x:cx+30,y:404}};
+const bones=[['sL','sR','t'],['sL','eL','t'],['sR','eR','t'],['eL','wL','l'],['eR','wR','l'],['sL','hL','t'],['sR','hR','t'],['hL','hR','t'],['hL','kL','t'],['hR','kR','t'],['kL','aL','l'],['kR','aR','l']];
+const joints=['sL','sR','eL','eR','wL','wR','hL','hR','kL','kR','aL','aR'];
+const tips=new Set(['wL','wR','aL','aR']);
+const state={}; joints.forEach(j=>state[j]='good'); state.kL='fault'; state.kR='fault'; state.aL='low';
+const rank={good:0,fault:1,low:2}; const bs=(a,b)=>rank[a]>=rank[b]?a:b;
+function draw(ctx,lite){
+  ctx.clearRect(0,0,300,430);ctx.save();ctx.lineCap="round";ctx.lineJoin="round";
+  for(const [a,b,w] of bones){const st=bs(state[a],state[b]);const pa=pts[a],pb=pts[b];const bw=w==='t'?7:4.5;
+    if(st==='low'){ctx.setLineDash([5,8]);ctx.globalAlpha=0.65;ctx.strokeStyle=P.grey;ctx.shadowBlur=0;ctx.lineWidth=bw*0.8;}
+    else{const pal=st==='fault'?P.amber:P.teal;ctx.setLineDash([]);ctx.globalAlpha=1;
+      if(lite){ctx.strokeStyle=pal.base;ctx.shadowBlur=0;}
+      else{const g=ctx.createLinearGradient(pa.x,pa.y,pb.x,pb.y);g.addColorStop(0,pal.br);g.addColorStop(1,pal.dk);ctx.strokeStyle=g;ctx.shadowColor=pal.base;ctx.shadowBlur=8;}
+      ctx.lineWidth=bw;}
+    ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();}
+  ctx.setLineDash([]);
+  for(const j of joints){const st=state[j];const p=pts[j];const r=tips.has(j)?6:8;
+    if(st==='low'){ctx.globalAlpha=0.7;ctx.strokeStyle=P.grey;ctx.lineWidth=2;ctx.setLineDash([3,4]);ctx.shadowBlur=0;ctx.beginPath();ctx.arc(p.x,p.y,r*0.75,0,7);ctx.stroke();ctx.setLineDash([]);continue;}
+    const pal=st==='fault'?P.amber:P.teal;
+    if(st==='fault'){ctx.globalAlpha=0.5;ctx.strokeStyle=pal.base;ctx.lineWidth=1.5;ctx.shadowBlur=0;ctx.beginPath();ctx.arc(p.x,p.y,r+3,0,7);ctx.stroke();}
+    ctx.globalAlpha=1;
+    if(lite){ctx.fillStyle=pal.br;ctx.shadowBlur=0;ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.fill();ctx.fillStyle=pal.core;ctx.beginPath();ctx.arc(p.x-r*0.15,p.y-r*0.15,r*0.4,0,7);ctx.fill();}
+    else{const jg=ctx.createRadialGradient(p.x-r*0.2,p.y-r*0.2,1,p.x,p.y,r);jg.addColorStop(0,pal.core);jg.addColorStop(0.5,pal.br);jg.addColorStop(1,pal.dk);ctx.fillStyle=jg;ctx.shadowColor=pal.base;ctx.shadowBlur=4;ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.fill();}}
+  ctx.restore();
+}
+draw(document.getElementById('cF').getContext('2d'),false);
+draw(document.getElementById('cL').getContext('2d'),true);
+</script>
+</body></html>
