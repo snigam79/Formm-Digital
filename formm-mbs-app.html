@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formm — Mind/Body/Soul</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#F4F1EA;--panel:#FFF;--ink:#141310;--ink2:#6B675E;--ink3:#A8A399;--line:rgba(20,19,16,0.08);--line2:rgba(20,19,16,0.05);--teal:#12C7AE;--teal-ink:#0AA189;--teal-deep:#0B7D6B;--teal-soft:#DEF6F1;--amber:#C08A2E;--amber-soft:#F4EBD8;--sand:#EAE3D6;--sans:'Inter',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#DED8CD;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 12px 50px}
+.hd{text-align:center;margin-bottom:14px}
+.hd h1{font-size:19px;font-weight:800;letter-spacing:-0.02em}.hd h1 span{color:var(--teal-ink)}
+.hd p{font-size:12px;color:var(--ink2);margin-top:3px}
+.device{width:392px;max-width:100%;height:812px;background:#000;border:9px solid #0b0b0b;border-radius:48px;overflow:hidden;position:relative;box-shadow:0 36px 84px -26px rgba(0,0,0,0.5)}
+.vp{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.scr{display:none;flex-direction:column;height:100%}
+.scr.active{display:flex;animation:f .26s cubic-bezier(.2,.7,.3,1)}
+@keyframes f{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px 2px;font-size:11.5px;color:var(--ink);font-weight:600;flex-shrink:0}
+.nav{display:flex;align-items:center;gap:12px;padding:9px 18px 4px;flex-shrink:0}
+.icb{width:38px;height:38px;border-radius:13px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.icb:active{transform:scale(0.93)}
+.ttl{font-size:16px;font-weight:700;letter-spacing:-0.015em}
+.pad{padding:6px 18px 22px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.pad::-webkit-scrollbar{width:0}
+.eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+.h1{font-size:25px;font-weight:800;letter-spacing:-0.03em;line-height:1.08}
+.h2{font-size:18px;font-weight:700;letter-spacing:-0.02em}
+.sub{color:var(--ink2);font-size:13.5px;line-height:1.55}
+.lbl{font-size:12px;color:var(--ink2)}
+.eb{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:700;margin-bottom:9px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 15px;box-shadow:0 3px 16px -9px rgba(0,0,0,0.06)}
+.card+.card{margin-top:10px}
+.tap{cursor:pointer;transition:transform .11s,box-shadow .16s}
+.tap:active{transform:scale(0.985)}.tap:hover{box-shadow:0 10px 26px -12px rgba(0,0,0,0.15)}
+.row{display:flex;align-items:center;gap:11px}
+.between{display:flex;align-items:center;justify-content:space-between}
+.grow{flex:1}
+.pill{font-size:9.5px;font-weight:700;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;letter-spacing:.02em}
+.p-article{background:var(--teal-soft);color:var(--teal-ink)}
+.p-session{background:#D4EEEB;color:#0B6E68}
+.p-tool{background:var(--amber-soft);color:var(--amber)}
+.p-locked{background:var(--sand);color:var(--ink3)}
+.hero{border-radius:20px;overflow:hidden;position:relative;height:150px}
+.hero .ph{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--teal-deep)}
+.hero .ov{position:absolute;inset:0}
+.hero .txt{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;color:#fff}
+.hero .k{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.9);font-weight:700}
+.hero .t{font-size:23px;font-weight:800;letter-spacing:-0.02em;margin-top:5px;line-height:1.1}
+.thumb{width:52px;height:52px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:12px}
+.readbar{height:4px;background:var(--sand);border-radius:20px;overflow:hidden;margin-top:10px}
+.readbar>div{height:100%;background:var(--teal);border-radius:20px}
+.btn{background:linear-gradient(145deg,var(--teal),var(--teal-ink));color:#fff;font-weight:700;font-size:15px;text-align:center;padding:15px;border-radius:14px;cursor:pointer}
+.btn:active{transform:scale(0.98)}
+.btn.g{background:transparent;border:1.5px solid var(--teal);color:var(--teal-ink);font-weight:600}
+.artbody p{font-size:14px;line-height:1.62;color:#2a2822;margin-top:12px}
+.artbody h3{font-size:16px;font-weight:800;margin-top:20px;letter-spacing:-0.01em}
+.artbody .lede{font-size:15px;line-height:1.6;color:var(--ink2);margin-top:8px}
+.science{background:var(--panel2,#FBF9F4);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:20px}
+.science .sh{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-ink);font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.science .ref{display:block;font-size:12px;color:var(--ink2);line-height:1.45;padding:8px 0;border-top:1px solid var(--line2);text-decoration:none}
+.science .ref:first-of-type{border-top:none;padding-top:0}
+.science .ref .rt{color:var(--ink);font-weight:600}
+.science .ref .rl{color:#1a5aa8;font-size:11px;word-break:break-all}
+.science .disc{font-size:10.5px;color:var(--ink3);margin-top:10px;line-height:1.4;font-style:italic}
+.callout{background:var(--teal-soft);border-radius:12px;padding:13px 15px;font-size:12.5px;color:var(--teal-deep);line-height:1.55;margin-top:16px}
+.callout b{color:var(--teal-ink)}
+.foot{display:flex;background:var(--panel);border-top:1px solid var(--line);flex-shrink:0}
+.foot div{flex:1;text-align:center;padding:9px 0 12px;font-size:8.5px;color:var(--ink3);font-weight:600;cursor:pointer}
+.foot div.on{color:var(--teal-ink)}
+.foot .fi{display:block;margin:0 auto 3px;opacity:.5}.foot div.on .fi{opacity:1}
+.i{stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none}
+
+/* split content cards — visual top, text bottom */
+.ccard{border-radius:16px;overflow:hidden;cursor:pointer;background:var(--panel);border:1px solid var(--line);box-shadow:0 3px 16px -9px rgba(0,0,0,0.06);margin-bottom:12px;transition:transform .11s,box-shadow .16s}
+.ccard:active{transform:scale(0.985)}.ccard:hover{box-shadow:0 10px 26px -12px rgba(0,0,0,0.15)}
+.ccard .top{height:74px;position:relative;overflow:hidden}
+.ccard .top .ph{position:absolute;inset:0;background-size:cover;background-position:center}
+.ccard .top .ov{position:absolute;inset:0}
+.ccard .top .badge{position:absolute;left:12px;top:11px;z-index:2}
+.ccard .bot{padding:12px 15px 14px}
+.ccard .bt{font-size:14.5px;font-weight:700;letter-spacing:-0.01em}
+.ccard .bd{font-size:12px;color:var(--ink2);margin-top:3px;line-height:1.4}
+.ccard .meta{display:flex;align-items:center;gap:6px;margin-top:9px;color:var(--ink3);font-size:11px;font-weight:600}
+.seg{display:flex;background:var(--sand);border-radius:12px;padding:3px;margin-bottom:6px}
+.seg>div{flex:1;text-align:center;padding:8px;font-size:12.5px;font-weight:600;border-radius:9px;cursor:pointer;color:var(--ink2)}
+.seg>div.on{background:var(--panel);color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.timer{width:150px;height:150px;border-radius:50%;border:3px solid var(--teal-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:20px auto}
+.timer .big{font-size:40px;font-weight:800;color:var(--teal-ink);letter-spacing:-0.03em}
+.toast{position:fixed;left:50%;bottom:38px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;padding:12px 20px;border-radius:24px;opacity:0;pointer-events:none;transition:.25s;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+
+.technique{background:var(--sand);border-radius:14px;padding:14px 15px;margin-top:20px}
+.technique .th{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink2);font-weight:800;margin-bottom:7px}
+.technique .td{font-size:12px;color:var(--ink2);line-height:1.5}
+/* guided follow-along flow */
+.gprog{height:5px;background:var(--sand);border-radius:20px;overflow:hidden}
+.gprog>div{height:100%;background:linear-gradient(90deg,#1AA5A0,#0B6E68);border-radius:20px;transition:width .3s}
+.gstepnum{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#1AA5A0,#0B6E68);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.gcheck{width:72px;height:72px;border-radius:50%;background:var(--teal-soft);color:var(--teal-ink);font-size:34px;font-weight:800;display:flex;align-items:center;justify-content:center}
+/* personalisation */
+.ichips{display:flex;flex-wrap:wrap;gap:9px}
+.ichip{font-size:13px;font-weight:600;padding:10px 15px;border-radius:22px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink2);cursor:pointer;transition:.12s}
+.ichip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.ichip:active{transform:scale(0.96)}
+.editchip{font-size:11px;font-weight:700;color:var(--teal-ink);background:var(--teal-soft);padding:7px 12px;border-radius:20px;cursor:pointer}
+.reccard{background:linear-gradient(160deg,var(--teal-soft),#fff);border:1px solid rgba(18,199,174,0.25);border-radius:16px;padding:15px 16px}
+.reccard .rk{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-ink);font-weight:800}
+.reccard .rl{font-size:13px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1.35}
+.reccard .rd{font-size:11.5px;color:var(--ink2);margin-top:6px;line-height:1.45}
+.map{max-width:392px;margin:14px auto 0;font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.6}
+</style></head>
+<body>
+<div class="hd"><h1>Formm — <span>Mind · Body · Soul</span></h1><p>Content mockup · fully clickable</p></div>
+<div class="device"><div class="vp" id="vp"></div></div>
+<div class="toast" id="toast"></div>
+<div class="map">Tap the section cards → topics → articles &amp; guided sessions. All navigable.</div>
+<script>
+const IMG={
+ mind:"https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=75&w=600&auto=format&fit=crop",
+ body:"https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=75&w=600&auto=format&fit=crop",
+ soul:"https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?q=75&w=600&auto=format&fit=crop",
+ squat:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=75&w=800&auto=format&fit=crop"
+};
+const IC={back:'<svg class="i" width="20" height="20" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',
+ house:'<svg class="i" width="19" height="19" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+ play:'<svg class="i" width="15" height="15" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M7 4l13 8-13 8z"/></svg>',
+ clock:'<svg class="i" width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};
+const T=(m)=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1600);};
+let hist=[],CUR=null;
+function go(id,push=true){const el=document.getElementById(id);if(!el){T('Coming soon');return;}document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));if(push&&CUR)hist.push(CUR);CUR=id;el.classList.add('active');document.getElementById(id).scrollTop=0;}
+function back(){const p=hist.pop();if(p){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));CUR=p;document.getElementById(p).classList.add('active');}else{home();}}
+function home(){hist=[];['gflow','gflow_done'].forEach(function(sid){var d=document.createElement('div');d.className='scr';d.id=sid;d.innerHTML='';vp.appendChild(d);});
+['mind','body','soul'].forEach(function(sec){buildPicker(sec);['pick_'+sec,'feed_'+sec].forEach(function(sid){if(!document.getElementById(sid)){var d=document.createElement('div');d.className='scr';d.id=sid;d.innerHTML=SCR[sid]||'';vp.appendChild(d);}});});
+go('hub',false);}
+const sbar='<div class="sbar"><span>9:41</span><span>◍ ▚ ▮</span></div>';
+function topbar(t){return '<div class="nav"><div class="icb" onclick="back()">'+IC.back+'</div><div class="ttl">'+t+'</div></div>';}
+function pill(type){const map={article:['p-article','Article'],session:['p-session','Session'],tool:['p-tool','Tool'],locked:['p-locked','Soon']};const[c,l]=map[type];return '<span class="pill '+c+'">'+(type==='session'?IC.play+' ':'')+l+'</span>';}
+const SCR={};
+const INTERESTS={"mind": [["focus", "Focus & Concentration"], ["confidence", "Confidence & Self-Belief"], ["consistency", "Consistency & Habits"], ["pressure", "Performing under Pressure"], ["motivation", "Motivation & Discipline"], ["resilience", "Handling Setbacks"]], "body": [["nutrition", "Nutrition & Fuelling"], ["protein", "Protein & Muscle"], ["fatloss", "Fat Loss"], ["recovery", "Recovery & Mobility"], ["fatigue", "Managing Fatigue"], ["injury", "Injury Prevention"]], "soul": [["breathwork", "Breathwork"], ["stress", "Stress & Calm"], ["sleep", "Better Sleep"], ["energy", "Energy & Focus"], ["recovery_s", "Nervous-System Recovery"], ["winddown", "Evening Wind-Down"]]};
+
+const SECTOPICS={"mind": ["t_mindset", "t_workshops"], "body": ["t_nutrition", "t_recovery"], "soul": ["t_breath", "t_sleep"]};
+const SECNAME={mind:'Mind',body:'Body',soul:'Soul'};
+let CHOSEN={mind:[],body:[],soul:[]};
+let TOPICREG={};   // topic id -> items array (filled by topic())
+const SECIMG={mind:IMG.mind,body:IMG.body,soul:IMG.soul};
+
+function sectionItems(sec){ var out=[]; (SECTOPICS[sec]||[]).forEach(function(tid){ (TOPICREG[tid]||[]).forEach(function(it){out.push(it);}); }); return out; }
+
+function openSection(sec){ if(CHOSEN[sec].length===0){ buildPicker(sec); go('pick_'+sec); } else { renderFeed(sec); go('feed_'+sec); } }
+
+function ichipsHTML(sec){ return INTERESTS[sec].map(function(o){var on=CHOSEN[sec].indexOf(o[0])>=0;return '<span class="ichip'+(on?' on':'')+'" onclick="toggleInterest(\''+sec+'\',\''+o[0]+'\')">'+o[1]+'</span>';}).join(''); }
+
+function buildPicker(sec){
+ var name=SECNAME[sec];
+ SCR['pick_'+sec]=sbar+topbar(name)+'<div class="pad">'
+  +'<div class="hero" style="height:120px"><div class="ph" style="background-image:url(\''+SECIMG[sec]+'\')"></div><div class="ov" style="background:linear-gradient(180deg,rgba(0,0,0,0.1),rgba(6,60,52,0.7))"></div><div class="txt"><div class="k">Personalise '+name+'</div><div class="t" style="font-size:20px">What would help you most?</div></div></div>'
+  +'<div class="sub" style="margin-top:14px">Pick the areas you care about. We\'ll show those first — and get sharper as we learn what you actually use.</div>'
+  +'<div class="ichips" id="chips_'+sec+'" style="margin-top:16px">'+ichipsHTML(sec)+'</div>'
+  +'<div class="grow"></div>'
+  +'<div class="btn" style="margin-top:18px" onclick="confirmInterests(\''+sec+'\')">See my '+name+'</div></div>';
+ var el=document.getElementById('pick_'+sec); if(el)el.innerHTML=SCR['pick_'+sec];
+}
+function toggleInterest(sec,key){var i=CHOSEN[sec].indexOf(key); if(i>=0)CHOSEN[sec].splice(i,1); else CHOSEN[sec].push(key);
+ var box=document.getElementById('chips_'+sec); if(box)box.innerHTML=ichipsHTML(sec);}
+function confirmInterests(sec){ if(CHOSEN[sec].length===0){T('Pick at least one to personalise');return;} renderFeed(sec); go('feed_'+sec); }
+
+function feedCard(it){
+ var col=it.type==='session'?'linear-gradient(135deg,#1AA5A0,#0B6E68)':it.type==='tool'?'linear-gradient(135deg,#D6A24A,#C08A2E)':'linear-gradient(135deg,#16C9B0,#0AA189)';
+ var top=it.img?'<div class="ph" style="background-image:url(\''+it.img+'\')"></div><div class="ov" style="background:linear-gradient(180deg,rgba(0,0,0,0.05),rgba(6,60,52,0.35))"></div>':'<div class="ov" style="background:'+col+'"></div>';
+ var meta=it.meta?'<div class="meta">'+(it.type==='session'?IC.play:IC.clock)+' '+it.meta+'</div>':'';
+ return '<div class="ccard tap" onclick="'+(it.screen?'go(\''+it.screen+'\')':'T(\'Draft\')')+'"><div class="top">'+top+'<div class="badge">'+pill(it.type)+'</div></div><div class="bot"><div class="bt">'+it.title+'</div><div class="bd">'+it.desc+'</div>'+meta+'</div></div>';
+}
+function renderFeed(sec){
+ var chosen=CHOSEN[sec]; var items=sectionItems(sec);
+ var scored=items.map(function(it){var m=(it.itags||[]).filter(function(t){return chosen.indexOf(t)>=0;}).length;return {it:it,m:m};});
+ var matched=scored.filter(function(s){return s.m>0;}).sort(function(a,b){return b.m-a.m;});
+ var rest=scored.filter(function(s){return s.m===0;});
+ var labels=chosen.map(function(k){var f=INTERESTS[sec].filter(function(o){return o[0]===k;})[0];return f?f[1]:k;});
+ var html=sbar
+  +'<div class="nav" style="justify-content:space-between"><div class="row" style="gap:12px"><div class="icb" onclick="home()">'+IC.back+'</div><div class="ttl">'+SECNAME[sec]+'</div></div><span class="editchip" onclick="buildPicker(\''+sec+'\');go(\'pick_'+sec+'\')">Edit interests</span></div>'
+  +'<div class="pad">'
+  +'<div class="reccard"><div class="rk">◉ Recommended for you</div><div class="rl">'+labels.join(' · ')+'</div><div class="rd">This gets more accurate as Formm learns which content you open and finish.</div></div>'
+  +'<div style="margin-top:18px">'+(matched.length?matched.map(function(s){return feedCard(s.it);}).join(''):'<div class="sub">Nothing matches yet — tap “Edit interests” to add some.</div>')+'</div>';
+ if(rest.length)html+='<div class="eb" style="margin:22px 0 10px">More in '+SECNAME[sec]+'</div>'+rest.map(function(s){return feedCard(s.it);}).join('');
+ html+='<div style="height:8px"></div></div>';
+ SCR['feed_'+sec]=html; var el=document.getElementById('feed_'+sec); if(el)el.innerHTML=html;
+}
+
+
+/* ===== HUB ===== */
+SCR.hub=sbar
++'<div class="nav" style="justify-content:space-between"><div class="ttl" style="font-size:20px">Beyond Training</div><div class="icb" onclick="T(\'Back to Formm\')">'+IC.house+'</div></div>'
++'<div class="pad">'
++'<div class="sub" style="margin-bottom:4px">The wellbeing layer around how you move — mind, body and recovery.</div>'
++'<div style="margin-top:14px">'
++[['mind','Mind','Train the mental side','Focus · confidence · consistency',IMG.mind,'linear-gradient(180deg,rgba(0,0,0,0.05),rgba(11,80,66,0.55))'],
+  ['body','Body','Fuel &amp; recover','Nutrition · mobility · recovery',IMG.body,'linear-gradient(180deg,rgba(0,0,0,0.05),rgba(11,80,66,0.55))'],
+  ['soul','Soul','Restore your system','Breathwork · sleep · calm',IMG.soul,'linear-gradient(180deg,rgba(0,0,0,0.05),rgba(11,80,66,0.55))']].map(x=>
+ '<div class="hero tap" style="height:120px;margin-bottom:12px" onclick="openSection(\''+x[0]+'\')"><div class="ph" style="background-image:url(\''+x[4]+'\')"></div><div class="ov" style="background:'+x[5]+'"></div><div class="txt"><div class="k">'+x[3]+'</div><div class="t" style="font-size:22px">'+x[1]+'</div></div></div>').join('')
++'</div></div>';
+
+/* ===== SECTION TEMPLATE ===== */
+function section(id,name,tag,pillar,img,topics){
+ SCR['s_'+id]=sbar+topbar(name)+'<div class="pad">'
+ +'<div class="hero"><div class="ph" style="background-image:url(\''+img+'\')"></div><div class="ov" style="background:linear-gradient(180deg,rgba(0,0,0,0.1),rgba(11,80,66,0.75))"></div><div class="txt"><div class="k">'+tag+'</div><div class="t">'+name+'</div></div></div>'
+ +'<div class="sub" style="margin-top:14px">'+pillar+'</div>'
+ +topics.map(function(tp){return '<div style="margin-top:20px"><div class="eb">'+tp.label+'</div>'
+   +'<div class="card tap between" onclick="go(\''+tp.id+'\')"><div style="flex:1"><div class="h2" style="font-size:15px">'+tp.title+'</div><div class="lbl" style="font-size:12px;margin-top:3px">'+tp.desc+'</div><div class="row" style="gap:6px;margin-top:9px">'+tp.tags.map(pill).join('')+'</div></div><span style="color:var(--teal-ink);font-weight:700;margin-left:8px">→</span></div></div>';}).join('')
+ +'<div style="height:8px"></div></div>';
+}
+
+/* ===== TOPIC (list of articles/sessions) TEMPLATE ===== */
+function topic(id,name,intro,items){
+ TOPICREG[id]=items;
+ SCR[id]=sbar+topbar(name)+'<div class="pad">'
+ +'<div class="h1" style="font-size:22px">'+name+'</div><div class="sub" style="margin-top:8px">'+intro+'</div>'
+ +'<div style="margin-top:16px">'+items.map(function(it,i){
+   var col=it.type==='session'?'linear-gradient(135deg,#1AA5A0,#0B6E68)':it.type==='tool'?'linear-gradient(135deg,#D6A24A,#C08A2E)':'linear-gradient(135deg,#16C9B0,#0AA189)';
+   var top=it.img?'<div class="ph" style="background-image:url(\''+it.img+'\')"></div><div class="ov" style="background:linear-gradient(180deg,rgba(0,0,0,0.05),rgba(6,60,52,0.35))"></div>':'<div class="ov" style="background:'+col+'"></div>';
+   var meta=it.meta?'<div class="meta">'+(it.type==='session'?IC.play:IC.clock)+' '+it.meta+'</div>':'';
+   return '<div class="ccard tap" onclick="'+(it.screen?'go(\''+it.screen+'\')':'T(\'Draft \u2014 to be written\')')+'">'
+     +'<div class="top">'+top+'<div class="badge">'+pill(it.type)+'</div></div>'
+     +'<div class="bot"><div class="bt">'+it.title+'</div><div class="bd">'+it.desc+'</div>'+meta+'</div></div>';
+ }).join('')+'</div><div style="height:8px"></div></div>';
+}
+
+/* ===== SECTIONS ===== */
+section('mind','Mind','Train the mental side',
+ 'The mindset that makes training stick and perform — focus under load, confidence, and consistency. Your mental readiness shapes your physical output.',IMG.mind,
+ [{id:'t_mindset',label:'Topic',title:'Performance Mindset',desc:'Show up focused; perform when it counts.',tags:['article','session']},
+  {id:'t_workshops',label:'Topic',title:'Mental Workshops',desc:'Guided sessions on the psychology of consistency.',tags:['session']}]);
+
+section('body','Body','Fuel & recover',
+ 'The physical support layer — eating to fuel and recover, moving to protect movement quality. This ties directly to what your form analysis shows.',IMG.body,
+ [{id:'t_nutrition',label:'Topic',title:'Nutrition & Macros',desc:'Practical fuelling — no fads, no obsessive tracking.',tags:['article','tool']},
+  {id:'t_recovery',label:'Topic',title:'Biomechanics Recovery',desc:'Recovery & mobility tied to what Formm sees.',tags:['article','session']},
+  {id:'t_sleep',label:'Topic',title:'Sleep & Recovery',desc:'The biggest recovery lever, made practical.',tags:['article','session']}]);
+
+section('soul','Soul','Calm & presence',
+ 'The inner side of training — calm, presence, and steadying the nervous system. Breathwork and mindfulness to help you recover mentally and show up composed.',IMG.soul,
+ [{id:'t_breath',label:'Topic',title:'Breathwork & Vagal Tone',desc:'Guided breathing to shift state.',tags:['session','article']},
+  {id:'t_calm',label:'Topic',title:'Calm & Mindfulness',desc:'Present-moment skills for a steadier mind.',tags:['article','session']}]);
+
+/* ===== TOPICS ===== */
+topic('t_mindset','Performance Mindset','Focus, confidence and composure — the mental skills that turn training into performance.',
+ [{title:'Focus under the Bar',type:'article',desc:'Internal vs external focus, and why where you point your attention changes your output.',meta:'4 min read',screen:'a_focus',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=75&w=500&auto=format&fit=crop',itags:['focus','pressure']},
+  {title:'The Confidence Loop',type:'article',desc:'How small wins build self-efficacy — and how to reframe a bad session.',meta:'3 min read',screen:'a_confidence',img:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=75&w=500&auto=format&fit=crop',itags:['confidence','resilience']},
+  {title:'2-Minute Pre-Set Focus Reset',type:'session',desc:'A short centring routine before a heavy lift.',meta:'2 min',screen:'sess_focusreset',itags:['focus','pressure']},
+  {title:'Visualisation Walk-Through',type:'session',desc:'Rehearse the movement mentally before you perform it.',meta:'5 min',screen:'sess_visualise',itags:['focus','pressure','confidence']}]);
+
+topic('t_workshops','Mental Workshops','Deeper guided sessions on the psychology of showing up — consistency beats motivation.',
+ [{title:'Building a Training Identity',type:'session',desc:'"I\'m someone who trains" beats relying on motivation.',meta:'Part 1 · 8 min',screen:'sess_identity',itags:['consistency','motivation']},
+  {title:'Getting Through Plateaus',type:'session',desc:'Self-compassion over self-criticism; the restart, not the streak.',meta:'Part 2 · 7 min',screen:'sess_plateau',itags:['consistency','resilience','motivation']},
+  {title:'Motivation vs Discipline',type:'session',desc:'Systems over willpower — designing your environment.',meta:'Part 3 · 6 min',screen:'sess_discipline',itags:['motivation','consistency']}]);
+
+topic('t_nutrition','Nutrition & Macros','Fuelling that matches your training — practical, non-extreme, no obsessive tracking.',
+ [{title:'Protein, Simply',type:'article',desc:'Why it matters, rough targets, easy sources.',meta:'5 min read',screen:'a_protein_simply',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=75&w=500&auto=format&fit=crop',itags:['nutrition','protein']},
+  {title:'Eating Around Training',type:'article',desc:'Before and after — what actually matters vs marketing.',meta:'4 min read',screen:'a_eating_around_training',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=75&w=500&auto=format&fit=crop',itags:['nutrition','recovery']},
+  {title:'Fuelling for Your Goal',type:'article',desc:'Fat loss vs muscle — the honest version.',meta:'5 min read',screen:'a_fuelling_for_your_goal',img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=75&w=500&auto=format&fit=crop',itags:['nutrition','fatloss','protein']},
+  {title:'Protein Target Calculator',type:'tool',desc:'Your bodyweight in, a rough daily range out. A guide, not a prescription.',meta:'Tool',screen:'tool_protein_target_calcula',itags:['nutrition','protein']},
+  {title:'Why Crash Diets Cost You',type:'article',desc:'The fastest way to lose weight is also the fastest way to lo…',meta:'4 min read',screen:'a_crash_diets_cost',img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=75&w=500&auto=format&fit=crop',itags:['fatloss','nutrition','recovery']},
+  {title:'Protein Is Your Fat-Loss Ally',type:'article',desc:'If there\u2019s one thing that makes fat loss easier and protects…',meta:'4 min read',screen:'a_fat_loss_protein',img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=75&w=500&auto=format&fit=crop',itags:['fatloss','protein','nutrition']}]);
+
+topic('t_recovery','Biomechanics Recovery','Recovery and mobility work tied to what your form analysis actually flags.',
+ [{title:'Why Fatigue Shows up in Your Form',type:'article',desc:'Tired movement is measurably worse movement — the direct Formm link.',meta:'4 min read',screen:'a_why_fatigue_shows_up_i',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=75&w=500&auto=format&fit=crop',itags:['fatigue','recovery','injury']},
+  {title:'Mobility for Your Weak Points',type:'article',desc:'Targeted to the areas Formm flags — ankle, hip, and more.',meta:'4 min read',screen:'a_mobility_for_your_weak',img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=75&w=500&auto=format&fit=crop',itags:['recovery','injury']},
+  {title:'10-Min Post-Session Mobility Flow',type:'session',desc:'Follow-along; adapts to what you trained.',meta:'10 min',screen:'sess_focus',itags:['recovery','fatigue']},
+  {title:'Targeted Routine: Your Flagged Area',type:'session',desc:'If Formm flags left-knee valgus, here\'s the matching drill.',meta:'6 min',itags:['recovery','injury']}]);
+
+topic('t_breath','Breathwork & Vagal Tone','Guided breathing to shift your state — calm after training, focus before.',
+ [{title:'Why Breathing Changes Your State',type:'article',desc:'The autonomic basics — down-regulate vs up-regulate.',meta:'3 min read',screen:'a_why_breathing_changes_',img:'https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?q=75&w=500&auto=format&fit=crop',itags:['breathwork','stress','energy']},
+  {title:'Post-Training Wind-Down',type:'session',desc:'Extended-exhale breathing with a follow-along timer.',meta:'4 min',screen:'sess_post_training_wind_dow',itags:['breathwork','recovery_s','stress']},
+  {title:'Pre-Session Primer',type:'session',desc:'Energising breath before a hard effort.',meta:'3 min',screen:'sess_pre_session_primer',itags:['breathwork','energy']},
+  {title:'Box Breathing',type:'session',desc:'The simple 4-4-4-4, with a visual guide.',meta:'5 min',screen:'sess_box_breathing',itags:['breathwork','stress']}]);
+topic('t_calm','Calm & Mindfulness','Present-moment skills for a steadier mind — evidence-based, no incense required.',
+ [{title:'Why Mindfulness Helps You Train',type:'article',desc:'A trainable skill, and the athlete research is strong\u2026',meta:'4 min read',screen:'a_why_mindfulness',img:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=75&w=500&auto=format&fit=crop',itags:['stress','energy']},
+  {title:'5-Minute Body Scan',type:'session',desc:'A short guided practice to settle a busy mind.',meta:'5 min',screen:'sess_body_scan',itags:['stress','recovery_s']}]);
+
+
+topic('t_sleep','Sleep & Recovery','The biggest recovery lever — practical sleep and wind-down, no preaching.',
+ [{title:'Sleep Is Where You Adapt',type:'article',desc:'Why sleep drives recovery and movement quality.',meta:'4 min read',screen:'a_sleep_is_where_you_ada',img:'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=75&w=500&auto=format&fit=crop',itags:['sleep','recovery_s']},
+  {title:'Your Wind-Down Routine',type:'article',desc:'Sleep hygiene that actually moves the needle.',meta:'4 min read',screen:'a_your_wind_down_routine',img:'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=75&w=500&auto=format&fit=crop',itags:['sleep','winddown']},
+  {title:'Fabric & Sleep',type:'article',desc:'What you sleep in and under, backed by research.',meta:'5 min read',screen:'a_fabric_sleep',img:'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=75&w=500&auto=format&fit=crop',itags:['sleep','winddown']},
+  {title:'Bedtime Parasympathetic Reset',type:'session',desc:'A short lie-down breath and body-scan to fall asleep.',meta:'8 min',screen:'sess_bedtime_parasympatheti',itags:['sleep','winddown','stress','recovery_s']}]);
+
+/* ===== SAMPLE ARTICLE ===== */
+function article(id,cat,title,lede,body,callout,rt,refs){
+ SCR[id]=sbar+topbar(cat)+'<div class="pad">'
+ +'<div class="eyebrow">'+cat+'</div><div class="h1" style="margin-top:8px">'+title+'</div>'
+ +'<div class="row" style="gap:5px;margin-top:10px;color:var(--ink3);font-size:11px;font-weight:600">'+IC.clock+' '+(rt||'4 min read')+'</div>'
+ +'<div class="readbar"><div style="width:0%"></div></div>'
+ +'<div class="artbody"><div class="lede">'+lede+'</div>'+body+'</div>'
+ +(callout?'<div class="callout"><b>The Formm link:</b> '+callout+'</div>':'')
+ +(refs&&refs.length?'<div class="science"><div class="sh">\u25c9 The science</div>'+refs.map(function(r){return '<a class="ref" href="'+r[1]+'" target="_blank"><span class="rt">'+r[0]+'</span><br><span class="rl">'+r[1]+'</span></a>';}).join('')+'<div class="disc">Formm summarises published research in good faith. Follow the links to read the sources yourself.</div></div>':'')
+ +'<div class="grow"></div><div class="btn g" style="margin-top:18px" onclick="back()">Done</div></div>';
+}
+
+
+
+
+/* ===== SAMPLE GUIDED SESSIONS ===== */
+
+
+
+/* ===== SESSION (guided, with steps) ===== */
+const SESSMETA={'sess_body_scan':{kind:'science',refs:[['Body-scan practice within mindfulness interventions \u2014 reduces stress & improves emotional regulation in athletes','https://pmc.ncbi.nlm.nih.gov/articles/PMC13441827/']]},'sess_visualise':{kind:'science',refs:[['Simonsmeier et al. / mental-imagery meta-analysis (36 studies, sig. effect on performance)','https://www.tandfonline.com/doi/abs/10.1080/17408989.2021.1991297'],['Feltz & Landers (1983), classic mental-practice meta-analysis \u2014 best alongside physical practice','https://www.researchgate.net/publication/228118028_The_Effects_of_Mental_Practice_on_Motor_Skill_Learning_and_Performance_A_Meta-analysis']]},'sess_post_training_wind_dow':{kind:'science',refs:[['Sevoz-Couche & Laborde (2022), slow breathing & vagal activity meta-analysis','https://www.sciencedirect.com/science/article/abs/pii/S0149763422002007']]},'sess_box_breathing':{kind:'science',refs:[['Sevoz-Couche & Laborde (2022), slow breathing & vagal activity meta-analysis','https://www.sciencedirect.com/science/article/abs/pii/S0149763422002007']]},'sess_bedtime_parasympatheti':{kind:'science',refs:[['Sevoz-Couche & Laborde (2022), slow breathing & parasympathetic activity','https://www.sciencedirect.com/science/article/abs/pii/S0149763422002007']]},'sess_10_minute_post_session':{kind:'science',refs:[['Chronic stretching increases joint ROM: systematic review & meta-analysis','https://www.sciencedirect.com/science/article/pii/S2095254623000571']]},'sess_targeted_routine_your_':{kind:'science',refs:[['Targeted ankle-dorsiflexion interventions meta-analysis (example of area-specific mobility)','https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3668922/']]},'sess_focusreset':{kind:'technique'},'sess_identity':{kind:'technique'},'sess_plateau':{kind:'technique'},'sess_discipline':{kind:'technique'},'sess_pre_session_primer':{kind:'technique'}};
+function guided(id,cat,title,intro,dur,steps,note){
+ // store the session data; the screen is a follow-along flow (text only, no audio)
+ GSESS[id]={cat:cat,title:title,intro:intro,dur:dur,steps:steps,note:note};
+ // intro screen
+ SCR[id]=sbar+topbar(cat)+'<div class="pad">'
+  +'<div class="eyebrow">'+cat+'</div><div class="h1" style="margin-top:8px">'+title+'</div>'
+  +'<div class="row" style="gap:5px;margin-top:10px;color:var(--ink3);font-size:11px;font-weight:600">'+IC.clock+' '+dur+' \u00b7 '+steps.length+' steps</div>'
+  +'<div class="sub" style="margin-top:12px">'+intro+'</div>'
+  +'<div class="card" style="margin-top:16px;background:var(--panel2,#FBF9F4)"><div class="eb" style="margin-bottom:8px">What you\'ll do</div>'
+   +steps.map(function(s,i){return '<div class="row" style="padding:5px 0;align-items:flex-start"><span style="color:var(--ink3);font-weight:700;font-size:12px;min-width:18px">'+(i+1)+'</span><span style="font-size:12.5px;font-weight:600">'+s[0]+'</span></div>';}).join('')
+  +'</div>'
+  +(note?'<div class="callout"><b>Coach\'s note:</b> '+note+'</div>':'')
+  +(function(){var meta=SESSMETA[id]||{kind:'technique'};
+     if(meta.kind==='science'){
+       return '<div class="science"><div class="sh">\u25c9 The science</div>'+meta.refs.map(function(r){return '<a class="ref" href="'+r[1]+'" target="_blank"><span class="rt">'+r[0]+'</span><br><span class="rl">'+r[1]+'</span></a>';}).join('')+'<div class="disc">This session\'s method is supported by the research above. Follow the links to read it yourself.</div></div>';
+     } else {
+       return '<div class="technique"><div class="th">\u25c8 A coaching technique</div><div class="td">This is practical coaching guidance, not a specific research finding. It draws on established principles, but treat it as a useful method to try \u2014 not a proven protocol.</div></div>';
+     }
+   })()
+  +'<div class="grow"></div>' 
+  +'<div class="btn" style="margin-top:18px" onclick="startGuided(\''+id+'\')">Begin \u2014 Step by Step</div>'
+  +'<div class="btn g" style="margin-top:9px" onclick="back()">Back</div></div>';
+}
+
+let GSESS={};        // session data registry
+let GSTATE={id:null,step:0};
+function startGuided(id){ GSTATE={id:id,step:0}; renderStep(); go('gflow'); }
+function renderStep(){
+ var s=GSESS[GSTATE.id]; var i=GSTATE.step; var step=s.steps[i]; var n=s.steps.length;
+ var pct=Math.round(((i+1)/n)*100);
+ var last=(i===n-1);
+ var html=sbar
+  +'<div class="nav" style="justify-content:space-between"><div class="icb" onclick="'+(i===0?'go(\''+GSTATE.id+'\')':'prevStep()')+'">'+IC.back+'</div><span class="lbl" style="font-weight:600">'+s.title+'</span><span class="lbl tap" style="font-weight:600" onclick="go(\''+GSTATE.id+'\')">Exit</span></div>'
+  +'<div class="pad" style="display:flex;flex-direction:column">'
+  +'<div class="gprog"><div style="width:'+pct+'%"></div></div>'
+  +'<div class="lbl" style="font-size:11px;font-weight:600;margin-top:10px">Step '+(i+1)+' of '+n+'</div>'
+  +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 0">'
+   +'<div class="gstepnum">'+(i+1)+'</div>'
+   +'<div class="h1" style="font-size:24px;margin-top:16px">'+step[0]+'</div>'
+   +'<div class="sub" style="font-size:15.5px;line-height:1.6;margin-top:12px">'+step[1]+'</div>'
+  +'</div>'
+  +'<div class="btn" onclick="'+(last?'finishGuided()':'nextStep()')+'">'+(last?'Finish':'Next step')+'</div>'
+  +(last?'':'<div style="text-align:center;font-size:11px;color:var(--ink3);margin-top:10px" onclick="finishGuided()">Skip to end</div>')
+  +'</div>';
+ SCR.gflow=html; var el=document.getElementById('gflow'); if(el)el.innerHTML=html;
+}
+function nextStep(){ GSTATE.step++; renderStep(); }
+function prevStep(){ if(GSTATE.step>0){GSTATE.step--; renderStep();} }
+function backToSection(sec){ hist=[]; if(CHOSEN[sec]&&CHOSEN[sec].length>0){ renderFeed(sec); go('feed_'+sec,false); } else { openSection(sec); } }
+function finishGuided(){
+ var s=GSESS[GSTATE.id]; var secname=s.cat.split(' ')[0]; var seckey=secname.toLowerCase();
+ var html=sbar+topbar(s.cat)+'<div class="pad" style="display:flex;flex-direction:column;text-align:center;align-items:center">'
+  +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center">'
+   +'<div class="gcheck">\u2713</div>'
+   +'<div class="h1" style="margin-top:18px">Done.</div>'
+   +'<div class="sub" style="margin-top:10px;max-width:280px">'+s.title+' complete. '+(s.note?s.note:'')+'</div>'
+  +'</div>'
+  +'<div class="btn" onclick="startGuided(\''+GSTATE.id+'\')">Do it again</div>'
+  +'<div class="btn g" style="margin-top:9px" onclick="backToSection(\''+seckey+'\')">Back to '+secname+'</div></div>';
+ SCR.gflow_done=html; var el=document.getElementById('gflow_done'); if(el)el.innerHTML=html;
+ go('gflow_done');
+}
+
+
+/* ===== MIND — full content ===== */
+
+article('a_focus','Mind · Focus','Focus under the Bar',
+ 'Where you point your attention during a lift changes how well you move. Two athletes with the same strength can produce very different reps — and often the difference is focus.',
+ '<p>Sports scientists describe two kinds of attention. An <b>internal focus</b> means thinking about your body — "squeeze my quads", "brace my core". An <b>external focus</b> means thinking about the effect of your movement — "drive the floor away", "push the bar to the ceiling".</p><h3>External focus usually wins</h3><p>A large body of research has found that an external focus tends to produce smoother, more efficient movement and better force output than an internal one. Your body coordinates itself remarkably well when you give it a clear goal rather than micromanaging each muscle.</p><h3>How to use it</h3><p>Pick one simple external cue per lift and repeat it: <i>"drive the floor away"</i> for a squat, <i>"push the earth down"</i> for a press. One cue, not five. Trying to consciously control every joint mid-rep is exactly what makes movement stiff.</p><p>Save the detailed, internal checks for when you\u2019re learning a movement slowly. Once you\u2019re training with load, go external and let your body do what it knows.</p>',
+ 'When your form dips on a hard set, a single clear cue often restores it faster than thinking about mechanics. Your Formm Score reflects the cleaner movement.',
+ '4 min read',[['Chua et al. (2021), meta-analysis of 73 studies on external vs internal focus','https://pubmed.ncbi.nlm.nih.gov/34843301/']]);
+
+article('a_confidence','Mind · Mindset','The Confidence Loop',
+ 'Confidence in training isn\u2019t a personality trait you\u2019re born with. It\u2019s a loop you build \u2014 and one bad session doesn\u2019t break it unless you let it.',
+ '<p>Confidence in a physical skill comes mostly from <b>evidence you can do it</b>. Psychologists call this self-efficacy, and the biggest driver is simple: past successes. Every solid rep, every session you showed up for, is a deposit.</p><h3>Why one bad session feels so heavy</h3><p>We\u2019re wired to weigh setbacks more than wins. A single off day \u2014 a missed lift, a low score \u2014 can feel like it erases weeks of progress. It doesn\u2019t. It\u2019s one data point against dozens.</p><h3>Reframing the off day</h3><p>Instead of "I\u2019m getting worse", ask "what was different today?" \u2014 sleep, stress, fuel, a hard session yesterday. Usually there\u2019s a reason, and it\u2019s rarely that you\u2019ve lost your ability. Treat a bad session as information, not a verdict.</p><p>Then do the single most confidence-restoring thing there is: show up for the next session. Nothing rebuilds the loop faster.</p>',
+ 'A dip in your scores is often fatigue or life, not decline. Seeing your longer trend \u2014 not just today \u2014 keeps one session in perspective.',
+ '3 min read',[['Bandura, self-efficacy & mastery experiences (APA)','https://www.apa.org/research-practice/conduct-research/self-efficacy-human-agency']]);
+
+guided('sess_focusreset','Mind · Focus','2-Minute Pre-Set Focus Reset',
+ 'A short routine to clear your head and lock in before a heavy or important set. Do it standing at the bar, in the last two minutes before you lift.',
+ '2 min',
+ [['Three slow breaths','Longer out-breath than in. This settles the nervous system and pulls your attention out of your head and into the room.'],
+  ['Name your one cue','Pick the single external cue for this lift \u2014 "drive the floor away", "bar to the ceiling". Say it once, silently.'],
+  ['See the first rep','Watch yourself do one clean rep in your mind\u2019s eye \u2014 the setup, the path, the finish.'],
+  ['Set your intention','One word for how you\u2019ll move: "sharp", "solid", "controlled". Then step in and lift.']],
+ 'Keep it to one cue and one word. The goal is a quiet, focused mind \u2014 not a checklist running while you lift.');
+
+guided('sess_visualise','Mind · Focus','Visualisation Walk-Through',
+ 'Mentally rehearsing a movement genuinely improves it \u2014 your brain fires many of the same pathways whether you move or vividly imagine moving. Use this before a session or a tough lift.',
+ '5 min',
+ [['Get settled','Sit or stand quietly, eyes closed. A few slow breaths to arrive.'],
+  ['Build the scene','Picture yourself at the bar in as much detail as you can \u2014 the weight, the room, the feel of the bar in your hands.'],
+  ['Run it in real time','Rehearse the lift at actual speed, not fast-forward. Feel the brace, the drive, the lockout. Make it a clean, successful rep.'],
+  ['Repeat three times','Run the same successful rep three times. If it goes wrong in your head, reset and run it clean.'],
+  ['Open and lift','Carry that rehearsed rep straight into your working set.']],
+ 'Vivid and successful is the key \u2014 always rehearse the rep going well. Rehearsing failure trains failure.');
+
+/* Mental Workshops */
+guided('sess_identity','Mind · Workshop','Building a Training Identity',
+ 'Motivation comes and goes. What keeps people training for years isn\u2019t willpower \u2014 it\u2019s identity. This session is about becoming "someone who trains".',
+ 'Part 1 · 8 min',
+ [['Shift the sentence','From "I\u2019m trying to work out more" to "I\u2019m someone who trains." The first is a wish; the second is who you are.'],
+  ['Lower the bar to show up','An identity is built by small, repeated proof. A 15-minute session still counts as evidence you\u2019re that person. Never miss twice.'],
+  ['Attach it to something you already do','"After I drop the kids at school, I train." Anchoring the habit to an existing routine makes it automatic.'],
+  ['Let the score be secondary','Some days you\u2019ll perform, some you won\u2019t. The identity isn\u2019t "person who always PRs" \u2014 it\u2019s "person who shows up".']],
+ 'Identity beats motivation because it survives the days you don\u2019t feel like it. Those are the days that build it most.');
+
+guided('sess_plateau','Mind · Workshop','Getting Through Plateaus',
+ 'Every training journey stalls. How you talk to yourself in that stall decides whether you push through or quietly drift away. This is about the restart, not the streak.',
+ 'Part 2 · 7 min',
+ [['Expect the plateau','Progress is never a straight line. Plateaus are normal and usually temporary \u2014 not a sign you\u2019ve hit your limit.'],
+  ['Drop the self-criticism','Talking to yourself harshly ("I\u2019m lazy", "I\u2019ve failed") makes you less likely to continue, not more. Self-compassion predicts sticking with it.'],
+  ['Forget the streak','A broken streak makes people quit \u2014 "I\u2019ve ruined it, why bother". There is no streak. There\u2019s only the next session. Restart, don\u2019t restart-the-whole-thing.'],
+  ['Change one variable','Plateaus often break with a small change \u2014 more sleep, a deload, a new stimulus. Adjust one thing rather than overhauling everything.']],
+ 'The people who succeed long-term aren\u2019t the ones who never stall. They\u2019re the ones who restart without drama.');
+
+guided('sess_discipline','Mind · Workshop','Motivation vs Discipline',
+ 'Waiting to "feel motivated" is why most training plans die. The people who train consistently rely on systems, not feelings. This session is about building those systems.',
+ 'Part 3 · 6 min',
+ [['Accept that motivation is unreliable','It\u2019s a mood, and moods come and go. If your training depends on feeling motivated, it will stop the first hard week.'],
+  ['Design your environment','Lay your kit out the night before. Book the class. Put the session in your calendar like a meeting. Make the right action the easy one.'],
+  ['Reduce the decision','Every choice ("should I train today?") costs willpower. A fixed schedule removes the decision \u2014 you just do what\u2019s on the plan.'],
+  ['Track showing up, not just outcomes','Reward consistency itself. Six sessions done is a win, regardless of how each one felt.']],
+ 'Discipline isn\u2019t grim willpower \u2014 it\u2019s good design. Make training the default and you need far less motivation.');
+
+
+/* ===== TOOL (generic) ===== */
+function toolScreen(id,cat,title,lede,body,note){
+ SCR[id]=sbar+topbar(cat)+'<div class="pad">'
+ +'<div class="eyebrow">'+cat+'</div><div class="h1" style="margin-top:8px">'+title+'</div>'
+ +'<div class="sub" style="margin-top:8px">'+lede+'</div>'
+ +'<div class="artbody">'+body+'</div>'
+ +(note?'<div class="callout"><b>The Formm link:</b> '+note+'</div>':'')
+ +'<div class="grow"></div><div class="btn g" style="margin-top:18px" onclick="back()">Done</div></div>';
+}
+
+/* ===== BODY + SOUL — full content ===== */
+article('a_protein_simply','Body · Nutrition','Protein, Simply','Protein is the raw material your body uses to repair and rebuild after training. You don\'t need to obsess over it \u2014 you need a rough, consistent target you can actually hit.','<p>Every time you train, you create small amounts of damage in your muscles. Protein provides the building blocks \u2014 amino acids \u2014 your body uses to repair that damage and come back a little stronger. Under-eat protein consistently and you recover slower and build less, no matter how hard you train.</p><h3>You need less precision than you think</h3><p>The supplement industry has made protein feel complicated \u2014 timing windows, powders, exact grams per meal. For most people training a few times a week, the truth is simpler: get a decent portion of protein at each main meal, from real food, most days. That alone puts you ahead of the majority.</p><h3>A no-weighing rule of thumb</h3><p>A palm-sized portion of a protein source at each main meal gets most people into a good range without tracking anything. Good sources: eggs, dairy and yoghurt, chicken and fish, lean meat, lentils and beans, tofu and tempeh, paneer.</p><h3>Spread it across the day</h3><p>Your body can only use so much protein at once for repair, so three moderate servings across the day works better than one large hit. If you train, having some protein in the hours around your session is a sensible habit \u2014 but it matters far less than your total over the whole day.</p>','Better recovery means fresher movement \u2014 and fresher movement scores better. If your form is consistently declining across sessions, under-fuelling is one thing worth checking.','5 min read',[['Mamerow et al. (2014), even protein distribution & 24-h muscle protein synthesis (J. Nutrition)','https://pubmed.ncbi.nlm.nih.gov/24477298/'],['Note: acute effect is clear; long-term muscle-mass benefit is less certain (Hudson et al. 2020 review)','https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2024.1388986/full']]);
+article('a_eating_around_training','Body · Nutrition','Eating Around Training','What you eat before and after a session matters \u2014 but far less than the fitness industry suggests, and far less than what you eat across the whole week.','<h3>Before you train</h3><p>The goal before training is simple: don\'t be starving, don\'t be stuffed. A small meal or snack with some carbohydrate an hour or two beforehand gives most people steady energy. If you train first thing and prefer to go without food, that\'s fine too \u2014 for moderate sessions it makes little practical difference.</p><h3>After you train</h3><p>The famous \'anabolic window\' \u2014 the idea you must eat within 30 minutes or waste your session \u2014 has been massively overstated. What matters is that you eat a proper meal with protein and carbs at some point after training, not that you sprint to a shaker the moment you rack the bar.</p><h3>The thing that actually matters</h3><p>Your overall daily and weekly eating dwarfs the timing of any single meal. Nail the big picture \u2014 enough protein, enough total food for your goal, mostly whole foods \u2014 and the exact timing around sessions becomes a minor detail.</p>','Turning up to a session properly fuelled means you move better and your scores reflect your real ability, not an energy dip.','4 min read',[['Aragon & Schoenfeld (2013), \'Nutrient timing revisited\' (PMC)','https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3577439/'],['Schoenfeld, Aragon & Krieger (2013), protein-timing meta-analysis','https://link.springer.com/article/10.1186/1550-2783-10-53']]);
+article('a_fuelling_for_your_goal','Body · Nutrition','Fuelling for Your Goal','Whether you\'re trying to lose fat or build muscle, the principles are simpler and less extreme than most diets make them sound.','<h3>If your goal is fat loss</h3><p>Fat loss happens when you consistently eat a little less energy than you burn. The key word is \'a little\' \u2014 aggressive crash diets cost you muscle, wreck your energy and rarely last. A modest, sustainable reduction, with protein kept high and training maintained, protects muscle while fat comes off.</p><h3>If your goal is building muscle</h3><p>Building muscle needs a small surplus of energy, enough protein, and a training stimulus that challenges you over time. \'Small\' matters here too \u2014 eating far more than you need just adds fat alongside muscle. Slow and steady builds a better result.</p><h3>The honest part</h3><p>Both goals reward patience over intensity. The people who succeed aren\'t on the most extreme plan \u2014 they\'re on a moderate one they can hold for months. There\'s no version of this that works fast and lasts.</p>','Keeping training quality high while you diet is what protects your movement. If scores fall sharply during a fat-loss phase, you may be cutting too hard, too fast.','5 min read',[['Deficit for fat loss / surplus for muscle: body-recomposition narrative review (NSCA)','https://www.ovid.com/jnls/nsca-scj/abstract/10.1519/ssc.0000000000000964~tipping-the-scales-of-body-recomposition-with-an-energy'],['Longland et al. (2016), higher protein in a deficit preserves lean mass (AJCN RCT)','https://ajcn.nutrition.org/article/S0002-9165(22)06559-5/fulltext']]);
+toolScreen('tool_protein_target_calcula','Body · Nutrition','Protein Target Calculator','Enter your bodyweight and get a rough daily protein range to aim near. A guide, not a prescription.','<p>How it works: you\'ll give your bodyweight, and the tool returns a sensible daily protein range spread across your meals. It\'s designed to get you into a good ballpark without weighing food or counting every gram.</p><p>What it is not: a personalised prescription. Your real needs depend on your goal, training load, age and health \u2014 which is why anything precise should come from your Formm sports-science team, not a slider.</p>','A guide to aim near, tied into the rest of your Formm picture \u2014 training load, recovery and movement quality.');
+article('a_why_fatigue_shows_up_i','Body · Biomechanics Recovery','Why Fatigue Shows up in Your Form','Your Formm Score doesn\'t just measure skill \u2014 it measures freshness. As you tire, your movement quality drops in ways the camera can see, rep by rep.','<p>When muscles fatigue, they produce force more slowly and less precisely. The small stabilising muscles that hold your joints in good positions tire first \u2014 so as a set goes on, a knee starts to cave, a hip shifts, your depth shrinks. You\'re not suddenly less skilled; you\'re tired.</p><h3>What this means for your training</h3><p>A dropping score across a set is usually a fatigue signal, not decline. That\'s genuinely useful information: it tells you when a set\'s quality is falling off \u2014 often a smart place to stop, before form breaks down entirely. The last few reps of a hard set are exactly where movement quality tends to collapse.</p><h3>Freshness is trainable</h3><p>Recovery \u2014 sleep, fuel, and enough rest between sessions \u2014 is what restores that freshness so your next session starts from a better baseline. Movement quality isn\'t just about technique; it\'s about turning up recovered enough to express it.</p>','Watch your rep-by-rep score within a set. A steady drop is a fatigue signal \u2014 a smart place to end the set and protect your quality.','4 min read',[['Sleep-deprivation & performance meta-analysis (2025), PMC','https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11996801/']]);
+article('a_mobility_for_your_weak','Body · Biomechanics Recovery','Mobility for Your Weak Points','Generic stretching routines are inefficient. The mobility work that actually helps is targeted at the specific restrictions your movement reveals.','<p>Most people stretch a bit of everything, a bit randomly, and see little change. Mobility improves fastest when it\'s aimed at a real, identified restriction \u2014 the joint or movement that\'s actually limiting you.</p><h3>Let your movement point the way</h3><p>If your squat depth is limited, the restriction is often at the ankle or hip \u2014 and mobility work there will do more than stretching somewhere that isn\'t the problem. If one side moves differently from the other, that asymmetry is worth targeting directly.</p><h3>Consistency beats intensity</h3><p>Short, frequent mobility work beats occasional long sessions. A few focused minutes most days, aimed at your actual restriction, changes how you move over weeks. Aggressive one-off stretching does little and can aggravate things.</p>','Formm flags where your movement is restricted or asymmetric \u2014 which is exactly where targeted mobility work pays off. Let the analysis point you, rather than guessing.','4 min read',[['Ingram et al. 2025, mechanisms of ROM improvement from static stretching \u2014 stretch tolerance & reduced stiffness (Sports Medicine meta-analysis)','https://pubmed.ncbi.nlm.nih.gov/40180774/'],['Chronic stretching & ROM systematic review with meta-analysis (2023)','https://www.sciencedirect.com/science/article/pii/S2095254623000571']]);
+guided('sess_10_minute_post_session','Body · Biomechanics Recovery','10-Minute Post-Session Mobility Flow','A short, follow-along mobility routine to run after training, while you\'re still warm. Gentle, controlled, no forcing.','10 min',[['Start while warm','Do this right after training \u2014 warm tissue moves more easily and you\'ll get more from it.'],['Move, don\'t force','Every movement is slow and controlled, into a gentle stretch \u2014 never a sharp or painful one. Mobility is earned gently, not forced.'],['Breathe through each','Slow breathing as you move helps you relax into range. Rushing tenses you up and defeats the point.'],['Give both sides equal time','Spend equal time left and right, even if one feels tighter \u2014 especially if one feels tighter.'],['Finish relaxed','End with a few slow breaths. You should leave feeling looser and calmer, not worked.']],'Regular mobility, especially on the areas Formm flags, gradually widens the range you can move through with good form.');
+guided('sess_targeted_routine_your_','Body · Biomechanics Recovery','Targeted Routine: Your Flagged Area','When Formm repeatedly flags the same issue \u2014 say a knee caving inward \u2014 this routine serves the specific work most likely to help that pattern.','6 min',[['We start from what Formm sees','The routine is chosen based on the pattern your analyses keep showing \u2014 not a generic list.'],['A little, often','Short and frequent beats long and rare. A few minutes on your flagged area most days is what shifts it.'],['Retest with a scan','After a couple of weeks, run a fresh analysis. Improvement in the flagged pattern is your feedback that it\'s working.']],'This closes the loop: Formm spots the pattern, serves the work, and you retest with another scan to see it change.');
+article('a_why_breathing_changes_','Soul · Breathwork','Why Breathing Changes Your State','Your breath is the one part of your nervous system you can consciously control \u2014 and through it, you can nudge yourself toward calm or alertness on demand.','<p>Your autonomic nervous system runs in the background on two settings: a \'go\' state (sympathetic \u2014 alert, ready, stressed) and a \'recover\' state (parasympathetic \u2014 calm, digest, restore). You don\'t normally control which is dominant. But breathing is the back door.</p><h3>The exhale is the calm switch</h3><p>Slow breathing, especially with a longer out-breath than in-breath, tends to shift you toward the recover state. This is why a few deliberate slow exhales can genuinely take the edge off stress \u2014 you\'re using breath to talk to a system you can\'t otherwise reach directly.</p><h3>It works both ways</h3><p>Quicker, sharper breathing does the opposite \u2014 it can raise alertness before a hard effort. So breath isn\'t only for calming down; it\'s a dial you can turn either way depending on what the moment needs.</p>','Down-regulating after training helps you shift into recovery sooner. Up-regulating before a heavy session can help you show up sharp.','3 min read',[['Sevoz-Couche & Laborde (2022), slow breathing & HRV meta-analysis','https://www.sciencedirect.com/science/article/abs/pii/S0149763422002007']]);
+guided('sess_post_training_wind_dow','Soul · Breathwork','Post-Training Wind-Down','Longer exhales tell your nervous system it\'s safe to recover. Use this in the few minutes after a hard session to shift out of \'go\' mode.','4 min',[['Get comfortable','Sit or lie down somewhere quiet. Let your shoulders drop.'],['Breathe in for four','Slow, easy inhale through the nose for a count of four. Don\'t force a big breath.'],['Breathe out for six','Longer, slow exhale for a count of six. The longer out-breath is what does the work.'],['Repeat for four minutes','Keep the gentle four-in, six-out rhythm. If your mind wanders, just return to the count.'],['Notice the shift','By the end you should feel your heart rate settle and your body soften. That\'s the recover state switching on.']],'Shifting into recovery sooner after training supports the adaptation that actually makes you better.');
+guided('sess_pre_session_primer','Soul · Breathwork','Pre-Session Primer','A short, energising breath routine to sharpen your focus and readiness before a hard effort.','3 min',[['Sit down first','Do this seated, never standing or near equipment \u2014 energising breathing can make you lightheaded.'],['A few brisker breaths','Take a short series of slightly quicker, fuller breaths to raise your alertness. Keep it gentle.'],['Stop if you feel dizzy','Lightheadedness is your signal to stop and breathe normally. Never push it.'],['Finish with intention','End with one slow breath and your cue for the session ahead, then get to work.']],'Arriving alert and focused helps you express your real movement quality from the first rep.');
+guided('sess_box_breathing','Soul · Breathwork','Box Breathing','A simple, balanced breathing pattern \u2014 four counts each of in, hold, out, hold. Good any time you want to steady yourself.','5 min',[['Breathe in \u2014 four counts','Slow inhale through the nose for four.'],['Hold \u2014 four counts','Gently hold, no straining, for four.'],['Breathe out \u2014 four counts','Slow exhale for four.'],['Hold \u2014 four counts','Hold empty for four, then begin again.'],['Follow the box','Picture drawing the four sides of a square as you go. Five minutes is plenty.']],'A reliable way to steady your mind before a session, a lift, or just to reset a stressful day.');
+article('a_sleep_is_where_you_ada','Body · Sleep & Recovery','Sleep Is Where You Adapt','Training is the stimulus. Sleep is when your body actually rebuilds \u2014 including the movement patterns Formm measures.','<p>Training doesn\'t make you fitter in the gym \u2014 it makes you fitter while you recover from the gym. And the single biggest block of recovery you get each day is sleep. During deep sleep your body repairs tissue and consolidates motor learning: the coordination you practised today gets wired in overnight.</p><h3>Short-changing sleep shows up in how you move</h3><p>Under-slept, you move with less stability, slower reactions and worse coordination \u2014 measurably poorer form the next day. It also blunts recovery, so you turn up to your next session less fresh. Sleep loss is one of the fastest ways to make good training produce worse results.</p><h3>It\'s the highest-leverage habit</h3><p>Of all the recovery tools \u2014 supplements, gadgets, protocols \u2014 none comes close to sleep. Getting enough, consistently, is the most powerful and most overlooked thing you can do for how you move and how you progress.</p>','A poor night can lower your form scores the next day. If your scores dip for no obvious reason, sleep is one of the first things worth checking.','4 min read',[['Sleep & sports performance meta-analysis (2025, 45 studies), PMC','https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11996801/'],['Sleep quality & sports-injury-risk review (2025)','https://www.sciencedirect.com/science/article/pii/S2666061X25000033']]);
+article('a_your_wind_down_routine','Body · Sleep & Recovery','Your Wind-Down Routine','Good sleep starts before you\'re in bed. A short, consistent wind-down signals to your body that it\'s time to shift into recovery.','<h3>Dim the day down</h3><p>Bright light \u2014 especially from screens \u2014 tells your brain it\'s still daytime. Lowering the lights and easing off screens in the last hour before bed helps the natural wind-down that leads to sleep.</p><h3>Keep it consistent</h3><p>Your body runs on a clock. Going to bed and waking at roughly the same times, even on weekends, makes falling asleep and waking up dramatically easier than a schedule that lurches around.</p><h3>Cool, dark, quiet</h3><p>A slightly cool, dark, quiet room is the easiest environment to sleep in. These are small changes that quietly improve sleep quality without any effort once they\'re set up.</p><h3>Don\'t fight it in bed</h3><p>If you\'re lying awake and frustrated, get up briefly and do something calm in low light, then return. Lying there anxious about not sleeping tends to make it worse.</p>','Better sleep means fresher movement and better recovery between sessions \u2014 which shows up directly in your training quality.','4 min read',[['Sleep & circadian hygiene practices and sleep quality (2024, PMC) \u2014 consistent schedule, light, environment','https://pmc.ncbi.nlm.nih.gov/articles/PMC10757201/'],['Light exposure before bedtime & sleep quality \u2014 randomized crossover study (2025)','https://www.tandfonline.com/doi/full/10.1080/15402002.2025.2586789']]);
+article('a_fabric_sleep','Body · Sleep & Recovery','Fabric & Sleep','What you sleep in and under affects how well you sleep \u2014 and unlike much sleep advice, there\'s real research behind the fabric story.','<p>Sleep is tightly linked to body temperature \u2014 your body cools slightly to fall and stay asleep. So the fabrics against your skin, through their heat and moisture behaviour, can genuinely nudge sleep quality up or down.</p><h3>What the research suggests</h3><p>Wool sleepwear has been shown to help people fall asleep faster than cotton; linen sheets improved sleep quality in warm conditions; and a cooler room (around 17\u00b0C in studies) beat a warmer one. The honest caveats: several studies are small and some are wool-industry-linked, so treat this as helpful direction, not a guarantee.</p><h3>The practical version</h3><p>For warm sleepers, breathable natural fibres \u2014 linen sheets, wool or cotton sleepwear \u2014 tend to beat synthetics that trap heat and moisture. But fabric is a supporting act: a cool, dark room and a consistent routine matter more than any single sheet.</p>','Recovery is where training pays off, and sleep is its biggest lever. Small environmental tweaks that improve sleep improve how you move.','5 min read',[['Li et al. (2024), systematic review, Journal of Sleep Research','https://pmc.ncbi.nlm.nih.gov/articles/PMC11596996/'],['Shin et al. (2016), wool vs cotton sleepwear (polysomnography)','https://pubmed.ncbi.nlm.nih.gov/27217803/']]);
+guided('sess_bedtime_parasympatheti','Body · Sleep & Recovery','Bedtime Parasympathetic Reset','A short lie-down routine of slow breathing and a gentle body scan to help you let go of the day and drift off.','8 min',[['Lie down and settle','In bed, on your back, lights out. Let your body feel heavy and supported.'],['Slow the breath','Ease into gentle slow breathing \u2014 a little longer on the exhale. No counting pressure; just slow and soft.'],['Scan from the feet up','Bring attention slowly through your body from feet to head, letting each part soften as you reach it.'],['Let thoughts pass','When the day\'s thoughts arrive \u2014 and they will \u2014 let them drift by and return to the breath and the body.'],['Drift','There\'s no finish line. The routine simply eases you toward sleep; let yourself go whenever it comes.']],'Falling asleep more easily means more of the recovery that turns your training into progress.');
+
+
+/* fat-loss pieces */
+article('a_crash_diets_cost','Body · Nutrition','Why Crash Diets Cost You','The fastest way to lose weight is also the fastest way to lose muscle, stall your progress, and gain it all back. Slower genuinely wins here.','<p>When you cut food hard and fast, your body doesn\u2019t just burn fat \u2014 it breaks down muscle for energy too. That\u2019s the opposite of what most people want: you end up lighter but weaker, softer, and moving worse.</p><h3>The muscle you lose is the muscle that moves you</h3><p>Muscle is what lets you squat, lift, run and stay capable. Lose it in a crash diet and your strength drops, your movement quality drops, and your body burns less energy at rest \u2014 which makes keeping the weight off harder, not easier.</p><h3>The rebound is built in</h3><p>Very aggressive diets are hard to sustain, so almost everyone comes off them \u2014 and the weight returns, often with a bit extra. The crash-and-regain cycle leaves most people worse off than a slower approach would have.</p><h3>Slower protects what matters</h3><p>A modest, sustainable approach \u2014 with enough protein and your training kept up \u2014 lets fat come off while you hold onto muscle. It\u2019s less dramatic week to week, but it\u2019s the version that actually lasts and keeps you strong.</p>','Crash dieting shows up in your movement \u2014 lost strength and stability mean lower form scores. If your scores fall sharply during a diet, that\u2019s a sign you\u2019re cutting too hard.','4 min read',[['Longland et al. (2016), higher protein in a deficit preserves lean mass (AJCN RCT)','https://ajcn.nutrition.org/article/S0002-9165(22)06559-5/fulltext'],['Weinheimer et al. (2010), energy restriction & fat-free mass loss (systematic review)','https://pubmed.ncbi.nlm.nih.gov/20591106/']]);
+article('a_fat_loss_protein','Body · Nutrition','Protein Is Your Fat-Loss Ally','If there\u2019s one thing that makes fat loss easier and protects your body while you do it, it\u2019s eating enough protein. Here\u2019s why it matters more when you\u2019re cutting than at any other time.','<p>When you\u2019re in a calorie deficit, your body is under pressure and looking for energy anywhere it can \u2014 including your muscle. Eating plenty of protein is the single biggest thing you can do to steer that loss toward fat and away from muscle.</p><h3>It also keeps you fuller</h3><p>Protein is the most filling of the three macronutrients. Prioritising it tends to keep hunger more manageable through a diet \u2014 which is often the difference between sticking to it and giving up.</p><h3>And it costs a little energy to digest</h3><p>Your body uses more energy digesting protein than fat or carbs. It\u2019s a small effect, not a magic bullet \u2014 but combined with the muscle-protecting and fullness benefits, it\u2019s why protein does more work than any other food choice when you\u2019re trying to lose fat.</p><h3>The practical version</h3><p>Keep a protein source at each meal, lean on whole foods, and don\u2019t let protein be the thing you cut when you reduce your food. Cut elsewhere; protect the protein.</p>','Protecting muscle while you diet is what keeps your movement quality \u2014 and your Formm scores \u2014 holding steady even as the weight comes down.','4 min read',[['Morton et al. (2018), protein & lean mass meta-analysis (BJSM)','https://pubmed.ncbi.nlm.nih.gov/28698222/']]);
+
+/* new calm & mindfulness content */
+article('a_why_mindfulness','Soul · Calm & Mindfulness','Why Mindfulness Helps You Train','Mindfulness isn\'t about emptying your mind or sitting cross-legged for an hour. It\'s a trainable skill \u2014 staying present with what\'s happening \u2014 and the research on athletes is genuinely strong.','<p>Mindfulness means paying attention to the present moment without getting swept up in judgement about it. For someone who trains, that\'s not fluffy \u2014 it\'s the difference between a missed lift spiralling into a ruined session, and noticing the frustration, letting it pass, and moving to the next set.</p><h3>What the research shows</h3><p>Across many studies of athletes, mindfulness training consistently reduces anxiety, stress and burnout, and improves emotional regulation \u2014 the ability to stay composed under pressure. It\'s one of the better-supported mental tools in sport psychology.</p><h3>How it carries into training</h3><p>A more present, less reactive mind handles the hard parts better: the nerves before a heavy attempt, the discouragement of a plateau, the pressure of a test. Mindfulness doesn\'t make those go away \u2014 it changes your relationship to them so they derail you less.</p><h3>It\'s a practice, not a personality</h3><p>You don\'t have to be a \'calm person\' to benefit. Like any skill, mindfulness improves with short, regular practice. A few minutes a day builds the muscle you draw on when it counts.</p>','A calmer, more present mind shows up in your training \u2014 steadier under pressure, less thrown by a bad rep or a hard day.','4 min read',[['Mindfulness-based interventions in athletes \u2014 umbrella review (15 reviews, 10,503 athletes): reduced anxiety, stress, burnout','https://pmc.ncbi.nlm.nih.gov/articles/PMC12273557/'],['Mindfulness & athletic performance \u2014 systematic review & meta-analysis of RCTs (2023)','https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9915077/']]);
+guided('sess_body_scan','Soul · Calm & Mindfulness','5-Minute Body Scan','A short, guided practice of moving your attention slowly through your body. It settles a busy mind and is a gentle entry point to mindfulness \u2014 no experience needed.','5 min',[['Settle','Sit or lie down somewhere quiet. Let your eyes close and your body feel supported.'],['Start at your feet','Bring your attention to your feet. Notice whatever\'s there \u2014 warmth, pressure, tingling, or nothing. No need to change it, just notice.'],['Move up slowly','Travel your attention slowly up through your body \u2014 legs, hips, back, belly, chest, arms, neck, face \u2014 pausing at each part.'],['When your mind wanders','It will, and that\'s fine. The moment you notice you\'ve drifted, gently bring your attention back. That noticing IS the practice.'],['Finish whole','End by sensing your whole body at once for a few breaths, then open your eyes.']],'There\'s no \'doing it right\' \u2014 a wandering mind you keep returning is exactly the exercise working.');
+/* RENDER */
+const vp=document.getElementById('vp');
+Object.entries(SCR).forEach(([id,html])=>{const d=document.createElement('div');d.className='scr';d.id=id;d.innerHTML=html;vp.appendChild(d);});
+['gflow','gflow_done'].forEach(function(sid){var d=document.createElement('div');d.className='scr';d.id=sid;d.innerHTML='';vp.appendChild(d);});
+['mind','body','soul'].forEach(function(sec){buildPicker(sec);['pick_'+sec,'feed_'+sec].forEach(function(sid){if(!document.getElementById(sid)){var d=document.createElement('div');d.className='scr';d.id=sid;d.innerHTML=SCR[sid]||'';vp.appendChild(d);}});});
+go('hub',false);
+</script>
+</body></html>
